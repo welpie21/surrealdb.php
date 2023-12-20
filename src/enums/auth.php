@@ -1,8 +1,8 @@
 <?php
 
-namespace Surreal\Enums\Auth;
+namespace Surreal\enums;
 
-enum AuthMethod: string
+enum auth: string
 {
     case ROOT = 'root';
     case NAMESPACE = 'namespace';

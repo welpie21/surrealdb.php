@@ -1,8 +1,8 @@
 <?php
 
-namespace Surreal\Enums\Connector;
+namespace Surreal\enums;
 
-enum Connector: string
+enum connector: string
 {
     case HTTP = 'http';
     case HTTPS = 'https';
