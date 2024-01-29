@@ -1,0 +1,17 @@
+{
+    "name": "beaud/surrealdb.php",
+    "autoload": {
+        "psr-4": {
+            "Beaud\\SurrealdbPhp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Beau",
+            "email": "beaudenheijer@gmail.com"
+        }
+    ],
+    "require": {
+        "spomky-labs/cbor-php": "^3.0"
+    }
+}
