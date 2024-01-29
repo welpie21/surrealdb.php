@@ -13,7 +13,7 @@ final class ConnectionTest extends TestCase
     public function __construct(string $name)
     {
         parent::__construct($name);
-        $this->database = new HTTPConnector("localhost", 8000, \Surreal\enums\connector::HTTP);
+        $this->database = new HTTPConnector("localhost", 8000, \Surreal\enums\strategies::HTTP);
     }
 
     public function testStatus(): void

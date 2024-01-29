@@ -2,7 +2,7 @@
 
 namespace Surreal\enums;
 
-enum auth: string
+enum AuthMode: string
 {
     case ROOT = 'root';
     case NAMESPACE = 'namespace';

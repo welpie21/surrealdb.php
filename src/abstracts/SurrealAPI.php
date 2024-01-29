@@ -2,10 +2,24 @@
 
 namespace Surreal\abstracts;
 
-use Surreal\classes\responses\AuthenticationResponse;
+use Surreal\classes\SurrealAuthentication;
 
 abstract class SurrealAPI
 {
+    public function __construct(
+        public readonly string $namespace,
+        public readonly string $database,
+        public readonly string $host,
+        public readonly SurrealAuthentication $authentication,
+        public bool $ready = false
+    ) { }
+
+    /**
+     * Establish a connection
+     * @return void
+     */
+    abstract function connect(): void;
+
     /**
      * Returns the status of the connected SurrealDB
      * @return int
@@ -38,18 +52,48 @@ abstract class SurrealAPI
 
     /**
      * Sign in an existing user
-     * @return AuthenticationResponse
+     * @return object
      */
-    abstract function signin(): AuthenticationResponse;
+    abstract function signin(): object;
 
     /**
      * Signs up a new user
-     * @return AuthenticationResponse
+     * @return object
      */
-    abstract function signup(): AuthenticationResponse;
+    abstract function signup(): object;
 
     /**
-     *
+     * Invalidates the authentication for the current connection.
      */
-    abstract function table(): string;
+    abstract function invalidate(): void;
+
+    /**
+     * Creates a record in the database.
+     * @param string $thing
+     * @param mixed|null $data
+     * @return object|null
+     */
+    abstract function create(string $thing, mixed $data): object | null;
+
+    /**
+     * Updates all records in a table, or a specific record, in the database.
+     * @param string $thing
+     * @param mixed|null $data
+     * @return object|null
+     */
+    abstract function update(string $thing, mixed $data): object | null;
+
+    /**
+     * Modifies all records in a table, or a specific record, in the database.
+     * @param string $thing
+     * @param mixed|null $data
+     * @return object|null
+     */
+    abstract function merge(string $thing, mixed $data): object | null;
+
+    /**
+     * Deletes all records in a table, or a specific record, from the database.
+     * @param string $thing
+     */
+    abstract function delete(string $thing): object | null;
 }
