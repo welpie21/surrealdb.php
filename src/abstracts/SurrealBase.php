@@ -6,6 +6,9 @@ use Surreal\SurrealAuthorization;
 
 abstract class SurrealBase
 {
+    /**
+     * @var string
+     */
     protected string $host;
 
     /**
@@ -30,11 +33,11 @@ abstract class SurrealBase
      */
     public function use(?string $namespace = null, ?string $database = null): void
     {
-        if($namespace) {
+        if ($namespace) {
             $this->namespace = $namespace;
         }
 
-        if($database) {
+        if ($database) {
             $this->database = $database;
         }
     }
@@ -62,6 +65,17 @@ abstract class SurrealBase
     }
 
     /**
+     * Set the scope for the current connection.
+     * @param string|null $scope
+     * @return SurrealBase
+     */
+    public function setScope(?string $scope): SurrealBase
+    {
+        $this->authorization->setScope($scope);
+        return $this;
+    }
+
+    /**
      * Constructs the base http headers for the request.
      * @return array
      */
@@ -77,9 +91,9 @@ abstract class SurrealBase
             $header["Surreal-DB"] = $this->database;
         }
 
-        if($this->authorization) {
+        if ($this->authorization) {
             $token = $this->authorization->getAuthToken();
-            if($token) {
+            if ($token) {
                 $header["Surreal-Auth"] = $token;
             }
         }

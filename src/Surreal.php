@@ -99,7 +99,8 @@ class Surreal extends SurrealBase implements SurrealAPI
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => $this->constructBaseHTTPHeader()
-            ]);
+            ]
+        );
 
         return $this->getResponseContent();
     }
