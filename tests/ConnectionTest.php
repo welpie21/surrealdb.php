@@ -3,44 +3,43 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use Surreal\connectors\HTTPConnector;
-
+use Surreal\Surreal;
 
 final class ConnectionTest extends TestCase
 {
-    private readonly HTTPConnector $database;
+    private Surreal $db;
 
     public function __construct(string $name)
     {
+        $this->db = new Surreal(
+            host: "http://localhost:8000",
+            namespace: "test",
+            database: "test",
+        );
+
         parent::__construct($name);
-        $this->database = new HTTPConnector("localhost", 8000, \Surreal\enums\strategies::HTTP);
     }
 
-    public function testStatus(): void
+    public function testConnection(): void
     {
-        $status = $this->database->status();
-        $this->assertSame(200, $status);
-    }
+        $this->assertEquals(200, $this->db->status());
 
-    public function testHealth(): void
-    {
-        $health = $this->database->health();
-        $this->assertSame(200, $health);
+        print_r([
+            $this->db->status(),
+            $this->db->health(),
+            $this->db->version()
+        ]);
     }
 
     public function testVersion(): void
     {
-        $version = $this->database->version();
-        $this->assertStringContainsString("surrealdb-", $version);
-    }
+        print_r(
+            $this->db->create("test", [
+                "name" => "test",
+                "age" => 20
+            ])
+        );
 
-    public function testExport(): void
-    {
-        $this->database
-            ->setDatabase("platform")
-            ->setNamespace("yaacomm");
-
-        $export = $this->database->export();
-        $this->assertSame(200, 200);
+        $this->assertStringStartsWith("surrealdb-", $this->db->version());
     }
 }

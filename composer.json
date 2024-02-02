@@ -2,7 +2,7 @@
     "name": "beaud/surrealdb.php",
     "autoload": {
         "psr-4": {
-            "Beaud\\SurrealdbPhp\\": "src/"
+            "Surreal\\": "src/"
         }
     },
     "authors": [
@@ -12,6 +12,10 @@
         }
     ],
     "require": {
-        "spomky-labs/cbor-php": "^3.0"
+        "spomky-labs/cbor-php": "^3.0",
+        "ext-curl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10"
     }
 }
