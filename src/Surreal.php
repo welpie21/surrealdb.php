@@ -4,7 +4,6 @@ namespace Surreal;
 
 use CurlHandle;
 use Surreal\abstracts\SurrealBase;
-use Surreal\enums\AuthMode;
 use Surreal\enums\HTTPMethod;
 use Surreal\interfaces\SurrealAPI;
 
