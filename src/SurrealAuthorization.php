@@ -8,35 +8,41 @@ class SurrealAuthorization
      * Holds the authorization token for the current connection.
      * @var string|null
      */
-    private ?string $authorization = null;
+    private ?string $token = null;
 
     /**
-     * Holds the scope for the current connection.
+     * @var string|null
+     */
+    private ?string $namespace = null;
+
+    /**
+     * @var string|null
+     */
+    private ?string $database = null;
+
+    /**
      * @var string|null
      */
     private ?string $scope = null;
 
     /**
-     * Sets the authorization token for the current connection.
      * @param string $token
      * @return void
      */
     public function setAuthToken(string $token): void
     {
-        $this->authorization = "Bearer $token";
+        $this->token = "Bearer $token";
     }
 
     /**
-     * Returns the authorization token for the current connection.
      * @return string|null
      */
     public function getAuthToken(): string|null
     {
-        return $this->authorization;
+        return $this->token;
     }
 
     /**
-     * Sets the scope for the current connection.
      * @param string $scope
      * @return void
      */
@@ -46,11 +52,79 @@ class SurrealAuthorization
     }
 
     /**
+     * @return string|null
+     */
+    public function getScope(): string|null
+    {
+        return $this->scope;
+    }
+
+    /**
+     * @param string $namespace
+     * @return void
+     */
+    public function setAuthNamespace(string $namespace): void
+    {
+        $this->namespace = $namespace;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAuthNamespace(): string|null
+    {
+        return $this->namespace;
+    }
+
+    /**
+     * @param string $database
+     * @return void
+     */
+    public function setAuthDatabase(string $database): void
+    {
+        $this->database = $database;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAuthDatabase(): string|null
+    {
+        return $this->database;
+    }
+
+    /**
      * Invalidates the authorization token for the current connection.
      * @return void
      */
     public function invalidate(): void
     {
-        $this->authorization = null;
+        $this->token = null;
+    }
+
+    /**
+     * @param array $array
+     * @param bool $includeToken
+     * @return array
+     */
+    public function constructAuthHeader(array $array, bool $includeToken = false): array
+    {
+        if ($this->token && $includeToken) {
+            $array[] = $this->getAuthToken();
+        }
+
+        if ($this->namespace) {
+            $array[] = "Surreal-Auth-NS: " . $this->getAuthNamespace();
+        }
+
+        if ($this->database) {
+            $array[] = "Surreal-Auth-DB: " . $this->getAuthDatabase();
+        }
+
+        if ($this->scope) {
+            $array[] = "Surreal-Auth-SC: " . $this->getScope();
+        }
+
+        return $array;
     }
 }

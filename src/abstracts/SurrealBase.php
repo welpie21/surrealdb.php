@@ -26,6 +26,11 @@ abstract class SurrealBase
      */
     protected ?SurrealAuthorization $authorization = null;
 
+    public function __construct()
+    {
+        $this->authorization = new SurrealAuthorization();
+    }
+
     /**
      * @param string|null $namespace
      * @param string|null $database
@@ -43,7 +48,6 @@ abstract class SurrealBase
     }
 
     /**
-     * Set the namespace for the current connection.
      * @param string|null $namespace
      * @return SurrealBase
      */
@@ -54,7 +58,14 @@ abstract class SurrealBase
     }
 
     /**
-     * Set the database pointer for the current connection.
+     * @return string|null
+     */
+    public function getNamespace(): string|null
+    {
+        return $this->namespace;
+    }
+
+    /**
      * @param string|null $database
      * @return SurrealBase
      */
@@ -65,7 +76,14 @@ abstract class SurrealBase
     }
 
     /**
-     * Set the scope for the current connection.
+     * @return string|null
+     */
+    public function getDatabase(): string|null
+    {
+        return $this->database;
+    }
+
+    /**
      * @param string|null $scope
      * @return SurrealBase
      */
@@ -76,25 +94,79 @@ abstract class SurrealBase
     }
 
     /**
+     * @return string|null
+     */
+    public function getScope(): string|null
+    {
+        return $this->authorization->getScope();
+    }
+
+    /**
+     * @param string|null $namespace
+     * @return SurrealBase
+     */
+    public function setAuthNamespace(?string $namespace): SurrealBase
+    {
+        $this->authorization->setAuthNamespace($namespace);
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAuthNamespace(): string|null
+    {
+        return $this->authorization->getAuthNamespace();
+    }
+
+    /**
+     * @param string|null $database
+     * @return SurrealBase
+     */
+    public function setAuthDatabase(?string $database): SurrealBase
+    {
+        $this->authorization->setAuthDatabase($database);
+        return clone $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAuthDatabase(): string|null
+    {
+        return $this->authorization->getAuthDatabase();
+    }
+
+    /**
+     * Set the authorization token for the current connection.
+     * @param string|null $token
+     * @return $this
+     */
+    public function setAuthToken(?string $token): SurrealBase
+    {
+        $this->authorization?->setAuthToken($token);
+        return $this;
+    }
+
+    /**
      * Constructs the base http headers for the request.
+     * @param array $header
      * @return array
      */
-    protected function constructBaseHTTPHeader(): array
+    protected function constructHeader(array $header = []): array
     {
-        $header = [];
-
         if ($this->namespace) {
-            $header["Surreal-NS"] = $this->namespace;
+            $header[] = "Surreal-NS: " . $this->namespace;
         }
 
         if ($this->database) {
-            $header["Surreal-DB"] = $this->database;
+            $header[] = "Surreal-DB: " . $this->database;
         }
 
         if ($this->authorization) {
             $token = $this->authorization->getAuthToken();
             if ($token) {
-                $header["Surreal-Auth"] = $token;
+                $header[] = "Authorization: Bearer " . $token;
             }
         }
 

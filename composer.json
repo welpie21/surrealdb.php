@@ -2,7 +2,8 @@
     "name": "beaud/surrealdb.php",
     "autoload": {
         "psr-4": {
-            "Surreal\\": "src/"
+            "Surreal\\": "src/",
+            "Surreal\\ORM\\": "src/orm/"
         }
     },
     "authors": [

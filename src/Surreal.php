@@ -22,6 +22,8 @@ class Surreal extends SurrealBase implements SurrealAPI
         $this->client = curl_init();
 
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, 1);
+
+        parent::__construct();
     }
 
     /**
@@ -58,7 +60,7 @@ class Surreal extends SurrealBase implements SurrealAPI
             endpoint: "/import",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => $this->constructBaseHTTPHeader()
+                CURLOPT_HTTPHEADER => $this->constructHeader()
             ]
         );
 
@@ -71,34 +73,44 @@ class Surreal extends SurrealBase implements SurrealAPI
             endpoint: "/export",
             method: HTTPMethod::GET,
             options: [
-                CURLOPT_HTTPHEADER => $this->constructBaseHTTPHeader()
+                CURLOPT_HTTPHEADER => $this->constructHeader()
             ]
         );
 
-        // returns the response body.
         return $this->getResponseContent();
     }
 
-    public function signin(AuthMode $mode): mixed
+    public function signin(mixed $data): object|null
     {
         $this->execute(
             endpoint: "/signin",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => $this->constructBaseHTTPHeader()
+                CURLOPT_HTTPHEADER => ["Accept: application/json"],
+                CURLOPT_POSTFIELDS => json_encode($data)
             ]
         );
 
-        return $this->getResponseContent();
+        $response = $this->getResponseContent();
+
+        // TODO: move to cbor implementation
+        $response = json_decode($response);
+
+        $this->setAuthToken($response->token);
+
+        return $response;
     }
 
-    public function signup(string $namespace, string $database): mixed
+    public function signup(mixed $data): mixed
     {
         $this->execute(
             endpoint: "/signup",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => $this->constructBaseHTTPHeader()
+                CURLOPT_HTTPHEADER => [
+                    "Surreal-Auth-NS: " . $this->namespace,
+                    "Surreal-Auth-DB: " . $this->database,
+                ]
             ]
         );
 
@@ -112,17 +124,18 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function create(string $table, mixed $data): object|null
     {
-        $headers = array_merge([
-            "Content-Type" => "text/plain",
-            "Accept" => "application/json",
-        ], $this->constructBaseHTTPHeader());
+        $header = $this->constructHeader([
+            "Content-Type: text/plain",
+            "Accept: application/json"
+        ]);
 
         $this->execute(
             endpoint: "/key/$table",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_POSTFIELDS => $data,
-                CURLOPT_HTTPHEADER => $headers
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => $header,
+                CURLOPT_NOBODY => false
             ]
         );
 
@@ -134,7 +147,7 @@ class Surreal extends SurrealBase implements SurrealAPI
         $headers = array_merge([
             "Content-Type" => "text/plain",
             "Accept" => "application/json",
-        ], $this->constructBaseHTTPHeader());
+        ], $this->constructHeader());
 
         $this->execute(
             endpoint: "/key/$thing",
@@ -150,17 +163,17 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function merge(string $thing, mixed $data): object|null
     {
-        $headers = array_merge([
-            "Content-Type" => "text/plain",
-            "Accept" => "application/json",
-        ], $this->constructBaseHTTPHeader());
+        $header = $this->constructHeader([
+            "Content-Type: text/plain",
+            "Accept: application/json"
+        ]);
 
         $this->execute(
             endpoint: "/key/$thing",
             method: HTTPMethod::PATCH,
             options: [
                 CURLOPT_POSTFIELDS => $data,
-                CURLOPT_HTTPHEADER => $headers
+                CURLOPT_HTTPHEADER => $header
             ]
         );
 
@@ -169,16 +182,16 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function delete(string $thing): object|null
     {
-        $headers = array_merge([
-            "Content-Type" => "text/plain",
-            "Accept" => "application/json",
-        ], $this->constructBaseHTTPHeader());
+        $header = $this->constructHeader([
+            "Content-Type: text/plain",
+            "Accept: application/json"
+        ]);
 
         $this->execute(
             endpoint: "/key/$thing",
             method: HTTPMethod::DELETE,
             options: [
-                CURLOPT_HTTPHEADER => $headers
+                CURLOPT_HTTPHEADER => $header
             ]
         );
 
@@ -187,17 +200,17 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function sql(string $query): mixed
     {
-        $headers = array_merge([
-            "Content-Type" => "text/plain",
-            "Accept" => "application/json",
-        ], $this->constructBaseHTTPHeader());
+        $header = $this->constructHeader([
+            "Content-Type: text/plain",
+            "Accept: application/json"
+        ]);
 
         $this->execute(
             endpoint: "/sql",
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_POSTFIELDS => $query,
-                CURLOPT_HTTPHEADER => $headers
+                CURLOPT_HTTPHEADER => $header
             ]
         );
 
