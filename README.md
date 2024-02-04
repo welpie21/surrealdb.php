@@ -14,3 +14,8 @@
 
 ## 🚧 Disclaimer 🚧
 This project is currently in heavy development and is still lacking many features. Do not use in production!
+
+## Roadmap
+
+- Fully functional SurrealDB driver.
+- ORM system
