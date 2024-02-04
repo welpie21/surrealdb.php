@@ -60,7 +60,7 @@ abstract class SurrealBase
     /**
      * @return string|null
      */
-    public function getNamespace(): string|null
+    public function getNamespace(): ?string
     {
         return $this->namespace;
     }
@@ -78,7 +78,7 @@ abstract class SurrealBase
     /**
      * @return string|null
      */
-    public function getDatabase(): string|null
+    public function getDatabase(): ?string
     {
         return $this->database;
     }
@@ -96,7 +96,7 @@ abstract class SurrealBase
     /**
      * @return string|null
      */
-    public function getScope(): string|null
+    public function getScope(): ?string
     {
         return $this->authorization->getScope();
     }
@@ -114,7 +114,7 @@ abstract class SurrealBase
     /**
      * @return string|null
      */
-    public function getAuthNamespace(): string|null
+    public function getAuthNamespace(): ?string
     {
         return $this->authorization->getAuthNamespace();
     }
@@ -132,7 +132,7 @@ abstract class SurrealBase
     /**
      * @return string|null
      */
-    public function getAuthDatabase(): string|null
+    public function getAuthDatabase(): ?string
     {
         return $this->authorization->getAuthDatabase();
     }
@@ -144,7 +144,7 @@ abstract class SurrealBase
      */
     public function setAuthToken(?string $token): SurrealBase
     {
-        $this->authorization?->setAuthToken($token);
+        $this->authorization->setAuthToken($token);
         return $this;
     }
 

@@ -15,6 +15,10 @@
 ## 🚧 Disclaimer 🚧
 This project is currently in heavy development and is still lacking many features. Do not use in production!
 
+## Requirements
+
+- PHP 7.4 or higher
+
 ## Roadmap
 
 - Fully functional SurrealDB driver.
