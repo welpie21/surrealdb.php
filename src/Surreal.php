@@ -144,10 +144,10 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function update(string $thing, mixed $data): object|null
     {
-        $headers = array_merge([
+        $headers = $this->constructHeader([
             "Content-Type" => "text/plain",
             "Accept" => "application/json",
-        ], $this->constructHeader());
+        ]);
 
         $this->execute(
             endpoint: "/key/$thing",
