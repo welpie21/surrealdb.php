@@ -3,7 +3,7 @@
     "autoload": {
         "psr-4": {
             "Surreal\\": "src/",
-            "Surreal\\ORM\\": "src/orm/"
+            "Surreal\\ORM\\": "orm/"
         }
     },
     "authors": [
@@ -14,7 +14,8 @@
     ],
     "require": {
         "spomky-labs/cbor-php": "^3.0",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ramsey/uuid": "^3.9"
     },
     "require-dev": {
         "phpunit/phpunit": "^10"
