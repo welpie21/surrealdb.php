@@ -22,4 +22,5 @@ This project is currently in heavy development and is still lacking many feature
 ## Roadmap
 
 - Fully functional SurrealDB driver.
+- CBOR encoder en decoder under the hood
 - ORM system
