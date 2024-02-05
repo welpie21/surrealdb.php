@@ -3,7 +3,6 @@
 namespace Surreal\classes\cbor;
 
 use Exception;
-use Ramsey\Uuid\Uuid;
 use Surreal\interfaces\CBORInterface;
 
 readonly class UUID implements CBORInterface
@@ -15,9 +14,9 @@ readonly class UUID implements CBORInterface
      */
     public function __construct($data)
     {
-        $uuid = !$data ? Uuid::uuid4() : $data;
+        $uuid = !$data ? \Ramsey\Uuid\Uuid::uuid4()->toString() : $data;
 
-        if(!Uuid::isValid($uuid)) {
+        if (!\Ramsey\Uuid\Uuid::isValid($uuid)) {
             throw new Exception('Invalid UUID');
         }
 
