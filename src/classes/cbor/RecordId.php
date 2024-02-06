@@ -2,16 +2,34 @@
 
 namespace Surreal\classes\cbor;
 
-use Surreal\interfaces\CBORInterface;
+use CBOR\CBORObject;
+use CBOR\Normalizable;
+use CBOR\Tag;
+use CBOR\Tag\TagInterface;
+use Surreal\enums\SurrealCBORTag;
 
-readonly class RecordId implements CBORInterface
+class RecordId extends Tag implements Normalizable
 {
     public string $table;
     public string $id;
 
-    public function __constructor(string $table, string $id): void
+    public function __constructor(int $additionalInformation, ?string $data, CBORObject $object): void
     {
-        $this->table = $table;
-        $this->id = $id;
+        parent::__construct($additionalInformation, $data, $object);
+    }
+
+    public function normalize()
+    {
+        // TODO: Implement normalize() method.
+    }
+
+    public static function getTagId(): int
+    {
+        return SurrealCBORTag::RECORD_ID;
+    }
+
+    public static function createFromLoadedData(int $additionalInformation, ?string $data, CBORObject $object): Tag\TagInterface
+    {
+        return new self($additionalInformation, $data, $object);
     }
 }

@@ -2,64 +2,45 @@
 
 namespace Surreal\classes\cbor;
 
+use CBOR\CBORObject;
+use CBOR\IndefiniteLengthTextStringObject;
+use CBOR\Normalizable;
+use CBOR\Tag;
+use CBOR\TextStringObject;
 use Exception;
-use \DateTime;
-use Surreal\interfaces\CBORInterface;
+use Surreal\enums\SurrealCBORTag;
 
-readonly class Duration implements CBORInterface
+class Duration extends Tag implements Normalizable
 {
-    public DateTime $date;
+    /**
+     * @throws Exception
+     */
+    public function __constructor(int $additionalInformation, ?string $data, CBORObject $object): void
+    {
+        parent::__construct($additionalInformation, $data, $object);
+    }
 
     /**
      * @throws Exception
      */
-    public function __constructor($data): void
+    public function normalize(): \Surreal\classes\utils\Duration
     {
-        $this->date = new DateTime($data);
+        /** @var TextStringObject|IndefiniteLengthTextStringObject $object */
+        $object = $this->object;
+        $result = $object->normalize();
+
+        $date = new \DateTime($result);
+
+        return new \Surreal\classes\utils\Duration($date);
     }
 
-    public function __toString(): string
+    public static function getTagId(): int
     {
-        return $this->date->format('Y-m-d H:i:s');
+        return SurrealCBORTag::DURATION;
     }
 
-    public function getMilliseconds(): int
+    public static function createFromLoadedData(int $additionalInformation, ?string $data, CBORObject $object): Tag\TagInterface
     {
-        return $this->date->getTimestamp() * 1000;
-    }
-
-    public function getSeconds(): int
-    {
-        return $this->date->getTimestamp();
-    }
-
-    public function getMinutes(): int
-    {
-        return $this->date->getTimestamp() / 60;
-    }
-
-    public function getHours(): int
-    {
-        return $this->date->getTimestamp() / 3600;
-    }
-
-    public function getDays(): int
-    {
-        return $this->date->getTimestamp() / 86400;
-    }
-
-    public function getWeeks(): int
-    {
-        return $this->date->getTimestamp() / 604800;
-    }
-
-    public function getMonths(): int
-    {
-        return $this->date->getTimestamp() / 2628000;
-    }
-
-    public function getYears(): int
-    {
-        return $this->date->getTimestamp() / 31536000;
+        return new self($additionalInformation, $data, $object);
     }
 }
