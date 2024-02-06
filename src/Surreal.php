@@ -5,6 +5,7 @@ namespace Surreal;
 use CurlHandle;
 use Surreal\abstracts\SurrealBase;
 use Surreal\enums\HTTPMethod;
+use Surreal\interfaces\CBORInterface;
 use Surreal\interfaces\SurrealAPI;
 
 class Surreal extends SurrealBase implements SurrealAPI
@@ -85,7 +86,9 @@ class Surreal extends SurrealBase implements SurrealAPI
             endpoint: "/signin",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => ["Accept: application/json"],
+                CURLOPT_HTTPHEADER => [
+                    CBORInterface::CBOR_ACCEPT
+                ],
                 CURLOPT_POSTFIELDS => json_encode($data)
             ]
         );
@@ -125,7 +128,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     {
         $header = $this->constructHeader([
             "Content-Type: text/plain",
-            "Accept: application/json"
+            CBORInterface::CBOR_ACCEPT
         ]);
 
         $this->execute(
@@ -145,7 +148,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     {
         $headers = $this->constructHeader([
             "Content-Type" => "text/plain",
-            "Accept" => "application/json",
+            CBORInterface::CBOR_ACCEPT
         ]);
 
         $this->execute(
@@ -164,7 +167,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     {
         $header = $this->constructHeader([
             "Content-Type: text/plain",
-            "Accept: application/json"
+            CBORInterface::CBOR_ACCEPT
         ]);
 
         $this->execute(
@@ -183,7 +186,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     {
         $header = $this->constructHeader([
             "Content-Type: text/plain",
-            "Accept: application/json"
+            CBORInterface::CBOR_ACCEPT
         ]);
 
         $this->execute(
@@ -201,7 +204,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     {
         $header = $this->constructHeader([
             "Content-Type: text/plain",
-            "Accept: application/json"
+            CBORInterface::CBOR_ACCEPT
         ]);
 
         $this->execute(
