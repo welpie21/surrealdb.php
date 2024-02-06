@@ -110,7 +110,7 @@ class SurrealAuthorization
     public function constructAuthHeader(array $array, bool $includeToken = false): array
     {
         if ($this->token && $includeToken) {
-            $array[] = $this->getAuthToken();
+            $array[] = "Authorization: " . $this->getAuthToken();
         }
 
         if ($this->namespace) {
