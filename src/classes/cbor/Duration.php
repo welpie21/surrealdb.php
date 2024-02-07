@@ -23,7 +23,7 @@ class Duration extends Tag implements Normalizable
     /**
      * @throws Exception
      */
-    public function normalize(): \Surreal\classes\utils\Duration
+    public function normalize(): \Surreal\classes\types\Duration
     {
         /** @var TextStringObject|IndefiniteLengthTextStringObject $object */
         $object = $this->object;
@@ -31,7 +31,7 @@ class Duration extends Tag implements Normalizable
 
         $date = new \DateTime($result);
 
-        return new \Surreal\classes\utils\Duration($date);
+        return new \Surreal\classes\types\Duration($date);
     }
 
     public static function getTagId(): int

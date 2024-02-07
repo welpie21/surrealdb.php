@@ -5,8 +5,9 @@ namespace Surreal;
 use CurlHandle;
 use Surreal\abstracts\SurrealBase;
 use Surreal\enums\HTTPMethod;
-use Surreal\interfaces\CBORInterface;
 use Surreal\interfaces\SurrealAPI;
+use const Surreal\constants\HTTP_ACCEPT;
+use const Surreal\constants\HTTP_CONTENT_TYPE;
 
 class Surreal extends SurrealBase implements SurrealAPI
 {
@@ -87,9 +88,10 @@ class Surreal extends SurrealBase implements SurrealAPI
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => [
-                    CBORInterface::CBOR_ACCEPT
+                    HTTP_CONTENT_TYPE
                 ],
-                CURLOPT_POSTFIELDS => json_encode($data)
+                // TODO: move to cbor implementation
+                // CURLOPT_POSTFIELDS => json_encode($data)
             ]
         );
 
@@ -126,10 +128,7 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function create(string $table, mixed $data): object|null
     {
-        $header = $this->constructHeader([
-            "Content-Type: text/plain",
-            CBORInterface::CBOR_ACCEPT
-        ]);
+        $header = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
 
         $this->execute(
             endpoint: "/key/$table",
@@ -146,10 +145,7 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function update(string $thing, mixed $data): object|null
     {
-        $headers = $this->constructHeader([
-            "Content-Type" => "text/plain",
-            CBORInterface::CBOR_ACCEPT
-        ]);
+        $headers = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
 
         $this->execute(
             endpoint: "/key/$thing",
@@ -165,10 +161,7 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function merge(string $thing, mixed $data): object|null
     {
-        $header = $this->constructHeader([
-            "Content-Type: text/plain",
-            CBORInterface::CBOR_ACCEPT
-        ]);
+        $header = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
 
         $this->execute(
             endpoint: "/key/$thing",
@@ -184,10 +177,7 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function delete(string $thing): object|null
     {
-        $header = $this->constructHeader([
-            "Content-Type: text/plain",
-            CBORInterface::CBOR_ACCEPT
-        ]);
+        $header = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
 
         $this->execute(
             endpoint: "/key/$thing",
@@ -202,10 +192,7 @@ class Surreal extends SurrealBase implements SurrealAPI
 
     public function sql(string $query): mixed
     {
-        $header = $this->constructHeader([
-            "Content-Type: text/plain",
-            CBORInterface::CBOR_ACCEPT
-        ]);
+        $header = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
 
         $this->execute(
             endpoint: "/sql",

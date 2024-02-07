@@ -34,11 +34,7 @@ class UUID extends Tag implements Normalizable
         $object = $this->object;
         $result = $object->normalize();
 
-        if(\Ramsey\Uuid\Uuid::isValid($result)) {
-            return $result;
-        }
-
-        throw new InvalidArgumentException('Invalid data. Cannot be converted into a UUID object');
+        return new \Surreal\classes\types\UUID($result);
     }
 
     public static function getTagId(): int

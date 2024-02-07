@@ -2,9 +2,6 @@
 
 namespace Surreal\interfaces;
 
-use Surreal\enums\AuthMode;
-use Surreal\SurrealAuthorization;
-
 interface SurrealAPI
 {
     /**
@@ -36,6 +33,7 @@ interface SurrealAPI
      * @return object|null
      */
     public function signin(mixed $data): object|null;
+
     /**
      * Sign up a new user to the database. If the authorization argument is not provided,
      * it will use the authorization value that was set previously.

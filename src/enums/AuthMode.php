@@ -2,8 +2,9 @@
 
 namespace Surreal\enums;
 
-enum AuthMode
+enum AuthMode: string
 {
-    case DATABASE;
-    case SCOPE;
+    case ROOT = "root";
+    case DATABASE = "database";
+    case SCOPE = "scope";
 }

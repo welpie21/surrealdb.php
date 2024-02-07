@@ -17,10 +17,39 @@ This project is currently in heavy development and is still lacking many feature
 
 ## Requirements
 
-- PHP 7.4 or higher
+- PHP 8.1 or higher
 
 ## Roadmap
 
 - Fully functional SurrealDB driver.
 - CBOR encoder en decoder under the hood
-- ORM system
+- ORM / Query builder support
+- Laravel or other framework support
+- Examples
+
+## Support list
+
+- Authentication
+- Database connection via HTTP
+- all supported data type
+- call methods to interact with the database such as:
+  - `status`
+  - `version`
+  - `import`
+  - `export`
+  - `signin`
+  - `signup`
+  - `create`
+  - `update`
+  - `merge`
+  - `delete`
+  - `sql`
+  - `close`
+  - `invalidate`
+
+## Lacks support
+
+- Only supports String based ID's on records instead of:
+    - number
+    - records
+    - arrays

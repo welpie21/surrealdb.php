@@ -1,6 +1,6 @@
 <?php
 
-namespace Surreal\classes\utils;
+namespace Surreal\classes\types;
 
 class Duration
 {

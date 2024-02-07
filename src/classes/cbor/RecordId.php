@@ -3,24 +3,27 @@
 namespace Surreal\classes\cbor;
 
 use CBOR\CBORObject;
+use CBOR\IndefiniteLengthTextStringObject;
 use CBOR\Normalizable;
 use CBOR\Tag;
-use CBOR\Tag\TagInterface;
+use CBOR\TextStringObject;
 use Surreal\enums\SurrealCBORTag;
 
 class RecordId extends Tag implements Normalizable
 {
-    public string $table;
-    public string $id;
-
     public function __constructor(int $additionalInformation, ?string $data, CBORObject $object): void
     {
         parent::__construct($additionalInformation, $data, $object);
     }
 
-    public function normalize()
+    /**
+     * @return string
+     */
+    public function normalize(): string
     {
-        // TODO: Implement normalize() method.
+        /** @var TextStringObject|IndefiniteLengthTextStringObject $object */
+        $object = $this->object;
+        return $object->normalize();
     }
 
     public static function getTagId(): int
