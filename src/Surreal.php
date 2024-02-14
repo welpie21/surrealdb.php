@@ -3,11 +3,14 @@
 namespace Surreal;
 
 use CurlHandle;
+use Exception;
 use Surreal\abstracts\SurrealBase;
+use Surreal\classes\CBORHandler;
 use Surreal\enums\HTTPMethod;
 use Surreal\interfaces\SurrealAPI;
-use const Surreal\constants\HTTP_ACCEPT;
-use const Surreal\constants\HTTP_CONTENT_TYPE;
+
+const HTTP_ACCEPT = "Accept: application/cbor";
+const HTTP_CONTENT_TYPE = "Content-Type: application/cbor";
 
 class Surreal extends SurrealBase implements SurrealAPI
 {
@@ -81,6 +84,9 @@ class Surreal extends SurrealBase implements SurrealAPI
         return $this->getResponseContent();
     }
 
+    /**
+     * @throws Exception
+     */
     public function signin(mixed $data): object|null
     {
         $this->execute(
@@ -90,21 +96,19 @@ class Surreal extends SurrealBase implements SurrealAPI
                 CURLOPT_HTTPHEADER => [
                     HTTP_CONTENT_TYPE
                 ],
-                // TODO: move to cbor implementation
-                // CURLOPT_POSTFIELDS => json_encode($data)
+                 CURLOPT_POSTFIELDS => CBORHandler::encode($data)
             ]
         );
 
-        $response = $this->getResponseContent();
-
-        // TODO: move to cbor implementation
-        $response = json_decode($response);
-
+        $response = CBORHandler::decode($this->getResponseContent());
         $this->setAuthToken($response->token);
 
         return $response;
     }
 
+    /**
+     * @throws Exception
+     */
     public function signup(mixed $data): mixed
     {
         $this->execute(
@@ -118,7 +122,7 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        return $this->getResponseContent();
+        return CBORHandler::decode($this->getResponseContent());
     }
 
     public function invalidate(): void
@@ -126,7 +130,10 @@ class Surreal extends SurrealBase implements SurrealAPI
         $this->authorization->invalidate();
     }
 
-    public function create(string $table, mixed $data): object|null
+    /**
+     * @throws Exception
+     */
+    public function create(string $table, mixed $data): ?object
     {
         $header = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
 
@@ -134,15 +141,21 @@ class Surreal extends SurrealBase implements SurrealAPI
             endpoint: "/key/$table",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_POSTFIELDS => CBORHandler::encode($data),
                 CURLOPT_HTTPHEADER => $header,
                 CURLOPT_NOBODY => false
             ]
         );
 
-        return json_decode($this->getResponseContent());
+        $result = $this->getResponseContent();
+        var_dump($result);
+
+        return CBORHandler::decode($result);
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(string $thing, mixed $data): object|null
     {
         $headers = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
@@ -156,9 +169,12 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        return json_decode($this->getResponseContent());
+        return CBORHandler::decode($this->getResponseContent());
     }
 
+    /**
+     * @throws Exception
+     */
     public function merge(string $thing, mixed $data): object|null
     {
         $header = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
@@ -172,9 +188,12 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        return json_decode($this->getResponseContent());
+        return CBORHandler::decode($this->getResponseContent());
     }
 
+    /**
+     * @throws Exception
+     */
     public function delete(string $thing): object|null
     {
         $header = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
@@ -187,9 +206,12 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        return json_decode($this->getResponseContent());
+        return CBORHandler::decode($this->getResponseContent());
     }
 
+    /**
+     * @throws Exception
+     */
     public function sql(string $query): mixed
     {
         $header = $this->constructHeader([HTTP_ACCEPT, HTTP_CONTENT_TYPE]);
@@ -203,7 +225,7 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        return json_decode($this->getResponseContent());
+        return CBORHandler::decode($this->getResponseContent());
     }
 
     public function close(): void

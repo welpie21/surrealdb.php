@@ -48,9 +48,23 @@ This project is currently in heavy development and is still lacking many feature
   - `close`
   - `invalidate`
 
-## Lacks support
+## Support that is not yet implemented
 
-- Only supports String based ID's on records instead of:
-    - number
-    - records
-    - arrays
+This surrealdb driver has an CBOR implementation that needs some work. Which will be done in soon as possible.
+But for now it only supports the following data types:
+- String
+- Number
+- Boolean
+- Null
+- Array
+- Object
+
+The only that is not supported is the following:
+- Date
+- RecordID
+- Duration
+- Decimal
+- UUID
+
+Currently, it uses the CBOR encode / decode from "https://github.com/2tvenom/CBOREncode". It doesn't support tags yet.
+I've made a fork which will have the support for tags. But it's not yet merged into the main branch.
