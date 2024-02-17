@@ -14,7 +14,7 @@ class CBORHandler
      */
     public static function encode(mixed $data): ?string
     {
-        return CBOREncoder::encode($data);
+        return bin2hex(CBOREncoder::encode($data));
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace Surreal\interfaces;
 
+use Surreal\classes\SurrealResponse;
+
 interface SurrealAPI
 {
     /**
@@ -46,31 +48,31 @@ interface SurrealAPI
      * Creates a new record in the database.
      * @param string $table
      * @param mixed $data
-     * @return object|null
+     * @return SurrealResponse
      */
-    public function create(string $table, mixed $data): object|null;
+    public function create(string $table, mixed $data): SurrealResponse;
 
     /**
      * Updates a single record in the database.
      * @param string $thing
      * @param mixed $data
-     * @return object|null
+     * @return SurrealResponse
      */
-    public function update(string $thing, mixed $data): object|null;
+    public function update(string $thing, mixed $data): SurrealResponse;
 
     /**
      * @param string $thing
      * @param mixed $data
-     * @return object|null
+     * @return SurrealResponse
      */
-    public function merge(string $thing, mixed $data): object|null;
+    public function merge(string $thing, mixed $data): SurrealResponse;
 
     /**
      * Deletes a record from the database.
      * @param string $thing
-     * @return object|null
+     * @return SurrealResponse
      */
-    public function delete(string $thing): object|null;
+    public function delete(string $thing): SurrealResponse;
 
     /**
      * Posts a query to the database and returns the result.

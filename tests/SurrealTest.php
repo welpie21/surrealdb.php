@@ -14,7 +14,7 @@ final class SurrealTest extends TestCase
         $this->db = new Surreal(
             host: "http://127.0.0.1:8000",
             namespace: "test",
-            database: "test",
+            database: "test"
         );
 
         parent::__construct($name);
@@ -47,9 +47,42 @@ final class SurrealTest extends TestCase
     /**
      * @throws Exception
      */
+    public function testSQL(): void
+    {
+        $response = $this->db->sql("SELECT * FROM person");
+    }
+
+    public function testAuth(): void
+    {
+        $this->db->setAuthNamespace("test");
+        $this->db->setAuthDatabase("test");
+
+        $this->assertEquals("test", $this->db->getAuthNamespace(), "Auth namespace is not test");
+        $this->assertEquals("test", $this->db->getAuthDatabase(), "Auth database is not test");
+
+        $this->db->signin([
+            "user" => "root",
+            "pass" => "root"
+        ]);
+    }
+
+    /**
+     * @throws Exception
+     */
     public function testCreateRecord(): void
     {
-        $record = $this->db->create("test", ["name" => "test"]);
-        var_dump($record);
+        $record = $this->db->create("person", [
+            "name" => "test",
+            "age" => 20,
+            "email" => "email@email.com",
+            "phone" => "1234567890",
+            "hobbies" => ["test", "test2"],
+            "address" => [
+                "street" => "test",
+                "city" => "test",
+                "state" => "test",
+                "zip" => "12345"
+            ]
+        ]);
     }
 }
