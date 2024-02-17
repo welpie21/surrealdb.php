@@ -6,8 +6,9 @@ use CurlHandle;
 use Exception;
 use Surreal\abstracts\SurrealBase;
 use Surreal\classes\CBORHandler;
-use Surreal\classes\SurrealAuthResponse;
-use Surreal\classes\SurrealResponse;
+use Surreal\classes\response\SurrealAuthResponse;
+use Surreal\classes\response\SurrealErrorResponse;
+use Surreal\classes\response\SurrealResponse;
 use Surreal\enums\HTTPMethod;
 use Surreal\interfaces\SurrealAPI;
 
@@ -54,12 +55,18 @@ class Surreal extends SurrealBase implements SurrealAPI
         return $this->getResponseCode();
     }
 
+    /**
+     * @throws Exception
+     */
     public function version(): string|null
     {
         $this->execute("/version", HTTPMethod::GET);
         return $this->getResponseContent();
     }
 
+    /**
+     * @throws Exception
+     */
     public function import(string $content): string
     {
         $this->execute(
@@ -73,6 +80,9 @@ class Surreal extends SurrealBase implements SurrealAPI
         return $this->getResponseContent();
     }
 
+    /**
+     * @throws Exception
+     */
     public function export(): string
     {
         $this->execute(
@@ -102,15 +112,12 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $result = $this->getResponseContent();
-//        $result = CBORHandler::decode($result);
-        var_dump($result);
+        $response = $this->parseResponseContent();
+        $response = new SurrealAuthResponse($response);
 
-//        $this->setAuthToken($response->token);
+        $this->authorization->setAuthToken($response->token);
 
-
-
-        return new SurrealAuthResponse($result[0]);
+        return $response->token;
     }
 
     /**
@@ -138,9 +145,12 @@ class Surreal extends SurrealBase implements SurrealAPI
     }
 
     /**
+     * @param string $table
+     * @param mixed $data
+     * @return object|null
      * @throws Exception
      */
-    public function create(string $table, mixed $data): SurrealResponse
+    public function create(string $table, mixed $data): object|null
     {
         $header = $this->constructHeader([
             HTTP_ACCEPT,
@@ -156,16 +166,19 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $result = $this->getResponseContent();
-        $result = CBORHandler::decode($result);
+        $response = $this->parseResponseContent();
+        $response = new SurrealResponse($response);
 
-        return new SurrealResponse($result[0]);
+        return (object)$response->result[0];
     }
 
     /**
+     * @param string $thing
+     * @param mixed $data
+     * @return object|null
      * @throws Exception
      */
-    public function update(string $thing, mixed $data): SurrealResponse
+    public function update(string $thing, mixed $data): object|null
     {
         $headers = $this->constructHeader([
             HTTP_ACCEPT,
@@ -181,16 +194,16 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $result = $this->getResponseContent();
-        $result = CBORHandler::decode($result);
+        $response = $this->parseResponseContent();
+        $response = new SurrealResponse($response);
 
-        return new SurrealResponse($result[0]);
+        return $response->result;
     }
 
     /**
      * @throws Exception
      */
-    public function merge(string $thing, mixed $data): SurrealResponse
+    public function merge(string $thing, mixed $data): object|null
     {
         $header = $this->constructHeader([
             HTTP_ACCEPT,
@@ -206,16 +219,16 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $result = $this->getResponseContent();
-        $result = CBORHandler::decode($result);
+        $response = $this->parseResponseContent();
+        $response = new SurrealResponse($response);
 
-        return new SurrealResponse($result[0]);
+        return $response->result;
     }
 
     /**
      * @throws Exception
      */
-    public function delete(string $thing): SurrealResponse
+    public function delete(string $thing): object|null
     {
         $header = $this->constructHeader([
             HTTP_ACCEPT,
@@ -230,23 +243,24 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $result = $this->getResponseContent();
-        $result = CBORHandler::decode($result);
+        $response = $this->parseResponseContent();
+        $response = new SurrealResponse($response);
 
-        return new SurrealResponse($result[0]);
+        return $response->result;
     }
 
     /**
+     * Execute a SQL query.
+     * @param string $query
+     * @return array|object|null
      * @throws Exception
      */
-    public function sql(string $query): SurrealResponse
+    public function sql(string $query): array|object|null
     {
         $header = $this->constructHeader([
             HTTP_ACCEPT,
             HTTP_CONTENT_TYPE
         ]);
-
-        var_dump($header);
 
         $this->execute(
             endpoint: "/sql",
@@ -257,10 +271,10 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $result = $this->getResponseContent();
-        $result = CBORHandler::decode($result);
+        $response = $this->parseResponseContent();
+        $response = new SurrealResponse($response);
 
-        return new SurrealResponse($result[0]);
+        return $response->result;
     }
 
     public function close(): void
@@ -287,10 +301,46 @@ class Surreal extends SurrealBase implements SurrealAPI
 
         curl_setopt($this->client, CURLOPT_URL, $this->host . $endpoint);
         curl_setopt($this->client, CURLOPT_CUSTOMREQUEST, $method->value);
+        curl_setopt($this->client, CURLOPT_RETURNTRANSFER, 1);
 
         curl_setopt_array($this->client, $options);
 
         curl_exec($this->client);
+    }
+
+    /**
+     * Retrieves the response type that has been sent from the server.
+     * @return string|null
+     */
+    private function getResponseType(): string|null
+    {
+        return curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
+    }
+
+    /**
+     * @return object|null
+     * @throws Exception
+     */
+    private function parseResponseContent(): array|null
+    {
+        $content = $this->getResponseContent();
+
+        if ($content === null) {
+            return null;
+        }
+
+        $response = match ($this->getResponseType()) {
+            "application/cbor" => CBORHandler::decode($content)[0],
+            "application/json" => (array)json_decode($content),
+            default => null
+        };
+
+        // check if the response is an error response.
+        if (isset($response["information"])) {
+            throw new SurrealErrorResponse($response);
+        }
+
+        return $response;
     }
 
     /**
@@ -305,6 +355,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * Returns the response content from the curl client.
      * @return string|null
+     * @throws Exception
      */
     private function getResponseContent(): string|null
     {

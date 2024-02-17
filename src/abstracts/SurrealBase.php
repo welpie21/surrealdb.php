@@ -22,9 +22,9 @@ abstract class SurrealBase
     protected ?string $database = null;
 
     /**
-     * @var SurrealAuthorization|null
+     * @var SurrealAuthorization
      */
-    protected ?SurrealAuthorization $authorization = null;
+    protected SurrealAuthorization $authorization;
 
     public function __construct()
     {

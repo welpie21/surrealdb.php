@@ -27,11 +27,11 @@ class SurrealAuthorization
 
     /**
      * @param string $token
-     * @return void
+     * @return string
      */
-    public function setAuthToken(string $token): void
+    public function setAuthToken(string $token): string
     {
-        $this->token = "Bearer $token";
+        return $this->token = "Bearer $token";
     }
 
     /**

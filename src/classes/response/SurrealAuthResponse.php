@@ -1,6 +1,6 @@
 <?php
 
-namespace Surreal\classes;
+namespace Surreal\classes\response;
 
 class SurrealAuthResponse
 {
