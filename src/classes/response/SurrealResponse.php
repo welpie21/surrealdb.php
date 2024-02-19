@@ -18,7 +18,7 @@ class SurrealResponse
         $this->result = match (count($result)) {
             0 => null,
             1 => $result,
-            default => (object)$result
+            default => $result[0]
         };
     }
 }

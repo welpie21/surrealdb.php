@@ -26,9 +26,9 @@ abstract class SurrealBase
      */
     protected SurrealAuthorization $authorization;
 
-    public function __construct()
+    public function __construct(?SurrealAuthorization $authorization = null)
     {
-        $this->authorization = new SurrealAuthorization();
+        $this->authorization = $authorization ?? new SurrealAuthorization();
     }
 
     /**
@@ -126,7 +126,7 @@ abstract class SurrealBase
     public function setAuthDatabase(?string $database): SurrealBase
     {
         $this->authorization->setAuthDatabase($database);
-        return clone $this;
+        return $this;
     }
 
     /**
@@ -163,11 +163,11 @@ abstract class SurrealBase
             $header[] = "Surreal-DB: " . $this->database;
         }
 
-        if ($this->authorization) {
-            $token = $this->authorization->getAuthToken();
-            if ($token) {
-                $header[] = "Authorization: Bearer " . $token;
-            }
+        $token = $this->authorization->getAuthToken();
+        var_dump($token);
+
+        if ($token) {
+            $header[] = "Authorization: Bearer " . $token;
         }
 
         return $header;

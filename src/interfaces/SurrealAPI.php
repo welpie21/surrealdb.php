@@ -16,10 +16,10 @@ interface SurrealAPI
 
     /**
      * Imports a file into the database.
-     * @param string $content
+     * @param string $path
      * @return string
      */
-    public function import(string $content): string;
+    public function import(string $path): string;
 
     /**
      * Exports the database to a file.
@@ -30,9 +30,9 @@ interface SurrealAPI
     /**
      * Signs in a user to the database.
      * @param mixed $data
-     * @return object|null
+     * @return string|null
      */
-    public function signin(mixed $data): object|null;
+    public function signin(mixed $data): string|null;
 
     /**
      * Sign up a new user to the database. If the authorization argument is not provided,

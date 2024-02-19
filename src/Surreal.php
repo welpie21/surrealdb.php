@@ -6,7 +6,6 @@ use CurlHandle;
 use Exception;
 use Surreal\abstracts\SurrealBase;
 use Surreal\classes\CBORHandler;
-use Surreal\classes\response\SurrealAuthResponse;
 use Surreal\classes\response\SurrealErrorResponse;
 use Surreal\classes\response\SurrealResponse;
 use Surreal\enums\HTTPMethod;
@@ -19,7 +18,12 @@ class Surreal extends SurrealBase implements SurrealAPI
 {
     private ?CurlHandle $client;
 
-    public function __construct(string $host, ?string $namespace = null, ?string $database = null)
+    public function __construct(
+        string $host,
+        ?string $namespace = null,
+        ?string $database = null,
+        ?SurrealAuthorization $authorization = null
+    )
     {
         // assign base properties.
         $this->host = $host;
@@ -30,7 +34,7 @@ class Surreal extends SurrealBase implements SurrealAPI
 
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, 1);
 
-        parent::__construct();
+        parent::__construct($authorization);
     }
 
     /**
@@ -67,13 +71,17 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function import(string $content): string
+    public function import(string $path): string
     {
+        $header = $this->constructHeader();
+        var_dump($header);
+
         $this->execute(
             endpoint: "/import",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => $this->constructHeader()
+                CURLOPT_HTTPHEADER => $header,
+                CURLOPT_POSTFIELDS => $path
             ]
         );
 
@@ -99,25 +107,31 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function signin(mixed $data): SurrealAuthResponse
+    public function signin(mixed $data): string
     {
-        $header = $this->authorization->constructAuthHeader([]);
+        $data = array_merge([
+            "ns" => $this->getAuthNamespace(),
+            "db" => $this->getAuthDatabase(),
+        ], $data);
+
+        print_r($data);
 
         $this->execute(
             endpoint: "/signin",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => $header,
+                CURLOPT_HTTPHEADER => [
+                    "Accept: application/json",
+                    "Content-Type: application/json"
+                ],
                 CURLOPT_POSTFIELDS => json_encode($data)
             ]
         );
 
-        $response = $this->parseResponseContent();
-        $response = new SurrealAuthResponse($response);
+        $token = $this->parseResponse();
+        $this->authorization->setAuthToken($token);
 
-        $this->authorization->setAuthToken($response->token);
-
-        return $response->token;
+        return $token;
     }
 
     /**
@@ -130,8 +144,8 @@ class Surreal extends SurrealBase implements SurrealAPI
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => [
-                    "Surreal-Auth-NS: " . $this->namespace,
-                    "Surreal-Auth-DB: " . $this->database,
+                    "Surreal-Auth-NS: " . $this->getAuthNamespace(),
+                    "Surreal-Auth-DB: " . $this->getAuthDatabase(),
                 ]
             ]
         );
@@ -166,10 +180,7 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $response = $this->parseResponseContent();
-        $response = new SurrealResponse($response);
-
-        return (object)$response->result[0];
+        return (object)$this->parseResponse()[0];
     }
 
     /**
@@ -194,10 +205,7 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $response = $this->parseResponseContent();
-        $response = new SurrealResponse($response);
-
-        return $response->result;
+        return (object)$this->parseResponse()[0];
     }
 
     /**
@@ -219,10 +227,7 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $response = $this->parseResponseContent();
-        $response = new SurrealResponse($response);
-
-        return $response->result;
+        return (object)$this->parseResponse()[0];
     }
 
     /**
@@ -243,10 +248,7 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $response = $this->parseResponseContent();
-        $response = new SurrealResponse($response);
-
-        return $response->result;
+        return (object)$this->parseResponse()[0];
     }
 
     /**
@@ -271,10 +273,7 @@ class Surreal extends SurrealBase implements SurrealAPI
             ]
         );
 
-        $response = $this->parseResponseContent();
-        $response = new SurrealResponse($response);
-
-        return $response->result;
+        return $this->parseResponse();
     }
 
     public function close(): void
@@ -318,6 +317,21 @@ class Surreal extends SurrealBase implements SurrealAPI
     }
 
     /**
+     * @throws Exception
+     */
+    private function parseResponse(): array|object|string|null
+    {
+        $response = $this->parseResponseContent();
+
+        if (isset($response["token"])) {
+            return $response["token"];
+        }
+
+        $response = new SurrealResponse($response);
+        return $response->result;
+    }
+
+    /**
      * @return object|null
      * @throws Exception
      */
@@ -334,6 +348,8 @@ class Surreal extends SurrealBase implements SurrealAPI
             "application/json" => (array)json_decode($content),
             default => null
         };
+
+        print_r($response);
 
         // check if the response is an error response.
         if (isset($response["information"])) {
