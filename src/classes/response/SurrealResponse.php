@@ -4,21 +4,20 @@ namespace Surreal\classes\response;
 
 class SurrealResponse
 {
-    public object|array|null $result;
+    public object|array|null $result = null;
     public string $status;
     public string $time;
 
-    public function __construct(array $input)
+    public function __construct(array|null $input)
     {
         $result = $input["result"];
 
         $this->status = $input["status"];
         $this->time = $input["time"];
 
-        $this->result = match (count($result)) {
-            0 => null,
-            1 => $result,
-            default => $result[0]
+        $this->result = match (true) {
+            count($result) === 1 => $result[0],
+            default => $result
         };
     }
 }

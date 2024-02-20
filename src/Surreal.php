@@ -19,9 +19,9 @@ class Surreal extends SurrealBase implements SurrealAPI
     private ?CurlHandle $client;
 
     public function __construct(
-        string $host,
-        ?string $namespace = null,
-        ?string $database = null,
+        string                $host,
+        ?string               $namespace = null,
+        ?string               $database = null,
         ?SurrealAuthorization $authorization = null
     )
     {
@@ -71,17 +71,17 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function import(string $path): string
+    public function import(string $path, string $username, string $password): string
     {
         $header = $this->constructHeader();
-        var_dump($header);
 
         $this->execute(
             endpoint: "/import",
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => $header,
-                CURLOPT_POSTFIELDS => $path
+                CURLOPT_POSTFIELDS => $path,
+                CURLOPT_USERPWD => "$username:$password"
             ]
         );
 
@@ -91,13 +91,16 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function export(): string
+    public function export(string $username, string $password): string
     {
+        $header = $this->constructHeader();
+
         $this->execute(
             endpoint: "/export",
             method: HTTPMethod::GET,
             options: [
-                CURLOPT_HTTPHEADER => $this->constructHeader()
+                CURLOPT_HTTPHEADER => $header,
+                CURLOPT_USERPWD => "$username:$password"
             ]
         );
 
@@ -110,11 +113,9 @@ class Surreal extends SurrealBase implements SurrealAPI
     public function signin(mixed $data): string
     {
         $data = array_merge([
-            "ns" => $this->getAuthNamespace(),
-            "db" => $this->getAuthDatabase(),
+            "NS" => $this->getAuthNamespace(),
+            "DB" => $this->getAuthDatabase()
         ], $data);
-
-        print_r($data);
 
         $this->execute(
             endpoint: "/signin",
@@ -139,14 +140,25 @@ class Surreal extends SurrealBase implements SurrealAPI
      */
     public function signup(mixed $data): mixed
     {
+        $base = array_filter([
+            "ns" => $this->getAuthNamespace() ?? $this->getNamespace(),
+            "db" => $this->getAuthDatabase() ?? $this->getDatabase(),
+            "sc" => $this->getScope()
+        ], fn($v) => $v !== null);
+
+        $data = array_merge($base, $data);
+
+        print_r($data);
+
         $this->execute(
             endpoint: "/signup",
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => [
-                    "Surreal-Auth-NS: " . $this->getAuthNamespace(),
-                    "Surreal-Auth-DB: " . $this->getAuthDatabase(),
-                ]
+                    "Accept: application/json",
+                    "Content-Type: application/json"
+                ],
+                CURLOPT_POSTFIELDS => json_encode($data)
             ]
         );
 
@@ -348,8 +360,6 @@ class Surreal extends SurrealBase implements SurrealAPI
             "application/json" => (array)json_decode($content),
             default => null
         };
-
-        print_r($response);
 
         // check if the response is an error response.
         if (isset($response["information"])) {

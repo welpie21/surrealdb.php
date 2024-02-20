@@ -151,25 +151,36 @@ abstract class SurrealBase
     /**
      * Constructs the base http headers for the request.
      * @param array $header
+     * @param array|null $override
+     * @param bool $includeToken
      * @return array
      */
-    protected function constructHeader(array $header = []): array
+    protected function constructHeader(
+        array $header = [],
+        array $override = null,
+        bool $includeToken = false
+    ): array
     {
         if ($this->namespace) {
-            $header[] = "Surreal-NS: " . $this->namespace;
+            $header["NS"] = "Surreal-NS: " . $this->namespace;
         }
 
         if ($this->database) {
-            $header[] = "Surreal-DB: " . $this->database;
+            $header["DB"] = "Surreal-DB: " . $this->database;
         }
 
-        $token = $this->authorization->getAuthToken();
-        var_dump($token);
-
-        if ($token) {
-            $header[] = "Authorization: Bearer " . $token;
+        if($includeToken && $token = $this->authorization->getAuthToken()) {
+            $header["AU"] = "Authorization: Bearer " . $token;
         }
 
-        return $header;
+        if($override) {
+
+            $header = array_merge(
+                $header,
+                array_filter($override, fn($v) => $v !== null)
+            );
+        }
+
+        return array_values($header);
     }
 }

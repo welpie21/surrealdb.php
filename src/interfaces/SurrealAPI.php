@@ -17,15 +17,19 @@ interface SurrealAPI
     /**
      * Imports a file into the database.
      * @param string $path
+     * @param string $user
+     * @param string $password
      * @return string
      */
-    public function import(string $path): string;
+    public function import(string $path, string $username, string $password): string;
 
     /**
      * Exports the database to a file.
+     * @param string $username
+     * @param string $password
      * @return string
      */
-    public function export(): string;
+    public function export(string $username, string $password): string;
 
     /**
      * Signs in a user to the database.
