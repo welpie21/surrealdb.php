@@ -11,8 +11,10 @@ use Surreal\classes\response\SurrealResponse;
 use Surreal\enums\HTTPMethod;
 use Surreal\interfaces\SurrealAPI;
 
-const HTTP_ACCEPT = "Accept: application/cbor";
-const HTTP_CONTENT_TYPE = "Content-Type: application/cbor";
+const HTTP_CBOR_ACCEPT = "Accept: application/cbor";
+const HTTP_CBOR_CONTENT_TYPE = "Content-Type: application/cbor";
+const HTTP_JSON_ACCEPT = "Accept: application/json";
+const HTTP_JSON_CONTENT_TYPE = "Content-Type: application/json";
 
 class Surreal extends SurrealBase implements SurrealAPI
 {
@@ -112,19 +114,13 @@ class Surreal extends SurrealBase implements SurrealAPI
      */
     public function signin(mixed $data): string
     {
-        $data = array_merge([
-            "NS" => $this->getAuthNamespace(),
-            "DB" => $this->getAuthDatabase()
-        ], $data);
+        $data = $this->parseAuthTarget($data);
 
         $this->execute(
             endpoint: "/signin",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => [
-                    "Accept: application/json",
-                    "Content-Type: application/json"
-                ],
+                CURLOPT_HTTPHEADER => [HTTP_JSON_ACCEPT],
                 CURLOPT_POSTFIELDS => json_encode($data)
             ]
         );
@@ -138,31 +134,23 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function signup(mixed $data): mixed
+    public function signup(mixed $data): string|array|null|object
     {
-        $base = array_filter([
-            "ns" => $this->getAuthNamespace() ?? $this->getNamespace(),
-            "db" => $this->getAuthDatabase() ?? $this->getDatabase(),
-            "sc" => $this->getScope()
-        ], fn($v) => $v !== null);
-
-        $data = array_merge($base, $data);
-
-        print_r($data);
+        $data = $this->parseAuthTarget($data);
 
         $this->execute(
             endpoint: "/signup",
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => [
-                    "Accept: application/json",
-                    "Content-Type: application/json"
+                    HTTP_JSON_ACCEPT,
+                    HTTP_JSON_CONTENT_TYPE
                 ],
                 CURLOPT_POSTFIELDS => json_encode($data)
             ]
         );
 
-        return CBORHandler::decode($this->getResponseContent());
+        return $this->parseResponse();
     }
 
     public function invalidate(): void
@@ -179,8 +167,8 @@ class Surreal extends SurrealBase implements SurrealAPI
     public function create(string $table, mixed $data): object|null
     {
         $header = $this->constructHeader([
-            HTTP_ACCEPT,
-            HTTP_CONTENT_TYPE
+            HTTP_CBOR_ACCEPT,
+            HTTP_CBOR_CONTENT_TYPE
         ]);
 
         $this->execute(
@@ -204,8 +192,8 @@ class Surreal extends SurrealBase implements SurrealAPI
     public function update(string $thing, mixed $data): object|null
     {
         $headers = $this->constructHeader([
-            HTTP_ACCEPT,
-            HTTP_CONTENT_TYPE
+            HTTP_CBOR_ACCEPT,
+            HTTP_CBOR_CONTENT_TYPE
         ]);
 
         $this->execute(
@@ -226,8 +214,8 @@ class Surreal extends SurrealBase implements SurrealAPI
     public function merge(string $thing, mixed $data): object|null
     {
         $header = $this->constructHeader([
-            HTTP_ACCEPT,
-            HTTP_CONTENT_TYPE
+            HTTP_CBOR_ACCEPT,
+            HTTP_CBOR_CONTENT_TYPE
         ]);
 
         $this->execute(
@@ -248,8 +236,8 @@ class Surreal extends SurrealBase implements SurrealAPI
     public function delete(string $thing): object|null
     {
         $header = $this->constructHeader([
-            HTTP_ACCEPT,
-            HTTP_CONTENT_TYPE
+            HTTP_CBOR_ACCEPT,
+            HTTP_CBOR_CONTENT_TYPE
         ]);
 
         $this->execute(
@@ -272,8 +260,8 @@ class Surreal extends SurrealBase implements SurrealAPI
     public function sql(string $query): array|object|null
     {
         $header = $this->constructHeader([
-            HTTP_ACCEPT,
-            HTTP_CONTENT_TYPE
+            HTTP_CBOR_ACCEPT,
+            HTTP_CBOR_CONTENT_TYPE
         ]);
 
         $this->execute(
@@ -386,5 +374,31 @@ class Surreal extends SurrealBase implements SurrealAPI
     private function getResponseContent(): string|null
     {
         return curl_multi_getcontent($this->client);
+    }
+
+    /**
+     * Parses the authentication target what will be used for the payload for signin and signup.
+     * @param array $data
+     * @return array
+     */
+    private function parseAuthTarget(array $data): array
+    {
+        if ($namespace = $this->getAuthNamespace()) {
+            $data["ns"] = $namespace;
+        } else if ($namespace = $this->getNamespace()) {
+            $data["ns"] = $namespace;
+        }
+
+        if ($database = $this->getAuthDatabase()) {
+            $data["db"] = $database;
+        } else if ($database = $this->getDatabase()) {
+            $data["db"] = $database;
+        }
+
+        if ($scope = $this->getScope()) {
+            $data["sc"] = $scope;
+        }
+
+        return $data;
     }
 }

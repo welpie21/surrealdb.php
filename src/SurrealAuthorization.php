@@ -26,11 +26,6 @@ class SurrealAuthorization
     private ?string $scope = null;
 
     /**
-     * @var array|null
-     */
-    private ?array $extras = null;
-
-    /**
      * @param string $token
      * @return string
      */
@@ -99,26 +94,6 @@ class SurrealAuthorization
     public function getAuthDatabase(): string|null
     {
         return $this->database;
-    }
-
-    /**
-     * Set additional extras for the current connection.
-     * @param array $extras
-     * @return $this
-     */
-    public function setExtras(array $extras): SurrealAuthorization
-    {
-        $this->extras = $extras;
-        return $this;
-    }
-
-    /**
-     * Get the additional extras for the current connection.
-     * @return array|null
-     */
-    public function getExtras(): array|null
-    {
-        return $this->extras;
     }
 
     /**

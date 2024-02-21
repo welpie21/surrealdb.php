@@ -11,7 +11,9 @@ class SurrealErrorResponse extends Exception
      */
     public function __construct(array $response)
     {
-        $message = "SurrealDB Error: " . $response["information"];
+        $message = $response["information"] ?? $response["result"];
+        $message = "SurrealDB Error: " . $message;
+
         parent::__construct($message, $this->code);
     }
 }
