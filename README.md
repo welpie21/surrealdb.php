@@ -17,7 +17,7 @@ This project is currently in heavy development and is still lacking many feature
 
 ## Requirements
 
-- PHP 8.1+
+- PHP 8.2+
 - SurrealDB v1.2.0+
 
 ## Roadmap
