@@ -151,13 +151,11 @@ abstract class SurrealBase
     /**
      * Constructs the base http headers for the request.
      * @param array $header
-     * @param array|null $override
      * @param bool $includeToken
      * @return array
      */
     protected function constructHeader(
         array $header = [],
-        array $override = null,
         bool $includeToken = false
     ): array
     {
@@ -171,14 +169,6 @@ abstract class SurrealBase
 
         if($includeToken && $token = $this->authorization->getAuthToken()) {
             $header["AU"] = "Authorization: Bearer " . $token;
-        }
-
-        if($override) {
-
-            $header = array_merge(
-                $header,
-                array_filter($override, fn($v) => $v !== null)
-            );
         }
 
         return array_values($header);

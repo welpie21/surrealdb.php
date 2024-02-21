@@ -6,6 +6,7 @@ use CurlHandle;
 use Exception;
 use Surreal\abstracts\SurrealBase;
 use Surreal\classes\CBORHandler;
+use Surreal\classes\response\SurrealAuthResponse;
 use Surreal\classes\response\SurrealErrorResponse;
 use Surreal\classes\response\SurrealResponse;
 use Surreal\enums\HTTPMethod;
@@ -73,7 +74,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function import(string $path, string $username, string $password): string
+    public function import(string $content, string $username, string $password): string
     {
         $header = $this->constructHeader();
 
@@ -81,8 +82,11 @@ class Surreal extends SurrealBase implements SurrealAPI
             endpoint: "/import",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => $header,
-                CURLOPT_POSTFIELDS => $path,
+                CURLOPT_HTTPHEADER => array_merge($header, [
+                    HTTP_JSON_ACCEPT,
+                    "Content-Type: text/plain"
+                ]),
+                CURLOPT_POSTFIELDS => $content,
                 CURLOPT_USERPWD => "$username:$password"
             ]
         );
@@ -120,15 +124,15 @@ class Surreal extends SurrealBase implements SurrealAPI
             endpoint: "/signin",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => [HTTP_JSON_ACCEPT],
+                CURLOPT_HTTPHEADER => [
+                    HTTP_JSON_ACCEPT,
+                    HTTP_JSON_CONTENT_TYPE
+                ],
                 CURLOPT_POSTFIELDS => json_encode($data)
             ]
         );
 
-        $token = $this->parseResponse();
-        $this->authorization->setAuthToken($token);
-
-        return $token;
+        return $this->parseResponse();
     }
 
     /**
@@ -153,6 +157,10 @@ class Surreal extends SurrealBase implements SurrealAPI
         return $this->parseResponse();
     }
 
+    /**
+     * Invalidate the current token.
+     * @return void
+     */
     public function invalidate(): void
     {
         $this->authorization->invalidate();
@@ -324,7 +332,8 @@ class Surreal extends SurrealBase implements SurrealAPI
         $response = $this->parseResponseContent();
 
         if (isset($response["token"])) {
-            return $response["token"];
+            $authorization = new SurrealAuthResponse($response);
+            return $authorization->token;
         }
 
         $response = new SurrealResponse($response);

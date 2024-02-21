@@ -19,17 +19,44 @@ class SurrealAuthTest extends TestCase
         $db = new Surreal(
             host: "http://127.0.0.1:8000",
             namespace: "test",
+            database: "test",
             authorization: SurrealAuthorization::create()
-                ->setAuthNamespace("test"),
+                ->setAuthNamespace("test")
+                ->setAuthDatabase("test")
+                ->setScope("account"),
         );
 
-        $result = $db->signup([
-            "user" => "beau@test.nl",
-            "pass" => "krillissue"
+        $token = $db->signup([
+            "email" => "beau.doe",
+            "pass" => "123456"
         ]);
 
-        var_dump($result);
+        $this->assertIsString($token, "Token is not a string");
 
-        $this->assertEquals(200, $db->status(), "Status check failed");
+        $db->close();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testSignin(): void
+    {
+        $db = new Surreal(
+            host: "http://127.0.0.1:8000",
+            namespace: "test",
+            database: "test",
+            authorization: SurrealAuthorization::create()
+                ->setAuthNamespace("test")
+                ->setAuthDatabase("test")
+                ->setScope("account"),
+        );
+
+        $token = $db->signin([
+            "email" => "beau.doe",
+            "pass" => "123456"
+        ]);
+
+        $this->assertIsString($token, "Token is not a string");
+        $db->close();
     }
 }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use PHPUnit\Framework\TestCase;
 use Surreal\Surreal;
 
@@ -84,6 +82,11 @@ final class SurrealBasicTest extends TestCase
         $this->assertIsString($response, "Import response is not a string.");
         $this->assertEquals("There was a problem with authentication", $response, "Import response is not correct.");
 
+        // remove data
+        $db->sql("DELETE person");
+        $db->sql("DELETE likes");
+        $db->sql("DELETE product");
+
         $db->close();
     }
 
@@ -106,4 +109,6 @@ final class SurrealBasicTest extends TestCase
 
         $db->close();
     }
+
+
 }

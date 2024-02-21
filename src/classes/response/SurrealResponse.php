@@ -18,7 +18,7 @@ class SurrealResponse
         $this->status = $input["status"];
         $this->time = $input["time"];
 
-        if($this->status == "ERR") {
+        if ($this->status == "ERR") {
             throw new SurrealErrorResponse($input);
         }
 
