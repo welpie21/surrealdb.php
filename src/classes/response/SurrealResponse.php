@@ -5,13 +5,13 @@ namespace Surreal\classes\response;
 class SurrealResponse
 {
     public object|array|null $result = null;
-    public string $status;
-    public string $time;
+    public ?string $status;
+    public ?string $time;
 
     /**
      * @throws SurrealErrorResponse
      */
-    public function __construct(array|null $input)
+    public function __construct(?array $input)
     {
         $result = $input["result"];
 
@@ -23,7 +23,7 @@ class SurrealResponse
         }
 
         $this->result = match (true) {
-            count($result) === 1 => $result[0],
+            is_array($result) && count($result) === 1 => $result[0],
             default => $result
         };
     }

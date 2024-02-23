@@ -65,7 +65,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function version(): string|null
+    public function version(): ?string
     {
         $this->execute("/version", HTTPMethod::GET);
         return $this->getResponseContent();
@@ -116,7 +116,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function signin(mixed $data): string
+    public function signin(mixed $data): ?string
     {
         $data = $this->parseAuthTarget($data);
 
@@ -138,7 +138,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function signup(mixed $data): string|array|null|object
+    public function signup(mixed $data): ?string
     {
         $data = $this->parseAuthTarget($data);
 
@@ -172,7 +172,7 @@ class Surreal extends SurrealBase implements SurrealAPI
      * @return object|null
      * @throws Exception
      */
-    public function create(string $table, mixed $data): object|null
+    public function create(string $table, mixed $data): ?object
     {
         $header = $this->constructHeader([
             HTTP_CBOR_ACCEPT,
@@ -197,7 +197,7 @@ class Surreal extends SurrealBase implements SurrealAPI
      * @return object|null
      * @throws Exception
      */
-    public function update(string $thing, mixed $data): object|null
+    public function update(string $thing, mixed $data): ?object
     {
         $headers = $this->constructHeader([
             HTTP_CBOR_ACCEPT,
@@ -219,7 +219,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function merge(string $thing, mixed $data): object|null
+    public function merge(string $thing, mixed $data): ?object
     {
         $header = $this->constructHeader([
             HTTP_CBOR_ACCEPT,
@@ -241,7 +241,7 @@ class Surreal extends SurrealBase implements SurrealAPI
     /**
      * @throws Exception
      */
-    public function delete(string $thing): object|null
+    public function delete(string $thing): ?object
     {
         $header = $this->constructHeader([
             HTTP_CBOR_ACCEPT,
@@ -319,7 +319,7 @@ class Surreal extends SurrealBase implements SurrealAPI
      * Retrieves the response type that has been sent from the server.
      * @return string|null
      */
-    private function getResponseType(): string|null
+    private function getResponseType(): ?string
     {
         return curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
     }
@@ -344,7 +344,7 @@ class Surreal extends SurrealBase implements SurrealAPI
      * @return object|null
      * @throws Exception
      */
-    private function parseResponseContent(): array|null
+    private function parseResponseContent(): ?array
     {
         $content = $this->getResponseContent();
 
@@ -380,7 +380,7 @@ class Surreal extends SurrealBase implements SurrealAPI
      * @return string|null
      * @throws Exception
      */
-    private function getResponseContent(): string|null
+    private function getResponseContent(): ?string
     {
         return curl_multi_getcontent($this->client);
     }

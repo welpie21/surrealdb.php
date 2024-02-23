@@ -12,7 +12,7 @@ interface SurrealAPI
     /**
      * @return string|null
      */
-    public function version(): string|null;
+    public function version(): ?string;
 
     /**
      * Imports a file into the database.
@@ -36,15 +36,15 @@ interface SurrealAPI
      * @param mixed $data
      * @return string|null
      */
-    public function signin(mixed $data): string|null;
+    public function signin(mixed $data): ?string;
 
     /**
      * Sign up a new user to the database. If the authorization argument is not provided,
      * it will use the authorization value that was set previously.
      * @param mixed $data
-     * @return mixed
+     * @return string|null
      */
-    public function signup(mixed $data): mixed;
+    public function signup(mixed $data): ?string;
 
     /**
      * Creates a new record in the database.
@@ -52,7 +52,7 @@ interface SurrealAPI
      * @param mixed $data
      * @return object|null
      */
-    public function create(string $table, mixed $data): object|null;
+    public function create(string $table, mixed $data): ?object;
 
     /**
      * Updates a single record in the database.
@@ -60,21 +60,21 @@ interface SurrealAPI
      * @param mixed $data
      * @return object|null
      */
-    public function update(string $thing, mixed $data): object|null;
+    public function update(string $thing, mixed $data): ?object;
 
     /**
      * @param string $thing
      * @param mixed $data
      * @return object|null
      */
-    public function merge(string $thing, mixed $data): object|null;
+    public function merge(string $thing, mixed $data): ?object;
 
     /**
      * Deletes a record from the database.
      * @param string $thing
      * @return object|null
      */
-    public function delete(string $thing): object|null;
+    public function delete(string $thing): ?object;
 
     /**
      * Posts a query to the database and returns the result.

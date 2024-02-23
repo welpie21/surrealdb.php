@@ -26,18 +26,22 @@ class SurrealAuthorization
     private ?string $scope = null;
 
     /**
-     * @param string $token
-     * @return string
+     * @param string|null $token
+     * @return void
      */
-    public function setAuthToken(string $token): string
+    public function setAuthToken(?string $token): void
     {
-        return $this->token = $token;
+        if ($token === null) {
+            return;
+        }
+
+        $this->token = $token;
     }
 
     /**
      * @return string|null
      */
-    public function getAuthToken(): string|null
+    public function getAuthToken(): ?string
     {
         return $this->token;
     }
@@ -55,7 +59,7 @@ class SurrealAuthorization
     /**
      * @return string|null
      */
-    public function getScope(): string|null
+    public function getScope(): ?string
     {
         return $this->scope;
     }
@@ -73,7 +77,7 @@ class SurrealAuthorization
     /**
      * @return string|null
      */
-    public function getAuthNamespace(): string|null
+    public function getAuthNamespace(): ?string
     {
         return $this->namespace;
     }
@@ -91,7 +95,7 @@ class SurrealAuthorization
     /**
      * @return string|null
      */
-    public function getAuthDatabase(): string|null
+    public function getAuthDatabase(): ?string
     {
         return $this->database;
     }

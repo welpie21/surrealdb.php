@@ -2,7 +2,7 @@
 
 namespace Surreal\classes\response;
 
-class SurrealAuthResponse
+readonly class SurrealAuthResponse
 {
     public int $code;
     public string $details;
