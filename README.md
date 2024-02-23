@@ -10,61 +10,138 @@
 	</a>
 </p>
 
-<br>
+___
 
 ## 🚧 Disclaimer 🚧
-This project is currently in heavy development and is still lacking many features. Do not use in production!
 
-## Requirements
+This surreal driver for php is done but might be unstable and might have some bugs.
+Please use it with caution and report any bugs or issues you might find.
+
+## 📦 About
+
+SurrealDB.php is a driver for PHP to connect to a SurrealDB instance.
+It allows you to connect to a SurrealDB instance and perform operations on the database.
+
+## 📚 Documentation
+
+There is no current documentation for this driver. Please refer to
+the [SurrealDB documentation](https://surrealdb.com/docs) for more information.
+Since the driver has the specs that of the javascript library, it works the same way as the javascript library.
+
+## 📋 Requirements
 
 - PHP 8.2+
 - SurrealDB v1.2.0+
 
-## Roadmap
+## 📥 Installation
 
-- Fully functional SurrealDB driver.
-- CBOR encoder en decoder under the hood
-- ORM / Query builder support
-- Laravel or other framework support
-- Examples
+```bash
+composer require welpie21/surrealdb.php
+```
 
-## Support list
+## 🚀 Usage
 
-- Authentication
-- Database connection via HTTP
-- all supported data type
-- call methods to interact with the database such as:
-  - `status`
-  - `version`
-  - `import`
-  - `export`
-  - `signin`
-  - `signup`
-  - `create`
-  - `update`
-  - `merge`
-  - `delete`
-  - `sql`
-  - `close`
-  - `invalidate`
+**Create a new connection to a SurrealDB instance**
 
-## Support that is not yet implemented
+```php
+use Surreal\Surreal;
 
-This surrealdb driver has an CBOR implementation that needs some work. Which will be done in soon as possible.
-But for now it only supports the following data types:
-- String
-- Number
-- Boolean
-- Null
-- Array
-- Object
+// create a surrealdb connection
+$db = new Surreal(
+    host: "http://127.0.0.1:8000",
+    namespace: "test",
+    database: "test",
+    authorization: SurrealAuthorization::create()
+        ->setAuthNamespace("test")
+        ->setAuthDatabase("test")
+        ->setScope("scope"),
+);
+```
 
-The only that is not supported is the following:
-- Date
-- RecordID
-- Duration
-- Decimal
-- UUID
+**🔐 Authentication**
 
-Currently, it uses the CBOR encode / decode from "https://github.com/2tvenom/CBOREncode". It doesn't support tags yet.
-I've made a fork which will have the support for tags. But it's not yet merged into the main branch.
+You can sign in to a SurrealDB instance using the `signin` method.
+The authentication system in the driver is similar to the javascript library. But
+it adds one more functionality to the driver.
+
+Since the authentication has its own state you can kind of override the "namespace" and "database"
+you defined earlier in the connection. This is useful if you want to sign in to a different namespace or database
+with still persisting the connection to the previous namespace and database.
+
+Here we create a connection, and we set the scope for the `signup` and `signin` methods that is using under the hood.
+
+```php
+// create a surrealdb connection
+$db = new Surreal(
+    host: "http://127.0.0.1:8000",
+    namespace: "test",
+    database: "test",
+    authorization: SurrealAuthorization::create()
+        ->setScope("scope"), // <-- set the scope
+);
+
+// the argument is a keyed array.
+// for scope authentication you have to set the correct keys and values for the scope.
+$token = $db->signin([
+    "email" => "john.doe@gmail.com",
+    "pass" => "some-password"
+]);
+
+// the signin method returns a token that you can use to set the authentication token for the connection.
+$db->setAuthToken($token);
+
+// we can also set the token to the session
+session_start();
+$_SESSION["token"] = $token;
+
+// invalidate the token
+$db->invalidate(); // <-- basically sets the token to null
+```
+
+*Keep in mind this can work buggy and might not work as expected. Please use it with caution.*
+
+**🔍 Querying** <br>
+
+The driver has a similar querying system as the javascript library. You can use the `sql` method to perform operations
+on the database.
+
+```php
+// create a surrealdb connection
+$db = new Surreal(
+    host: "http://127.0.0.1:8000"
+    namespace: "test",
+    database: "test",
+);
+
+// create a table
+$db->sql("CREATE product:apple CONTENT { name: 'Apple', price: 1.99 }");
+
+// get the table
+$product = $db->sql("SELECT * FROM ONLY product:apple");
+$apple = $product->apple ?? null; // <-- this can be null or return the apple object
+
+// create, update and delete methods
+$db->create("product", ["name" => "Banana", "price" => 2.99]);
+$db->update("product:banana", ["price" => 3.99]);
+$db->delete("product:banana");
+```
+
+**📦 Import & Export**
+
+You can import and export data from the database using the `import` and `export` methods.
+
+```php
+$db = new Surreal(
+    host: "http://127.0.0.1:8000"
+    namespace: "test",
+    database: "test",
+);
+
+// import data
+$file = file_get_contents("some_path_to_surql_file.surql");
+$result = $db->import($file, "username", "password");
+
+// export data
+$file = $db->export("username", "password"); // <-- returns the whole file as a string
+file_put_contents("some_path_to_surql_file.surql", $file); // <-- save the file
+```
