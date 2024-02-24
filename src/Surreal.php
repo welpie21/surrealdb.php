@@ -2,6 +2,7 @@
 
 namespace Surreal;
 
+use Closure;
 use CurlHandle;
 use Exception;
 use Surreal\abstracts\SurrealBase;
@@ -36,18 +37,26 @@ class Surreal extends SurrealBase implements SurrealAPI
         $this->client = curl_init();
 
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($this->client, CURLOPT_TIMEOUT, 5);
 
         parent::__construct($authorization);
     }
 
     /**
-     * Set the timeout for the curl client. default is 10 seconds.
+     * Set the timeout for the curl client. default is 5 seconds.
      * @param int $timeout
-     * @return void
+     * @return Closure - Reset the timeout to previous set timeout value.
      */
-    public function setTimeout(int $timeout): void
+    public function setTimeout(int $timeout): Closure
     {
+        $reset = function(): void {
+            $timeout = curl_getinfo($this->client, CURLOPT_TIMEOUT);
+            curl_setopt($this->client, CURLOPT_TIMEOUT, $timeout);
+        };
+
         curl_setopt($this->client, CURLOPT_TIMEOUT, $timeout);
+
+        return $reset;
     }
 
     public function status(): int
@@ -308,7 +317,6 @@ class Surreal extends SurrealBase implements SurrealAPI
 
         curl_setopt($this->client, CURLOPT_URL, $this->host . $endpoint);
         curl_setopt($this->client, CURLOPT_CUSTOMREQUEST, $method->value);
-        curl_setopt($this->client, CURLOPT_RETURNTRANSFER, 1);
 
         curl_setopt_array($this->client, $options);
 
