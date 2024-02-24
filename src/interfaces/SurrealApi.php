@@ -2,7 +2,7 @@
 
 namespace Surreal\interfaces;
 
-interface SurrealAPI
+interface SurrealApi
 {
     /**
      * @return int
@@ -79,7 +79,8 @@ interface SurrealAPI
     /**
      * Posts a query to the database and returns the result.
      * @param string $query
+     * @param array $params
      * @return object|array|null
      */
-    public function sql(string $query): array|object|null;
+    public function sql(string $query, array $params): array|object|null;
 }

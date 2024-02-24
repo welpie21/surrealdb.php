@@ -1,6 +1,6 @@
 <?php
 
-enum Opcode: int
+enum WSOpcode: int
 {
     case CONTINUATION = 0;
     case TEXT = 1;

@@ -5,7 +5,7 @@ namespace Surreal\classes;
 use Exception;
 use \CBOR\CBOREncoder;
 
-class CBORHandler
+class CBOR
 {
     /**
      *
