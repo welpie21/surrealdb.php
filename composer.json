@@ -5,7 +5,7 @@
     "homepage": "https://github.com/welpie21/surrealdb.php",
     "license": "MIT",
     "readme": "README.md",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "autoload": {
         "psr-4": {
             "Surreal\\": "src/"
