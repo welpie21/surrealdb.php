@@ -2,18 +2,18 @@
 
 namespace Surreal\classes\responses;
 
+use Override;
 use Surreal\abstracts\AbstractResponse;
 
 class QueryResponse extends AbstractResponse
 {
-    const KEYS = ["code", "details", "time"];
+    const array KEYS = ["code", "details", "time"];
 
     /**
-     * @param array{code: string, details: string, time: string} $response
-     * @return AbstractResponse
+     * @return array{code: string, details: string, time: string}
      */
-    public static function parse(array $response): AbstractResponse
+    #[Override] public function getData(): array
     {
-        return new QueryResponse($response);
+        return parent::getData();
     }
 }

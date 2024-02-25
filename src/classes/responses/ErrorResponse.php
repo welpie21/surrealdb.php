@@ -2,22 +2,18 @@
 
 namespace Surreal\classes\responses;
 
+use Override;
 use Surreal\abstracts\AbstractResponse;
-use Surreal\classes\exceptions\SurrealException;
-use Surreal\enums\HTTPCode;
-use Exception;
 
 class ErrorResponse extends AbstractResponse
 {
-    const KEYS = ["code", "details", "description", "information"];
+    const array KEYS = ["code", "details", "description", "information"];
 
     /**
-     * @param array{ code: string, details: string, description: string, information: string } $response
-     * @return AbstractResponse
-     * @throws Exception
+     * @return array{code: int, details: string, description: string, information: string}
      */
-    public static function parse(array $response): AbstractResponse
+    #[Override] public function getData(): array
     {
-        return new ErrorResponse($response);
+        return parent::getData();
     }
 }
