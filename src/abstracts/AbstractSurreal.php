@@ -28,9 +28,7 @@ abstract class AbstractSurreal extends AbstractTarget
     )
     {
         $this->auth = $authorization ?? new SurrealAuth();
-
-        // set the namespace, database, and scope
-        parent::setTarget($target);
+        $this->use($target);
     }
 
     /**
@@ -40,11 +38,11 @@ abstract class AbstractSurreal extends AbstractTarget
     public function use(array $target): void
     {
         if ($namespace = $target["namespace"]) {
-            $this->namespace = $namespace;
+            parent::setNamespace($namespace);
         }
 
         if ($database = $target["database"]) {
-            $this->database = $database;
+            parent::setDatabase($database);
         }
     }
 }
