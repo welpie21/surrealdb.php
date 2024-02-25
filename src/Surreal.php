@@ -3,25 +3,26 @@
 namespace Surreal;
 
 use Exception;
-use Surreal\abstracts\AbstractProtocol;
 use Surreal\classes\exceptions\SurrealException;
 use Surreal\classes\protocols\SurrealHTTP;
+use Surreal\classes\protocols\SurrealWebsocket;
 use Surreal\interfaces\SurrealApi;
 
 readonly class Surreal implements SurrealApi
 {
-    private AbstractProtocol $protocol;
+    private SurrealApi $protocol;
 
     /**
      * @throws Exception
      */
     public function __construct(
         string $host,
-        array $target = [],
+        array  $target = [],
     )
     {
-        $this->protocol = match(parse_url($host, PHP_URL_SCHEME)) {
+        $this->protocol = match (parse_url($host, PHP_URL_SCHEME)) {
             "http", "https" => new SurrealHTTP($host, $target),
+            "ws", "wss" => new SurrealWebsocket($host, $target),
             default => throw new SurrealException("Unsupported protocol.")
         };
     }
@@ -106,8 +107,12 @@ readonly class Surreal implements SurrealApi
     /**
      * @throws Exception
      */
-    public function sql(string $query, array $params): array|object|null
+    public function sql(string $query, ?array $params = null): array|object|null
     {
+        if ($this->protocol instanceof SurrealHTTP && $params !== null) {
+            throw new SurrealException("Params are not supported in HTTP protocol.");
+        }
+
         return $this->protocol->sql($query, $params);
     }
 }

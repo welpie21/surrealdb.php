@@ -79,8 +79,8 @@ interface SurrealApi
     /**
      * Posts a query to the database and returns the result.
      * @param string $query
-     * @param array $params
+     * @param array|null $params - Params for to use inside the query ( only WS supported )
      * @return object|array|null
      */
-    public function sql(string $query, array $params): array|object|null;
+    public function sql(string $query, ?array $params = null): array|object|null;
 }
