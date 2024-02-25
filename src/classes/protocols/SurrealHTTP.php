@@ -6,12 +6,7 @@ use Closure;
 use CurlHandle;
 use Exception;
 use Surreal\abstracts\AbstractProtocol;
-use Surreal\abstracts\AbstractSurreal;
-use Surreal\classes\auth\SurrealAuth;
 use Surreal\classes\CBOR;
-use Surreal\classes\responses\SurrealAuthResponse;
-use Surreal\classes\responses\SurrealErrorResponse;
-use Surreal\classes\responses\SurrealResponse;
 use Surreal\enums\HTTPMethod;
 use Surreal\interfaces\SurrealApi;
 
@@ -24,39 +19,37 @@ class SurrealHTTP extends AbstractProtocol implements SurrealApi
 {
     private ?CurlHandle $client;
 
+    /**
+     * @param string $host
+     * @param array{namespace:string, database:string|null} $target
+     */
     public function __construct(
-        string       $host,
-        ?string      $namespace = null,
-        ?string      $database = null,
-        ?SurrealAuth $authorization = null
+        string $host,
+        array  $target = []
     )
     {
-        // assign base properties.
-        $this->host = $host;
-        $this->use(["namespace" => $namespace, "database" => $database]);
-
         // initialize the curl client.
         $this->client = curl_init();
 
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($this->client, CURLOPT_TIMEOUT, 5);
 
-        parent::__construct($authorization);
+        parent::__construct($host, $target);
     }
 
     /**
      * Set the timeout for the curl client. default is 5 seconds.
-     * @param int $timeout
+     * @param int $seconds
      * @return Closure - Reset the timeout to previous set timeout value.
      */
-    public function setTimeout(int $timeout): Closure
+    public function setTimeout(int $seconds): Closure
     {
         $reset = function (): void {
             $timeout = curl_getinfo($this->client, CURLOPT_TIMEOUT);
             curl_setopt($this->client, CURLOPT_TIMEOUT, $timeout);
         };
 
-        curl_setopt($this->client, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($this->client, CURLOPT_TIMEOUT, $seconds);
 
         return $reset;
     }

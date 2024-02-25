@@ -2,7 +2,6 @@
 
 namespace Surreal\abstracts;
 
-use JetBrains\PhpStorm\ArrayShape;
 use Surreal\classes\auth\SurrealAuth;
 
 abstract class AbstractSurreal extends AbstractTarget
@@ -17,9 +16,21 @@ abstract class AbstractSurreal extends AbstractTarget
      */
     protected AbstractAuth $auth;
 
-    public function __construct(?AbstractAuth $authorization = null)
+    /**
+     * @param string $host
+     * @param array{namespace:string,database:string|null} $target
+     * @param AbstractAuth|null $authorization
+     */
+    public function __construct(
+        string $host,
+        array $target = [],
+        ?AbstractAuth $authorization = null
+    )
     {
         $this->auth = $authorization ?? new SurrealAuth();
+
+        // set the namespace, database, and scope
+        parent::setTarget($target);
     }
 
     /**
@@ -35,22 +46,5 @@ abstract class AbstractSurreal extends AbstractTarget
         if ($database = $target["database"]) {
             $this->database = $database;
         }
-    }
-
-    /**
-     * @param array $headers
-     * @param array $omit
-     * @return array
-     */
-    protected function parseHeaders(
-        array $headers,
-        #[ArrayShape(["namespace" => "string", "database" => "string", "scope" => "string"])]
-        array $omit = []
-    ): array
-    {
-        $result = AbstractTarget::parse($this, $this->auth);
-        $result = array_merge($result, $headers);
-
-        return array_diff_key($result, array_flip($omit));
     }
 }

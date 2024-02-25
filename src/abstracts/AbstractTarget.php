@@ -7,6 +7,7 @@ abstract class AbstractTarget
     protected ?string $namespace = null;
 
     protected ?string $database = null;
+
     protected ?string $scope = null;
 
     public function setNamespace(?string $namespace): void

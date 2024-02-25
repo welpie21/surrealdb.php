@@ -3,17 +3,17 @@
 namespace Surreal\classes\responses;
 
 use Surreal\abstracts\AbstractResponse;
+use Override;
 
 class AuthResponse extends AbstractResponse
 {
-    const KEYS = ["code", "details", "token"];
+    const array KEYS = ["code", "details", "token"];
 
     /**
-     * @param array{code: string, details: string, token: string} $response
-     * @return AbstractResponse
+     * @return array{code: int, details: string, token: string}
      */
-    public static function parse(array $response): AbstractResponse
+    #[Override] public function getData(): array
     {
-        return new AuthResponse($response);
+        return parent::getData();
     }
 }
