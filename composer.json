@@ -11,6 +11,9 @@
             "Surreal\\": "src/"
         }
     },
+    "scripts": {
+        "phpstan": "vendor/bin/phpstan -c phpstan.neon"
+    },
     "authors": [
         {
             "name": "Beau",
@@ -24,6 +27,28 @@
         "phrity/websocket": "^2.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "11"
+        "phpunit/phpunit": "10.5.10",
+        "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan-beberlei-assert": "^1.1",
+        "phpstan/extension-installer": "^1.3",
+        "nikic/php-parser": "^v4.16.0",
+        "vimeo/psalm": "^5.22.2"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "phpstan": {
+            "includes": [
+                "extension.neon"
+            ]
+        },
+        "phpstan/extension-installer": {
+            "ignore": [
+                "phpstan/phpstan-phpunit"
+            ]
+        }
     }
 }
