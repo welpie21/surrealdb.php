@@ -7,25 +7,17 @@ use Exception;
 abstract class AbstractResponse
 {
     public function __construct(
-        protected array $response
+        protected array $data
     )
     {
     }
 
     /**
      * Validates if the response is valid
-     * @param array $response
-     * @return AbstractResponse
-     * @throws Exception - can throw exception (error or invalid response)
-     */
-    abstract static function parse(array $response): AbstractResponse;
-
-    /**
-     * Validates if the response is valid
      * @return array
      */
-    public function getResponse(): array
+    public function getData(): array
     {
-        return $this->response;
+        return $this->data;
     }
 }
