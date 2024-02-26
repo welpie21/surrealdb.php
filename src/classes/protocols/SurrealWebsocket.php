@@ -3,9 +3,8 @@
 namespace Surreal\classes\protocols;
 
 use Surreal\abstracts\AbstractSurreal;
-use Surreal\interfaces\SurrealApi;
 
-class SurrealWebsocket extends AbstractSurreal implements SurrealApi
+class SurrealWebsocket extends AbstractSurreal
 {
     /**
      * @param string $host

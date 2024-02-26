@@ -7,16 +7,19 @@ use CurlHandle;
 use Exception;
 use Surreal\abstracts\AbstractProtocol;
 use Surreal\classes\CBOR;
+use Surreal\classes\exceptions\SurrealException;
 use Surreal\enums\HTTPMethod;
-use Surreal\interfaces\SurrealApi;
+use Surreal\traits\HTTPTrait;
 
 const HTTP_CBOR_ACCEPT = "Accept: application/cbor";
 const HTTP_CBOR_CONTENT_TYPE = "Content-Type: application/cbor";
 const HTTP_JSON_ACCEPT = "Accept: application/json";
 const HTTP_JSON_CONTENT_TYPE = "Content-Type: application/json";
 
-class SurrealHTTP extends AbstractProtocol implements SurrealApi
+class SurrealHTTP extends AbstractProtocol
 {
+    use HTTPTrait;
+
     private ?CurlHandle $client;
 
     /**
@@ -54,16 +57,30 @@ class SurrealHTTP extends AbstractProtocol implements SurrealApi
         return $reset;
     }
 
+    /**
+     * @throws SurrealException
+     */
     public function status(): int
     {
-        $this->execute("/status", HTTPMethod::GET);
-        return $this->getResponseCode();
+        $client = $this->execute(
+            endpoint: "/status",
+            method: HTTPMethod::GET
+        );
+
+        return $this->getCurlResponseCode($client);
     }
 
+    /**
+     * @throws SurrealException
+     */
     public function health(): int
     {
-        $this->execute("/health", HTTPMethod::GET);
-        return $this->getResponseCode();
+        $client = $this->execute(
+            endpoint: "/health",
+            method: HTTPMethod::GET
+        );
+
+        return $this->getCurlResponseCode($client);
     }
 
     /**
@@ -71,8 +88,12 @@ class SurrealHTTP extends AbstractProtocol implements SurrealApi
      */
     public function version(): ?string
     {
-        $this->execute("/version", HTTPMethod::GET);
-        return $this->getResponseContent();
+        $client = $this->execute(
+            endpoint: "/version",
+            method: HTTPMethod::GET
+        );
+
+        return $this->getCurlResponse($client);
     }
 
     /**
@@ -80,8 +101,6 @@ class SurrealHTTP extends AbstractProtocol implements SurrealApi
      */
     public function import(string $content, string $username, string $password): string
     {
-        $header = $this->constructHeader();
-
         $this->execute(
             endpoint: "/import",
             method: HTTPMethod::POST,
@@ -122,8 +141,6 @@ class SurrealHTTP extends AbstractProtocol implements SurrealApi
      */
     public function signin(mixed $data): ?string
     {
-        $data = $this->parseAuthTarget($data);
-
         $this->execute(
             endpoint: "/signin",
             method: HTTPMethod::POST,
@@ -299,13 +316,14 @@ class SurrealHTTP extends AbstractProtocol implements SurrealApi
      * @param string $endpoint
      * @param HTTPMethod $method
      * @param array $options
-     * @return void
+     * @return CurlHandle
+     * @throws SurrealException
      */
     private function execute(
         string     $endpoint,
         HTTPMethod $method,
         array      $options = []
-    ): void
+    ): CurlHandle
     {
         if ($this->client === null) {
             throw new \RuntimeException("The curl client is not initialized.");
@@ -316,7 +334,11 @@ class SurrealHTTP extends AbstractProtocol implements SurrealApi
 
         curl_setopt_array($this->client, $options);
 
-        // TODO: better curl error handling
-        curl_exec($this->client);
+        // throwing an exception if the request fails.
+        if (curl_exec($this->client) === false) {
+            throw new SurrealException(curl_error($this->client));
+        }
+
+        return $this->client;
     }
 }
