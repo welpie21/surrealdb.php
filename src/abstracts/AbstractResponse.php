@@ -2,14 +2,13 @@
 
 namespace Surreal\abstracts;
 
-use Exception;
-
 abstract class AbstractResponse
 {
-    public function __construct(
-        protected array $data
-    )
+    protected array $data;
+
+    public function __construct(array $data)
     {
+        $this->data = $data;
     }
 
     /**
