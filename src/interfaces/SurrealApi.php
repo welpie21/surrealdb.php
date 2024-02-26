@@ -33,7 +33,7 @@ interface SurrealApi
 
     /**
      * Signs in a user to the database.
-     * @param mixed $data
+     * @param array{namespace:string|null,database:string|null,scope:string|null} $data
      * @return string|null
      */
     public function signin(mixed $data): ?string;
@@ -41,7 +41,7 @@ interface SurrealApi
     /**
      * Sign up a new user to the database. If the authorization argument is not provided,
      * it will use the authorization value that was set previously.
-     * @param mixed $data
+     * @param array{namespace:string|null,database:string|null,scope:string|null} $data
      * @return string|null
      */
     public function signup(mixed $data): ?string;
