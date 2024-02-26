@@ -1,6 +1,6 @@
 <?php
 
-namespace Surreal\classes\protocols;
+namespace Surreal;
 
 use Closure;
 use CurlHandle;

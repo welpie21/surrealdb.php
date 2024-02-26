@@ -1,14 +1,11 @@
 <?php
 
-namespace Surreal\classes\protocols;
+namespace Surreal;
 
 use Closure;
 use Surreal\abstracts\AbstractProtocol;
 use WebSocket\Client as WebsocketClient;
-use WebSocket\Middleware\{
-    CloseHandler,
-    PingResponder
-};
+use WebSocket\Middleware\{CloseHandler, PingResponder};
 
 class SurrealWebsocket extends AbstractProtocol
 {
