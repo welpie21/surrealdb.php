@@ -3,16 +3,17 @@
 namespace Surreal;
 
 use Exception;
+use Surreal\abstracts\AbstractProtocol;
 use Surreal\classes\exceptions\SurrealException;
 use Surreal\classes\protocols\SurrealHTTP;
 use Surreal\classes\protocols\SurrealWebsocket;
-use Surreal\interfaces\SurrealApi;
 
-readonly class Surreal implements SurrealApi
+readonly class Surreal
 {
-    private SurrealApi $protocol;
+    private SurrealHTTP|SurrealWebsocket $protocol;
 
     /**
+     * @param array{namespace:string|null, database:string|null, scope:string|null} $target
      * @throws Exception
      */
     public function __construct(
