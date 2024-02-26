@@ -3,9 +3,8 @@
 namespace Surreal\abstracts;
 
 use Closure;
-use Surreal\interfaces\SurrealApi;
 
-abstract class AbstractProtocol extends AbstractSurreal implements SurrealApi
+abstract class AbstractProtocol extends AbstractSurreal
 {
     /**
      * @param string $host
@@ -27,4 +26,10 @@ abstract class AbstractProtocol extends AbstractSurreal implements SurrealApi
      * @return Closure
      */
     abstract public function setTimeout(int $seconds): Closure;
+
+    /**
+     * Closes the connection to the database
+     * @return void
+     */
+    abstract public function close(): void;
 }
