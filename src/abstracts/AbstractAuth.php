@@ -2,7 +2,7 @@
 
 namespace Surreal\abstracts;
 
-abstract class AbstractAuth extends AbstractTarget
+abstract class AbstractAuth
 {
     protected ?string $token = null;
 
@@ -15,10 +15,4 @@ abstract class AbstractAuth extends AbstractTarget
     {
         $this->token = $token;
     }
-
-    /**
-     * Validate if the token is valid.
-     * @return bool
-     */
-    abstract public function validate(): bool;
 }
