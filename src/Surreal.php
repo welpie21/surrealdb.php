@@ -28,6 +28,9 @@ readonly class Surreal
         };
     }
 
+    /**
+     * @throws SurrealException
+     */
     public function status(): int
     {
         return $this->protocol->status();
