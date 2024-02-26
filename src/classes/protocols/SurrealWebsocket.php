@@ -2,10 +2,18 @@
 
 namespace Surreal\classes\protocols;
 
-use Surreal\abstracts\AbstractSurreal;
+use Closure;
+use Surreal\abstracts\AbstractProtocol;
+use WebSocket\Client as WebsocketClient;
+use WebSocket\Middleware\{
+    CloseHandler,
+    PingResponder
+};
 
-class SurrealWebsocket extends AbstractSurreal
+class SurrealWebsocket extends AbstractProtocol
 {
+    private WebsocketClient $client;
+
     /**
      * @param string $host
      * @param array{namespace:string, database:string|null} $target
@@ -15,66 +23,32 @@ class SurrealWebsocket extends AbstractSurreal
         array  $target = []
     )
     {
+        $this->client = (new WebsocketClient($host))
+            ->addMiddleware(new CloseHandler())
+            ->addMiddleware(new PingResponder());
+
         parent::__construct($host, $target);
     }
 
-    public function connect()
+    public function isConnected(): int
     {
-
+        return $this->client->isConnected();
     }
 
-    public function status(): int
+    public function setTimeout(int $seconds): Closure
     {
-        // TODO: Implement status() method.
+        $reset = function () {
+            $timeout = $this->client->getTimeout();
+            $this->client->setTimeout($timeout);
+        };
+
+        $this->client->setTimeout($seconds);
+
+        return $reset;
     }
 
-    public function version(): ?string
+    public function close(): void
     {
-        // TODO: Implement version() method.
-    }
-
-    public function import(string $content, string $username, string $password): string
-    {
-        // TODO: Implement import() method.
-    }
-
-    public function export(string $username, string $password): string
-    {
-        // TODO: Implement export() method.
-    }
-
-    public function signin(mixed $data): ?string
-    {
-        // TODO: Implement signin() method.
-    }
-
-    public function signup(mixed $data): ?string
-    {
-        // TODO: Implement signup() method.
-    }
-
-    public function create(string $table, mixed $data): ?object
-    {
-        // TODO: Implement create() method.
-    }
-
-    public function update(string $thing, mixed $data): ?object
-    {
-        // TODO: Implement update() method.
-    }
-
-    public function merge(string $thing, mixed $data): ?object
-    {
-        // TODO: Implement merge() method.
-    }
-
-    public function delete(string $thing): ?object
-    {
-        // TODO: Implement delete() method.
-    }
-
-    public function sql(string $query): array|object|null
-    {
-        // TODO: Implement sql() method.
+        $this->client->close();
     }
 }
