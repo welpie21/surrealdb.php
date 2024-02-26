@@ -9,7 +9,6 @@ abstract class AbstractSurreal
     protected string $host;
     protected ?string $namespace = null;
     protected ?string $database = null;
-    protected ?string $scope = null;
     protected AbstractAuth $auth;
 
     /**
@@ -52,11 +51,6 @@ abstract class AbstractSurreal
         $this->database = $database;
     }
 
-    public function setScope(?string $scope): void
-    {
-        $this->scope = $scope;
-    }
-
     public function getNamespace(): ?string
     {
         return $this->namespace;
@@ -65,10 +59,5 @@ abstract class AbstractSurreal
     public function getDatabase(): ?string
     {
         return $this->database;
-    }
-
-    public function getScope(): ?string
-    {
-        return $this->scope;
     }
 }
