@@ -8,6 +8,7 @@ use Surreal\classes\responses\ErrorResponse;
 use Surreal\classes\responses\ForbiddenResponse;
 use Surreal\classes\responses\QueryResponse;
 use Exception;
+use Surreal\classes\responses\WebsocketResponse;
 
 readonly class Response
 {
@@ -23,6 +24,7 @@ readonly class Response
             ErrorResponse::KEYS => new ErrorResponse($input),
             QueryResponse::KEYS => new QueryResponse($input),
             ForbiddenResponse::KEYS => new ForbiddenResponse($input),
+            WebsocketResponse::KEYS => new WebsocketResponse($input),
             default => throw new Exception("Invalid response received.")
         };
     }
