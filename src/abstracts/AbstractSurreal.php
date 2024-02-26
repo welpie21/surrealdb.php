@@ -4,16 +4,12 @@ namespace Surreal\abstracts;
 
 use Surreal\classes\auth\SurrealAuth;
 
-abstract class AbstractSurreal extends AbstractTarget
+abstract class AbstractSurreal
 {
-    /**
-     * @var string
-     */
     protected string $host;
-
-    /**
-     * @var AbstractAuth
-     */
+    protected ?string $namespace = null;
+    protected ?string $database = null;
+    protected ?string $scope = null;
     protected AbstractAuth $auth;
 
     /**
@@ -22,8 +18,8 @@ abstract class AbstractSurreal extends AbstractTarget
      * @param AbstractAuth|null $authorization
      */
     public function __construct(
-        string $host,
-        array $target = [],
+        string        $host,
+        array         $target = [],
         ?AbstractAuth $authorization = null
     )
     {
@@ -38,11 +34,41 @@ abstract class AbstractSurreal extends AbstractTarget
     public function use(array $target): void
     {
         if ($namespace = $target["namespace"]) {
-            parent::setNamespace($namespace);
+            $this->setNamespace($namespace);
         }
 
         if ($database = $target["database"]) {
-            parent::setDatabase($database);
+            $this->setDatabase($database);
         }
+    }
+
+    public function setNamespace(?string $namespace): void
+    {
+        $this->namespace = $namespace;
+    }
+
+    public function setDatabase(?string $database): void
+    {
+        $this->database = $database;
+    }
+
+    public function setScope(?string $scope): void
+    {
+        $this->scope = $scope;
+    }
+
+    public function getNamespace(): ?string
+    {
+        return $this->namespace;
+    }
+
+    public function getDatabase(): ?string
+    {
+        return $this->database;
+    }
+
+    public function getScope(): ?string
+    {
+        return $this->scope;
     }
 }
