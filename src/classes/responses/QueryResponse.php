@@ -9,11 +9,14 @@ class QueryResponse extends AbstractResponse
 {
     const array KEYS = ["code", "details", "time"];
 
-    /**
-     * @return array{code: string, details: string, time: string}
-     */
-    #[Override] public function getData(): array
+    public readonly int $code;
+    public readonly mixed $details;
+    public readonly int $time;
+
+    public function __construct(array $data)
     {
-        return parent::getData();
+        $this->code = $data["code"];
+        $this->details = $data["details"];
+        $this->time = $data["time"];
     }
 }

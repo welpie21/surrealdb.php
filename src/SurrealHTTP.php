@@ -5,9 +5,13 @@ namespace Surreal;
 use Closure;
 use CurlHandle;
 use Exception;
+use JsonException;
 use Surreal\abstracts\AbstractProtocol;
+use Surreal\abstracts\AbstractResponse;
 use Surreal\classes\CBOR;
 use Surreal\classes\exceptions\SurrealException;
+use Surreal\classes\ResponseParser as ResponseParser;
+use Surreal\classes\responses\AnyResponse;
 use Surreal\enums\HTTPMethod;
 use Surreal\traits\HTTPTrait;
 
@@ -59,28 +63,25 @@ class SurrealHTTP extends AbstractProtocol
 
     /**
      * @throws SurrealException
+     * @throws JsonException
      */
     public function status(): int
     {
-        $client = $this->execute(
+        return $this->execute(
             endpoint: "/status",
             method: HTTPMethod::GET
         );
-
-        return $this->getCurlResponseCode($client);
     }
 
     /**
-     * @throws SurrealException
+     * @throws SurrealException|JsonException
      */
     public function health(): int
     {
-        $client = $this->execute(
+        return $this->execute(
             endpoint: "/health",
             method: HTTPMethod::GET
         );
-
-        return $this->getCurlResponseCode($client);
     }
 
     /**
@@ -88,33 +89,35 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function version(): ?string
     {
-        $client = $this->execute(
+        return $this->execute(
             endpoint: "/version",
             method: HTTPMethod::GET
         );
-
-        return $this->getCurlResponse($client);
     }
 
     /**
+     * @return array - Array of QueryResponse
      * @throws Exception
      */
-    public function import(string $content, string $username, string $password): string
+    public function import(string $content, string $username, string $password): array
     {
-        $this->execute(
+        /** @var AnyResponse $response */
+        $response = $this->execute(
             endpoint: "/import",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_HTTPHEADER => array_merge($header, [
+                CURLOPT_HTTPHEADER => [
                     HTTP_JSON_ACCEPT,
-                    "Content-Type: text/plain"
-                ]),
+                    "Content-Type: text/plain",
+                    "Surreal-NS: " . $this->getNamespace(),
+                    "Surreal-DB: " . $this->getDatabase()
+                ],
                 CURLOPT_POSTFIELDS => $content,
                 CURLOPT_USERPWD => "$username:$password"
             ]
         );
 
-        return $this->getResponseContent();
+        return $response->response;
     }
 
     /**
@@ -122,18 +125,20 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function export(string $username, string $password): string
     {
-        $header = $this->constructHeader();
-
-        $this->execute(
+        $response = $this->execute(
             endpoint: "/export",
             method: HTTPMethod::GET,
             options: [
-                CURLOPT_HTTPHEADER => $header,
+                CURLOPT_HTTPHEADER => [
+                    HTTP_JSON_ACCEPT,
+                    "Surreal-NS: " . $this->getNamespace(),
+                    "Surreal-DB: " . $this->getDatabase()
+                ],
                 CURLOPT_USERPWD => "$username:$password"
             ]
         );
 
-        return $this->getResponseContent();
+        return $response;
     }
 
     /**
@@ -308,22 +313,37 @@ class SurrealHTTP extends AbstractProtocol
 
     public function close(): void
     {
+        if ($this->client === null) {
+            throw new \RuntimeException("The database connection is already closed.");
+        }
+
         curl_close($this->client);
         $this->client = null;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function parseResponse(array $response): AbstractResponse
+    {
+        $response = new ResponseParser($response);
+        return $response->getResponse();
     }
 
     /**
      * @param string $endpoint
      * @param HTTPMethod $method
      * @param array $options
-     * @return CurlHandle
+     * @return AbstractResponse|int|string|array
+     * @throws JsonException
      * @throws SurrealException
+     * @throws Exception
      */
     private function execute(
         string     $endpoint,
         HTTPMethod $method,
         array      $options = []
-    ): CurlHandle
+    ): AbstractResponse|int|string|array
     {
         if ($this->client === null) {
             throw new \RuntimeException("The curl client is not initialized.");
@@ -339,6 +359,36 @@ class SurrealHTTP extends AbstractProtocol
             throw new SurrealException(curl_error($this->client));
         }
 
-        return $this->client;
+        // get the content type of the response.
+        $content_type = curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
+        $response = curl_multi_getcontent($this->client);
+
+        // Here by we check if the content type is not json or cbor. If it's not, we throw an exception.
+        // This is to ensure that we only receive json or cbor data. This code is done this way to reduce
+        // the number of if statements in the code.
+        if ($content_type === "text/plain; charset=utf-8") {
+            return $response;
+        }
+
+        // Content type can return false if no content type is received.
+        // In this case, we return the response code when it's false.
+        if ($content_type === false) {
+
+            if(is_string($response) && $response !== "")
+                return $response;
+
+            return curl_getinfo($this->client, CURLINFO_RESPONSE_CODE);
+        }
+
+        if ($content_type !== "application/json" && $content_type !== "application/cbor") {
+            throw new SurrealException("The content type is not supported. " . $content_type);
+        }
+
+        $response = match ($content_type) {
+            "application/json" => json_decode($response, true, 512, JSON_THROW_ON_ERROR),
+            "application/cbor" => CBOR::decode($response),
+        };
+
+        return $this->parseResponse($response);
     }
 }

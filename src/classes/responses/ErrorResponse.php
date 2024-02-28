@@ -9,11 +9,16 @@ class ErrorResponse extends AbstractResponse
 {
     const array KEYS = ["code", "details", "description", "information"];
 
-    /**
-     * @return array{code: int, details: string, description: string, information: string}
-     */
-    #[Override] public function getData(): array
+    public readonly int $code;
+    public readonly mixed $details;
+    public readonly string $description;
+    public readonly mixed $information;
+
+    public function __construct(array $data)
     {
-        return parent::getData();
+        $this->code = $data["code"];
+        $this->details = $data["details"];
+        $this->description = $data["description"];
+        $this->information = $data["information"];
     }
 }

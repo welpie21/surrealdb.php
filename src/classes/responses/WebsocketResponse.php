@@ -9,11 +9,12 @@ class WebsocketResponse extends AbstractResponse
 {
     const array KEYS = ["id", "result"];
 
-    /**
-     * @return array{id: string, result: mixed}
-     */
-    #[Override] public function getData(): array
+    public readonly string $id;
+    public readonly mixed $result;
+
+    public function __construct(array $data)
     {
-        return parent::getData();
+        $this->id = $data["id"];
+        $this->result = $data["result"];
     }
 }

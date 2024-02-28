@@ -3,6 +3,7 @@
 namespace Surreal\classes;
 
 use Surreal\abstracts\AbstractResponse;
+use Surreal\classes\responses\AnyResponse;
 use Surreal\classes\responses\AuthResponse;
 use Surreal\classes\responses\ErrorResponse;
 use Surreal\classes\responses\ForbiddenResponse;
@@ -10,7 +11,7 @@ use Surreal\classes\responses\QueryResponse;
 use Exception;
 use Surreal\classes\responses\WebsocketResponse;
 
-readonly class Response
+readonly class ResponseParser
 {
     private ?AbstractResponse $response;
 
@@ -25,7 +26,7 @@ readonly class Response
             QueryResponse::KEYS => new QueryResponse($input),
             ForbiddenResponse::KEYS => new ForbiddenResponse($input),
             WebsocketResponse::KEYS => new WebsocketResponse($input),
-            default => throw new Exception("Invalid response received.")
+            default => new AnyResponse($input),
         };
     }
 

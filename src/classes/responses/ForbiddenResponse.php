@@ -2,7 +2,6 @@
 
 namespace Surreal\classes\responses;
 
-use Override;
 use Surreal\abstracts\AbstractResponse;
 
 /**
@@ -13,11 +12,14 @@ class ForbiddenResponse extends AbstractResponse
 {
     const array KEYS = ["code", "details", "information"];
 
-    /**
-     * @return array{code: int, details: string, information: string}
-     */
-    #[Override] public function getData(): array
+    public readonly int $code;
+    public readonly mixed $details;
+    public readonly mixed $information;
+
+    public function __construct(array $data)
     {
-        return parent::getData();
+        $this->code = $data["code"];
+        $this->details = $data["details"];
+        $this->information = $data["information"];
     }
 }

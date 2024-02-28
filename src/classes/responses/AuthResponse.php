@@ -9,11 +9,14 @@ class AuthResponse extends AbstractResponse
 {
     const array KEYS = ["code", "details", "token"];
 
-    /**
-     * @return array{code: int, details: string, token: string}
-     */
-    #[Override] public function getData(): array
+    public readonly int $code;
+    public readonly mixed $details;
+    public readonly string $token;
+
+    public function __construct(array $data)
     {
-        return parent::getData();
+        $this->code = $data["code"];
+        $this->details = $data["details"];
+        $this->token = $data["token"];
     }
 }
