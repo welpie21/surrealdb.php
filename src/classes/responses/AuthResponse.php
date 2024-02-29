@@ -11,7 +11,7 @@ class AuthResponse extends AbstractResponse
 
     public readonly int $code;
     public readonly mixed $details;
-    public readonly string $token;
+    public readonly ?string $token;
 
     public function __construct(array $data)
     {

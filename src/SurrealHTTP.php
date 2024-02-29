@@ -5,15 +5,16 @@ namespace Surreal;
 use Closure;
 use CurlHandle;
 use Exception;
-use JsonException;
 use Surreal\abstracts\AbstractProtocol;
 use Surreal\abstracts\AbstractResponse;
 use Surreal\classes\CBOR;
 use Surreal\classes\exceptions\SurrealException;
-use Surreal\classes\ResponseParser as ResponseParser;
+use Surreal\classes\ResponseParser;
 use Surreal\classes\responses\AnyResponse;
+use Surreal\classes\responses\AuthResponse;
 use Surreal\enums\HTTPMethod;
 use Surreal\traits\HTTPTrait;
+use Surreal\traits\SurrealTrait;
 
 const HTTP_CBOR_ACCEPT = "Accept: application/cbor";
 const HTTP_CBOR_CONTENT_TYPE = "Content-Type: application/cbor";
@@ -22,7 +23,7 @@ const HTTP_JSON_CONTENT_TYPE = "Content-Type: application/json";
 
 class SurrealHTTP extends AbstractProtocol
 {
-    use HTTPTrait;
+    use HTTPTrait, SurrealTrait;
 
     private ?CurlHandle $client;
 
@@ -63,29 +64,28 @@ class SurrealHTTP extends AbstractProtocol
 
     /**
      * @throws SurrealException
-     * @throws JsonException
      */
     public function status(): int
     {
-        return $this->execute(
+        return $this->checkStatusCode(
             endpoint: "/status",
             method: HTTPMethod::GET
         );
     }
 
     /**
-     * @throws SurrealException|JsonException
+     * @throws SurrealException
      */
     public function health(): int
     {
-        return $this->execute(
+        return $this->checkStatusCode(
             endpoint: "/health",
             method: HTTPMethod::GET
         );
     }
 
     /**
-     * @throws Exception
+     * @throws SurrealException
      */
     public function version(): ?string
     {
@@ -96,7 +96,7 @@ class SurrealHTTP extends AbstractProtocol
     }
 
     /**
-     * @return array - Array of QueryResponse
+     * @return array - Array of SingleRecordResponse
      * @throws Exception
      */
     public function import(string $content, string $username, string $password): array
@@ -125,7 +125,7 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function export(string $username, string $password): string
     {
-        $response = $this->execute(
+        return $this->execute(
             endpoint: "/export",
             method: HTTPMethod::GET,
             options: [
@@ -137,8 +137,6 @@ class SurrealHTTP extends AbstractProtocol
                 CURLOPT_USERPWD => "$username:$password"
             ]
         );
-
-        return $response;
     }
 
     /**
@@ -146,7 +144,8 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function signin(mixed $data): ?string
     {
-        $this->execute(
+        /** @var AuthResponse $response */
+        $response = $this->execute(
             endpoint: "/signin",
             method: HTTPMethod::POST,
             options: [
@@ -158,7 +157,7 @@ class SurrealHTTP extends AbstractProtocol
             ]
         );
 
-        return $this->parseResponse();
+        return $response->token;
     }
 
     /**
@@ -166,9 +165,8 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function signup(mixed $data): ?string
     {
-        $data = $this->parseAuthTarget($data);
-
-        $this->execute(
+        /** @var AuthResponse $response */
+        $response = $this->execute(
             endpoint: "/signup",
             method: HTTPMethod::POST,
             options: [
@@ -180,16 +178,7 @@ class SurrealHTTP extends AbstractProtocol
             ]
         );
 
-        return $this->parseResponse();
-    }
-
-    /**
-     * Invalidate the current token.
-     * @return void
-     */
-    public function invalidate(): void
-    {
-        $this->authorization->invalidate();
+        return $response->token;
     }
 
     /**
@@ -200,12 +189,16 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function create(string $table, mixed $data): ?object
     {
-        $header = $this->constructHeader([
-            HTTP_CBOR_ACCEPT,
-            HTTP_CBOR_CONTENT_TYPE
-        ]);
+        $header = [
+            HTTP_JSON_ACCEPT,
+            HTTP_JSON_CONTENT_TYPE,
+            "Surreal-NS: " . $this->getNamespace(),
+            "Surreal-DB: " . $this->getDatabase(),
+            ...$this->auth->getHeaders()
+        ];
 
-        $this->execute(
+        /** @var AnyResponse $response */
+        $response = $this->execute(
             endpoint: "/key/$table",
             method: HTTPMethod::POST,
             options: [
@@ -214,7 +207,7 @@ class SurrealHTTP extends AbstractProtocol
             ]
         );
 
-        return (object)$this->parseResponse()[0];
+        return (object)$response->response[0]["result"][0];
     }
 
     /**
@@ -225,21 +218,27 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function update(string $thing, mixed $data): ?object
     {
-        $headers = $this->constructHeader([
-            HTTP_CBOR_ACCEPT,
-            HTTP_CBOR_CONTENT_TYPE
-        ]);
+        [$table, $id] = $this->parseThing($thing);
 
-        $this->execute(
-            endpoint: "/key/$thing",
+        $header = [
+            HTTP_JSON_ACCEPT,
+            HTTP_JSON_CONTENT_TYPE,
+            "Surreal-NS: " . $this->getNamespace(),
+            "Surreal-DB: " . $this->getDatabase(),
+            ...$this->auth->getHeaders()
+        ];
+
+        /** @var AnyResponse $response */
+        $response = $this->execute(
+            endpoint: "/key/$table/$id",
             method: HTTPMethod::PUT,
             options: [
-                CURLOPT_POSTFIELDS => CBOR::encode($data),
-                CURLOPT_HTTPHEADER => $headers
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => $header
             ]
         );
 
-        return (object)$this->parseResponse()[0];
+        return (object)$response->response[0]["result"][0];
     }
 
     /**
@@ -247,13 +246,19 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function merge(string $thing, mixed $data): ?object
     {
-        $header = $this->constructHeader([
-            HTTP_CBOR_ACCEPT,
-            HTTP_CBOR_CONTENT_TYPE
-        ]);
+        [$table, $id] = $this->parseThing($thing);
 
-        $this->execute(
-            endpoint: "/key/$thing",
+        $header = [
+            HTTP_JSON_ACCEPT,
+            HTTP_JSON_CONTENT_TYPE,
+            "Surreal-NS: " . $this->getNamespace(),
+            "Surreal-DB: " . $this->getDatabase(),
+            ...$this->auth->getHeaders()
+        ];
+
+        /** @var AnyResponse $response */
+        $response = $this->execute(
+            endpoint: "/key/$table/$id",
             method: HTTPMethod::PATCH,
             options: [
                 CURLOPT_POSTFIELDS => CBOR::encode($data),
@@ -261,7 +266,7 @@ class SurrealHTTP extends AbstractProtocol
             ]
         );
 
-        return (object)$this->parseResponse()[0];
+        return (object)$response->response[0]["result"][0];
     }
 
     /**
@@ -269,37 +274,46 @@ class SurrealHTTP extends AbstractProtocol
      */
     public function delete(string $thing): ?object
     {
-        $header = $this->constructHeader([
-            HTTP_CBOR_ACCEPT,
-            HTTP_CBOR_CONTENT_TYPE
-        ]);
+        [$table, $id] = $this->parseThing($thing);
 
-        $this->execute(
-            endpoint: "/key/$thing",
+        $header = [
+            HTTP_JSON_ACCEPT,
+            HTTP_JSON_CONTENT_TYPE,
+            "Surreal-NS: " . $this->getNamespace(),
+            "Surreal-DB: " . $this->getDatabase(),
+            ...$this->auth->getHeaders()
+        ];
+
+        /** @var AnyResponse $response */
+        $response = $this->execute(
+            endpoint: "/key/$table/$id",
             method: HTTPMethod::DELETE,
             options: [
                 CURLOPT_HTTPHEADER => $header
             ]
         );
 
-        return (object)$this->parseResponse()[0];
+        return (object)$response->response[0]["result"][0];
     }
 
     /**
      * Execute a SQL query.
      * @param string $query
-     * @param array $params
      * @return array|object|null
      * @throws Exception
      */
-    public function sql(string $query, array $params): array|object|null
+    public function sql(string $query): array|object|null
     {
-        $header = $this->constructHeader([
-            HTTP_CBOR_ACCEPT,
-            HTTP_CBOR_CONTENT_TYPE
-        ]);
+        $header = [
+            HTTP_JSON_ACCEPT,
+            HTTP_JSON_CONTENT_TYPE,
+            "Surreal-NS: " . $this->getNamespace(),
+            "Surreal-DB: " . $this->getDatabase(),
+            ...$this->auth->getHeaders()
+        ];
 
-        $this->execute(
+        /** @var AnyResponse $response */
+        $response = $this->execute(
             endpoint: "/sql",
             method: HTTPMethod::POST,
             options: [
@@ -308,7 +322,26 @@ class SurrealHTTP extends AbstractProtocol
             ]
         );
 
-        return $this->parseResponse();
+        return $response->response;
+    }
+
+    /**
+     * Invalidate the current token.
+     * @return void
+     */
+    public function invalidate(): void
+    {
+        $this->auth->setToken(null);
+    }
+
+    public function setToken(?string $token): void
+    {
+        $this->auth->setToken($token);
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->auth->getToken();
     }
 
     public function close(): void
@@ -322,28 +355,13 @@ class SurrealHTTP extends AbstractProtocol
     }
 
     /**
-     * @throws Exception
-     */
-    private function parseResponse(array $response): AbstractResponse
-    {
-        $response = new ResponseParser($response);
-        return $response->getResponse();
-    }
-
-    /**
-     * @param string $endpoint
-     * @param HTTPMethod $method
-     * @param array $options
-     * @return AbstractResponse|int|string|array
-     * @throws JsonException
      * @throws SurrealException
-     * @throws Exception
      */
-    private function execute(
+    private function baseExecute(
         string     $endpoint,
         HTTPMethod $method,
         array      $options = []
-    ): AbstractResponse|int|string|array
+    ): void
     {
         if ($this->client === null) {
             throw new \RuntimeException("The curl client is not initialized.");
@@ -358,37 +376,54 @@ class SurrealHTTP extends AbstractProtocol
         if (curl_exec($this->client) === false) {
             throw new SurrealException(curl_error($this->client));
         }
+    }
+
+    /**
+     * @param string $endpoint
+     * @param HTTPMethod $method
+     * @param array $options
+     * @return AbstractResponse|int|string|array
+     * @throws SurrealException|Exception
+     */
+    private function execute(
+        string     $endpoint,
+        HTTPMethod $method,
+        array      $options = []
+    ): AbstractResponse|int|string|array
+    {
+        $this->baseExecute($endpoint, $method, $options);
 
         // get the content type of the response.
         $content_type = curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
-        $response = curl_multi_getcontent($this->client);
+        $content_body = curl_multi_getcontent($this->client);
 
-        // Here by we check if the content type is not json or cbor. If it's not, we throw an exception.
-        // This is to ensure that we only receive json or cbor data. This code is done this way to reduce
-        // the number of if statements in the code.
-        if ($content_type === "text/plain; charset=utf-8") {
-            return $response;
-        }
-
-        // Content type can return false if no content type is received.
-        // In this case, we return the response code when it's false.
-        if ($content_type === false) {
-
-            if(is_string($response) && $response !== "")
-                return $response;
-
-            return curl_getinfo($this->client, CURLINFO_RESPONSE_CODE);
-        }
-
-        if ($content_type !== "application/json" && $content_type !== "application/cbor") {
-            throw new SurrealException("The content type is not supported. " . $content_type);
-        }
-
-        $response = match ($content_type) {
-            "application/json" => json_decode($response, true, 512, JSON_THROW_ON_ERROR),
-            "application/cbor" => CBOR::decode($response),
+        $result = match ($content_type) {
+            "application/json" => json_decode($content_body, true),
+            "application/cbor" => CBOR::decode($content_body),
+            false, "text/plain; charset=utf-8" => $content_body,
+            default => throw new SurrealException("Unsupported content type: $content_type"),
         };
 
-        return $this->parseResponse($response);
+        if ($content_type === "application/json" || $content_type === "application/cbor") {
+            $parser = new ResponseParser($result);
+            return $parser->getResponse();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Executes a request without expecting a response.
+     * uses the health, status endpoints.
+     * @throws SurrealException
+     */
+    private function checkStatusCode(
+        string     $endpoint,
+        HTTPMethod $method,
+        array      $options = []
+    ): int
+    {
+        $this->baseExecute($endpoint, $method, $options);
+        return curl_getinfo($this->client, CURLINFO_RESPONSE_CODE);
     }
 }

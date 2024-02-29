@@ -24,7 +24,7 @@
         "ext-curl": "*",
         "ramsey/uuid": "^3.9",
         "2tvenom/cborencode": "1.0.2",
-        "phrity/websocket": "^2.1",
+        "phrity/websocket": "^2.1.3",
         "php": ">=8.3"
     },
     "require-dev": {

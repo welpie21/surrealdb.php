@@ -51,3 +51,29 @@ RELATE person:pebbers->likes->product:apple CONTENT {
 RELATE person:pebbers->likes->product:carrot CONTENT {
     rating: 4
 };
+
+-- Create a root user
+DEFINE USER beaurt ON ROOT PASSWORD '123456' ROLES OWNER;
+
+-- Create a namespace user
+DEFINE USER beauns ON NAMESPACE PASSWORD '123456' ROLES OWNER;
+
+-- Create a database user
+DEFINE USER beaudb ON DATABASE PASSWORD '123456' ROLES OWNER;
+
+-- Create a scope user
+DEFINE SCOPE user SESSION 1d
+    SIGNIN (
+        SELECT * FROM user WHERE user = $user AND crypto::argon2::compare(pass, $pass)
+    )
+    SIGNUP (
+        CREATE user CONTENT {
+            user: $name,
+            pass: crypto::argon2::generate($password)
+        }
+    );
+
+CREATE user CONTENT {
+    user: "beau",
+    pass: crypto::argon2::generate("123456")
+}
