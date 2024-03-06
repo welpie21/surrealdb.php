@@ -1,16 +1,18 @@
 <?php
 
+namespace protocol\http;
+
 use PHPUnit\Framework\TestCase;
 use Surreal\classes\exceptions\SurrealException;
 use Surreal\SurrealHTTP;
 
 final class BasicTest extends TestCase
 {
-    private static SurrealHTTP $http_db;
+    private static SurrealHTTP $db;
 
     public static function setUpBeforeClass(): void
     {
-        self::$http_db = new SurrealHTTP(
+        self::$db = new SurrealHTTP(
             host: "http://localhost:8000",
             target: ["namespace" => "test", "database" => "test"]
         );
@@ -23,7 +25,7 @@ final class BasicTest extends TestCase
      */
     public function testStatus(): void
     {
-        $status = self::$http_db->status();
+        $status = self::$db->status();
 
         $this->assertIsInt($status);
         $this->assertEquals(200, $status);
@@ -34,7 +36,7 @@ final class BasicTest extends TestCase
      */
     public function testHealth(): void
     {
-        $health = self::$http_db->health();
+        $health = self::$db->health();
 
         $this->assertIsInt($health);
         $this->assertEquals(200, $health);
@@ -45,7 +47,7 @@ final class BasicTest extends TestCase
      */
     public function testVersion(): void
     {
-        $version = self::$http_db->version();
+        $version = self::$db->version();
 
         $this->assertIsString($version);
         $this->assertStringStartsWith("surrealdb-", $version);
@@ -53,7 +55,7 @@ final class BasicTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
-        self::$http_db->close();
+        self::$db->close();
         parent::tearDownAfterClass();
     }
 }

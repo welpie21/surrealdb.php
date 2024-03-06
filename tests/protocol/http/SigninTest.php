@@ -1,15 +1,17 @@
 <?php
 
+namespace protocol\http;
+
 use PHPUnit\Framework\TestCase;
 use Surreal\SurrealHTTP;
 
 class SigninTest extends TestCase
 {
-    private static SurrealHTTP $http_db;
+    private static SurrealHTTP $db;
 
     public static function setUpBeforeClass(): void
     {
-        self::$http_db = new SurrealHTTP(
+        self::$db = new SurrealHTTP(
             host: "http://localhost:8000",
             target: ["namespace" => "test", "database" => "test"]
         );
@@ -20,9 +22,10 @@ class SigninTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testSigninRoot(): void {
+    public function testSigninRoot(): void
+    {
 
-        $token = self::$http_db->signin([
+        $token = self::$db->signin([
             "user" => "beaurt",
             "pass" => "123456"
         ]);
@@ -36,7 +39,7 @@ class SigninTest extends TestCase
      */
     public function testSigninDatabase(): void
     {
-        $token = self::$http_db->signin([
+        $token = self::$db->signin([
             "user" => "beaudb",
             "pass" => "123456",
             "ns" => "test",
@@ -51,7 +54,7 @@ class SigninTest extends TestCase
      */
     public function testSigninScope(): void
     {
-        $token = self::$http_db->signin([
+        $token = self::$db->signin([
             "user" => "beau",
             "pass" => "123456",
             "ns" => "test",
@@ -64,13 +67,13 @@ class SigninTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
-        self::$http_db->invalidate();
+        self::$db->invalidate();
 
         // last check to make sure the token is invalidated
-        $token = self::$http_db->getToken();
+        $token = self::$db->getToken();
         self::assertNull($token, "Token is not invalidated");
 
-        self::$http_db->close();
+        self::$db->close();
         parent::tearDownAfterClass();
     }
 }
