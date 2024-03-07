@@ -37,16 +37,14 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @param array{namespace:string|null,database:string|null} $target
      * @return void
+     * @throws Exception
      */
     #[\Override]
     public function use(array $target): void
     {
-        $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "use",
-                "params" => [$target["namespace"], $target["database"]]
-            ])
+        $this->execute(
+            method: "use",
+            params: [$target["namespace"], $target["database"]]
         );
 
         parent::use($target);
@@ -69,25 +67,25 @@ class SurrealWebsocket extends AbstractProtocol
         return $reset;
     }
 
-    public function let(string $param, string $value): void
+    /**
+     * @throws Exception
+     */
+    public function let(string $param, string $value): mixed
     {
-        $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "let",
-                "params" => [$param, $value]
-            ])
+        return $this->execute(
+            method: "let",
+            params: [$param, $value]
         );
     }
 
-    public function unset(string $param): void
+    /**
+     * @throws Exception
+     */
+    public function unset(string $param): mixed
     {
-        $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "unset",
-                "params" => [$param]
-            ])
+        return $this->execute(
+            method: "unset",
+            params: [$param]
         );
     }
 
@@ -95,19 +93,14 @@ class SurrealWebsocket extends AbstractProtocol
      * @param string $sql
      * @param array $params
      * @return mixed
+     * @throws Exception
      */
     public function query(string $sql, array $params): mixed
     {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "query",
-                "params" => [$sql, $params]
-            ])
+        return $this->execute(
+            method: "query",
+            params: [$sql, $params]
         );
-
-        $result = $response->getContent();
-        return json_decode($result);
     }
 
     /**
@@ -115,23 +108,10 @@ class SurrealWebsocket extends AbstractProtocol
      */
     public function signin(array $params): mixed
     {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "signin",
-                "params" => [$params]
-            ])
+        return $this->execute(
+            method: "signin",
+            params: [$params]
         );
-
-        $result = $response->getContent();
-        $result = json_decode($result);
-
-        $parser = new ResponseParser($result);
-
-        /** @var WebsocketResponse $result */
-        $result = $parser->getResponse();
-
-        return $result->result;
     }
 
     /**
@@ -139,23 +119,10 @@ class SurrealWebsocket extends AbstractProtocol
      */
     public function signup(array $params): mixed
     {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "signup",
-                "params" => [$params]
-            ])
+        return $this->execute(
+            method: "signup",
+            params: [$params]
         );
-
-        $result = $response->getContent();
-        $result = json_decode($result);
-
-        $parser = new ResponseParser($result);
-
-        /** @var WebsocketResponse $result */
-        $result = $parser->getResponse();
-
-        return $result->result;
     }
 
     /**
@@ -163,23 +130,10 @@ class SurrealWebsocket extends AbstractProtocol
      */
     public function authenticate(string $token): mixed
     {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "authenticate",
-                "params" => [$token]
-            ])
+        return $this->execute(
+            method: "authenticate",
+            params: [$token]
         );
-
-        $result = $response->getContent();
-        $result = json_decode($result);
-
-        $parser = new ResponseParser($result);
-
-        /** @var WebsocketResponse $result */
-        $result = $parser->getResponse();
-
-        return $result->result;
     }
 
     /**
@@ -187,22 +141,7 @@ class SurrealWebsocket extends AbstractProtocol
      */
     public function info(): array
     {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "info"
-            ])
-        );
-
-        $result = $response->getContent();
-        $result = json_decode($result);
-
-        $parser = new ResponseParser($result);
-
-        /** @var WebsocketResponse $result */
-        $result = $parser->getResponse();
-
-        return $result->result;
+        return $this->execute("info");
     }
 
     /**
@@ -210,22 +149,7 @@ class SurrealWebsocket extends AbstractProtocol
      */
     public function invalidate(): array
     {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "invalidate"
-            ])
-        );
-
-        $result = $response->getContent();
-        $result = json_decode($result);
-
-        $parser = new ResponseParser($result);
-
-        /** @var WebsocketResponse $result */
-        $result = $parser->getResponse();
-
-        return $result->result;
+        return $this->execute("invalidate");
     }
 
     /**
@@ -233,106 +157,111 @@ class SurrealWebsocket extends AbstractProtocol
      */
     public function select(string $thing): array
     {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "select",
-                "params" => [$thing]
-            ])
+        return $this->execute(
+            method: "select",
+            params: [$thing]
         );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function insert(string $thing, array $data): array
+    {
+        return $this->execute(
+            method: "insert",
+            params: [$thing, $data]
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function create(string $table, array $data): array
+    {
+        return $this->execute(
+            method: "create",
+            params: [$table, $data]
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function update(string $table, array $data): array
+    {
+        return $this->execute(
+            method: "update",
+            params: [$table, $data]
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function merge(string $table, array $data): array
+    {
+        return $this->execute(
+            method: "merge",
+            params: [$table, $data]
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function patch(string $table, array $data, bool $diff = false): array
+    {
+        return $this->execute(
+            method: "patch",
+            params: [$table, $data, $diff]
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function delete(string $thing): array
+    {
+        return $this->execute(
+            method: "delete",
+            params: [$thing]
+        );
+    }
+
+    public function close(): void
+    {
+        $this->client->close();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function execute(string $method, ?array $params = null): mixed
+    {
+        $payload = [
+            "id" => 1,
+            "method" => $method
+        ];
+
+        if ($params !== null) {
+            $payload["params"] = $params;
+        }
+
+        $response = $this->client->text(json_encode($payload));
 
         $result = $response->getContent();
-        $result = json_decode($result);
+        $result = json_decode($result, true);
 
         $parser = new ResponseParser($result);
 
         /** @var WebsocketResponse $result */
         $result = $parser->getResponse();
 
+        if(!($result instanceof WebsocketResponse)) {
+            throw new Exception("Something went wrong with parsing the response");
+        }
+
         return $result->result;
-    }
-
-    public function insert(string $thing, array $data): array
-    {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "insert",
-                "params" => [$thing, $data]
-            ])
-        );
-
-        return [];
-    }
-
-    public function create(string $table, array $data): array
-    {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "create",
-                "params" => [$table, $data]
-            ])
-        );
-
-        return [];
-    }
-
-    public function update(string $table, array $data): array
-    {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "update",
-                "params" => [$table, $data]
-            ])
-        );
-
-        return [];
-    }
-
-    public function merge(string $table, array $data): array
-    {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "merge",
-                "params" => [$table, $data]
-            ])
-        );
-
-        return [];
-    }
-
-    public function patch(string $table, array $data, bool $diff = false): array
-    {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "patch",
-                "params" => [$table, $data, $diff]
-            ])
-        );
-
-        return [];
-    }
-
-    public function delete(string $thing): array
-    {
-        $response = $this->client->text(
-            json_encode([
-                "id" => 1,
-                "method" => "delete",
-                "params" => [$thing]
-            ])
-        );
-
-        return [];
-    }
-
-
-    public function close(): void
-    {
-        $this->client->close();
     }
 }
