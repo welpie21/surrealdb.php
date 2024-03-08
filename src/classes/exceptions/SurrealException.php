@@ -6,8 +6,8 @@ use Exception;
 
 class SurrealException extends Exception
 {
-    public function __construct(string $message)
+    public function __construct(string $message, int $code = 0)
     {
-        parent::__construct($message);
+        parent::__construct($message, $code);
     }
 }
