@@ -404,12 +404,10 @@ class SurrealHTTP extends AbstractProtocol
             default => throw new SurrealException("Unsupported content type: $content_type"),
         };
 
-        if ($content_type === "application/json" || $content_type === "application/cbor") {
-            $parser = new ResponseParser($result);
-            return $parser->getResponse();
-        }
-
-        return $result;
+        return match ($content_type) {
+            "application/json", "application/cbor" => ResponseParser::create($result),
+            false, "text/plain; charset=utf-8" => $result,
+        };
     }
 
     /**

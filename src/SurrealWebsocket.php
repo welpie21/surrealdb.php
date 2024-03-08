@@ -5,6 +5,7 @@ namespace Surreal;
 use Closure;
 use Exception;
 use Surreal\abstracts\AbstractProtocol;
+use Surreal\classes\exceptions\SurrealException;
 use Surreal\classes\ResponseParser;
 use Surreal\classes\responses\WebsocketResponse;
 use WebSocket\Client as WebsocketClient;
@@ -17,6 +18,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @param string $host
      * @param array{namespace:string, database:string|null} $target
+     * @throws Exception
      */
     public function __construct(
         string $host,
@@ -30,6 +32,7 @@ class SurrealWebsocket extends AbstractProtocol
             ->setPersistent(true);
 
         $this->client->connect();
+        $this->use($target);
 
         parent::__construct($host, $target);
     }
@@ -155,7 +158,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function select(string $thing): array
+    public function select(string $thing): ?array
     {
         return $this->execute(
             method: "select",
@@ -166,7 +169,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function insert(string $thing, array $data): array
+    public function insert(string $thing, array $data): ?array
     {
         return $this->execute(
             method: "insert",
@@ -177,7 +180,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function create(string $table, array $data): array
+    public function create(string $table, array $data): ?array
     {
         return $this->execute(
             method: "create",
@@ -188,7 +191,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function update(string $table, array $data): array
+    public function update(string $table, array $data): ?array
     {
         return $this->execute(
             method: "update",
@@ -199,7 +202,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function merge(string $table, array $data): array
+    public function merge(string $table, array $data): ?array
     {
         return $this->execute(
             method: "merge",
@@ -210,7 +213,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function patch(string $table, array $data, bool $diff = false): array
+    public function patch(string $table, array $data, bool $diff = false): ?array
     {
         return $this->execute(
             method: "patch",
@@ -221,7 +224,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function delete(string $thing): array
+    public function delete(string $thing): ?array
     {
         return $this->execute(
             method: "delete",
@@ -248,20 +251,26 @@ class SurrealWebsocket extends AbstractProtocol
             $payload["params"] = $params;
         }
 
-        $response = $this->client->text(json_encode($payload));
+        $this->client->text(json_encode($payload));
 
-        $result = $response->getContent();
-        $result = json_decode($result, true);
+        $received = $this->client->receive();
+        $message = $received->getContent();
 
-        $parser = new ResponseParser($result);
-
-        /** @var WebsocketResponse $result */
-        $result = $parser->getResponse();
-
-        if(!($result instanceof WebsocketResponse)) {
-            throw new Exception("Something went wrong with parsing the response");
+        // Some endpoints are returning empty responses, so
+        // We always says this is a success
+        if($message === "") {
+            return true;
         }
 
-        return $result->result;
+        /** @var WebsocketResponse $response */
+        $response = ResponseParser::create(
+            json_decode($message, true)
+        );
+
+        if (!($response instanceof WebsocketResponse)) {
+            throw new SurrealException("Something went wrong with parsing the response");
+        }
+
+        return $response->result;
     }
 }

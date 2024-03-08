@@ -2,7 +2,6 @@
 
 namespace Surreal\classes\responses;
 
-use Override;
 use Surreal\abstracts\AbstractResponse;
 
 class WebsocketResponse extends AbstractResponse
