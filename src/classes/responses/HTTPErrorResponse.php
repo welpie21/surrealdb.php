@@ -6,7 +6,7 @@ use Override;
 use Surreal\abstracts\AbstractResponse;
 use Surreal\classes\exceptions\SurrealException;
 
-class ErrorResponse extends AbstractResponse
+class HTTPErrorResponse extends AbstractResponse
 {
     const array KEYS = ["code", "details", "description", "information"];
 
