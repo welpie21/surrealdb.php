@@ -9,6 +9,9 @@ class QueryTest extends TestCase
 {
     private static SurrealWebsocket $db;
 
+    /**
+     * @throws \Exception
+     */
     public static function setUpBeforeClass(): void
     {
         self::$db = new SurrealWebsocket(

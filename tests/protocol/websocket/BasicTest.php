@@ -2,6 +2,7 @@
 
 namespace protocol\websocket;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Surreal\SurrealWebsocket;
 
@@ -9,6 +10,9 @@ class BasicTest extends TestCase
 {
     private static SurrealWebsocket $db;
 
+    /**
+     * @throws Exception
+     */
     public static function setUpBeforeClass(): void
     {
         self::$db = new SurrealWebsocket(
@@ -23,6 +27,17 @@ class BasicTest extends TestCase
     {
         $connected = self::$db->isConnected();
         $this->assertTrue($connected, "The websocket is not connected");
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testUse(): void
+    {
+        self::$db->use(["namespace" => "test", "database" => "test"]);
+        $person = self::$db->select("person:beau");
+
+        var_dump($person);
     }
 
     public static function tearDownAfterClass(): void
