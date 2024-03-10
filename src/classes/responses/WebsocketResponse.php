@@ -2,9 +2,9 @@
 
 namespace Surreal\classes\responses;
 
-use Surreal\abstracts\AbstractResponse;
+use Surreal\interface\ResponseInterface;
 
-class WebsocketResponse extends AbstractResponse
+class WebsocketResponse implements ResponseInterface
 {
     const array KEYS = ["id", "result"];
 

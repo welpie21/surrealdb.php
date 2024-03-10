@@ -2,10 +2,10 @@
 
 namespace Surreal\classes\responses;
 
-use Surreal\abstracts\AbstractResponse;
 use Surreal\classes\exceptions\SurrealException;
+use Surreal\interface\ResponseInterface;
 
-class WebsocketErrorResponse extends AbstractResponse
+class WebsocketErrorResponse implements ResponseInterface
 {
     const array KEYS = ["error", "id"];
 

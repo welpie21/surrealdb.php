@@ -5,13 +5,13 @@ namespace Surreal;
 use CurlHandle;
 use Exception;
 use Surreal\abstracts\AbstractProtocol;
-use Surreal\abstracts\AbstractResponse;
 use Surreal\classes\CBOR;
 use Surreal\classes\exceptions\SurrealException;
 use Surreal\classes\ResponseParser;
 use Surreal\classes\responses\AnyResponse;
 use Surreal\classes\responses\AuthResponse;
 use Surreal\enums\HTTPMethod;
+use Surreal\interface\ResponseInterface;
 use Surreal\traits\SurrealTrait;
 
 const HTTP_CBOR_ACCEPT = "Accept: application/cbor";
@@ -51,6 +51,15 @@ class SurrealHTTP extends AbstractProtocol
     public function setTimeout(int $seconds): void
     {
         curl_setopt($this->client, CURLOPT_TIMEOUT, $seconds);
+    }
+
+    /**
+     * Get the timeout for the curl client.
+     * @return int
+     */
+    public function getTimeout(): int
+    {
+        return curl_getinfo($this->client, CURLOPT_TIMEOUT);
     }
 
     /**
@@ -374,14 +383,14 @@ class SurrealHTTP extends AbstractProtocol
      * @param string $endpoint
      * @param HTTPMethod $method
      * @param array $options
-     * @return AbstractResponse|int|string|array
+     * @return ResponseInterface|int|string|array
      * @throws SurrealException|Exception
      */
     private function execute(
         string     $endpoint,
         HTTPMethod $method,
         array      $options = []
-    ): AbstractResponse|int|string|array
+    ): ResponseInterface|int|string|array
     {
         $this->baseExecute($endpoint, $method, $options);
 

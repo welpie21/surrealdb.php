@@ -2,7 +2,6 @@
 
 namespace Surreal\classes;
 
-use Surreal\abstracts\AbstractResponse;
 use Surreal\classes\responses\AnyResponse;
 use Surreal\classes\responses\AuthResponse;
 use Surreal\classes\responses\HTTPErrorResponse;
@@ -10,10 +9,11 @@ use Surreal\classes\responses\ForbiddenResponse;
 use Exception;
 use Surreal\classes\responses\WebsocketErrorResponse;
 use Surreal\classes\responses\WebsocketResponse;
+use Surreal\interface\ResponseInterface;
 
 readonly class ResponseParser
 {
-    private ?AbstractResponse $response;
+    private ?ResponseInterface $response;
 
     /**
      * @throws Exception
@@ -32,9 +32,9 @@ readonly class ResponseParser
 
     /**
      * Returns the response
-     * @return AbstractResponse
+     * @return ResponseInterface
      */
-    public function getResponse(): AbstractResponse
+    public function getResponse(): ResponseInterface
     {
         return $this->response;
     }
@@ -42,7 +42,7 @@ readonly class ResponseParser
     /**
      * @throws Exception
      */
-    public static function create(array $input): AbstractResponse
+    public static function create(array $input): ResponseInterface
     {
         return (new self($input))->getResponse();
     }

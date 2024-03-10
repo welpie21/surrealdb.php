@@ -2,11 +2,10 @@
 
 namespace Surreal\classes\responses;
 
-use Override;
-use Surreal\abstracts\AbstractResponse;
 use Surreal\classes\exceptions\SurrealException;
+use Surreal\interface\ResponseInterface;
 
-class HTTPErrorResponse extends AbstractResponse
+class HTTPErrorResponse implements ResponseInterface
 {
     const array KEYS = ["code", "details", "description", "information"];
 

@@ -2,10 +2,9 @@
 
 namespace Surreal\classes\responses;
 
-use Surreal\abstracts\AbstractResponse;
-use Override;
+use Surreal\interface\ResponseInterface;
 
-class AuthResponse extends AbstractResponse
+class AuthResponse implements ResponseInterface
 {
     const array KEYS = ["code", "details", "token"];
 

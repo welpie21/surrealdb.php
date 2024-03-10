@@ -2,9 +2,10 @@
 
 namespace Surreal\classes\responses;
 
-use Surreal\abstracts\AbstractResponse;
 
-class AnyResponse extends AbstractResponse
+use Surreal\interface\ResponseInterface;
+
+class AnyResponse implements ResponseInterface
 {
     public array $response;
 

@@ -2,14 +2,14 @@
 
 namespace Surreal\classes\responses;
 
-use Surreal\abstracts\AbstractResponse;
 use Surreal\classes\exceptions\SurrealException;
+use Surreal\interface\ResponseInterface;
 
 /**
  * For the forbidden response the request has to respond with "code" = 403
  * the rest doesn't matter what value it has as long as it's present in the response
  */
-class ForbiddenResponse extends AbstractResponse
+class ForbiddenResponse implements ResponseInterface
 {
     const array KEYS = ["code", "details", "information"];
 
