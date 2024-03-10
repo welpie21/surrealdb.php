@@ -9,6 +9,7 @@ abstract class AbstractAuth
 
     /**
      * Set the auth token
+     * @codeCoverageIgnore - Being used but false positive.
      * @param string|null $token
      * @return void
      */
@@ -28,6 +29,7 @@ abstract class AbstractAuth
 
     /**
      * Set the auth scope
+     * @codeCoverageIgnore - Being used but false positive.
      * @param string|null $scope
      * @return void
      */
@@ -53,11 +55,11 @@ abstract class AbstractAuth
     {
         $headers = [];
 
-        if ($token = $this->getToken()) {
+        if (($token = $this->token) !== null) {
             $headers[] = "Authorization: Bearer $token";
         }
 
-        if ($scope = $this->getScope()) {
+        if (($scope = $this->scope) !== null) {
             $headers[] = "Surreal-SC: " . $scope;
         }
 
