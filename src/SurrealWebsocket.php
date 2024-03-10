@@ -89,15 +89,15 @@ class SurrealWebsocket extends AbstractProtocol
 
     /**
      * @param string $sql
-     * @param array $params
+     * @param array|null $vars
      * @return mixed
      * @throws Exception
      */
-    public function query(string $sql, array $params): mixed
+    public function query(string $sql, ?array $vars = null): mixed
     {
         return $this->execute(
             method: "query",
-            params: [$sql, $params]
+            params: $vars ? [$sql, $vars] : [$sql]
         );
     }
 
@@ -176,48 +176,49 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function create(string $table, array $data): ?array
+    public function create(string $thing, array $data): ?array
     {
         return $this->execute(
             method: "create",
-            params: [$table, $data]
+            params: [$thing, $data]
         );
     }
 
     /**
      * @throws Exception
      */
-    public function update(string $table, array $data): ?array
+    public function update(string $thing, array $data): ?array
     {
         return $this->execute(
             method: "update",
-            params: [$table, $data]
+            params: [$thing, $data]
         );
     }
 
     /**
      * @throws Exception
      */
-    public function merge(string $table, array $data): ?array
+    public function merge(string $thing, array $data): ?array
     {
         return $this->execute(
             method: "merge",
-            params: [$table, $data]
+            params: [$thing, $data]
         );
     }
 
     /**
      * @throws Exception
      */
-    public function patch(string $table, array $data, bool $diff = false): ?array
+    public function patch(string $thing, array $data, bool $diff = false): ?array
     {
         return $this->execute(
             method: "patch",
-            params: [$table, $data, $diff]
+            params: [$thing, $data, $diff]
         );
     }
 
     /**
+     * Removes a table or a single record from a table
      * @throws Exception
      */
     public function delete(string $thing): ?array
