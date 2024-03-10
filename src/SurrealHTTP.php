@@ -2,7 +2,6 @@
 
 namespace Surreal;
 
-use Closure;
 use CurlHandle;
 use Exception;
 use Surreal\abstracts\AbstractProtocol;
@@ -13,7 +12,6 @@ use Surreal\classes\ResponseParser;
 use Surreal\classes\responses\AnyResponse;
 use Surreal\classes\responses\AuthResponse;
 use Surreal\enums\HTTPMethod;
-use Surreal\traits\HTTPTrait;
 use Surreal\traits\SurrealTrait;
 
 const HTTP_CBOR_ACCEPT = "Accept: application/cbor";
@@ -23,7 +21,7 @@ const HTTP_JSON_CONTENT_TYPE = "Content-Type: application/json";
 
 class SurrealHTTP extends AbstractProtocol
 {
-    use HTTPTrait, SurrealTrait;
+    use SurrealTrait;
 
     private ?CurlHandle $client;
 
@@ -48,18 +46,11 @@ class SurrealHTTP extends AbstractProtocol
     /**
      * Set the timeout for the curl client. default is 5 seconds.
      * @param int $seconds
-     * @return Closure - Reset the timeout to previous set timeout value.
+     * @return void
      */
-    public function setTimeout(int $seconds): Closure
+    public function setTimeout(int $seconds): void
     {
-        $reset = function (): void {
-            $timeout = curl_getinfo($this->client, CURLOPT_TIMEOUT);
-            curl_setopt($this->client, CURLOPT_TIMEOUT, $timeout);
-        };
-
         curl_setopt($this->client, CURLOPT_TIMEOUT, $seconds);
-
-        return $reset;
     }
 
     /**
@@ -299,10 +290,11 @@ class SurrealHTTP extends AbstractProtocol
     /**
      * Execute a SQL query.
      * @param string $query
+     * @param array $params
      * @return array|object|null
-     * @throws Exception
+     * @throws SurrealException
      */
-    public function sql(string $query): array|object|null
+    public function sql(string $query, array $params = []): array|object|null
     {
         $header = [
             HTTP_JSON_ACCEPT,
@@ -314,7 +306,7 @@ class SurrealHTTP extends AbstractProtocol
 
         /** @var AnyResponse $response */
         $response = $this->execute(
-            endpoint: "/sql",
+            endpoint: "/sql?" . http_build_query($params),
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_POSTFIELDS => $query,
