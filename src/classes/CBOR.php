@@ -18,6 +18,7 @@ class CBOR
     }
 
     /**
+     * @codeCoverageIgnore - Not being used in the application yet.
      * @param string $data
      * @return mixed
      * @throws Exception
