@@ -18,6 +18,7 @@ class SurrealWebsocket extends AbstractProtocol
      * @param string $host
      * @param array{namespace:string, database:string|null} $target
      * @throws Exception
+     * @codeCoverageIgnore - Being used but false positive.
      */
     public function __construct(
         string $host,
@@ -37,18 +38,22 @@ class SurrealWebsocket extends AbstractProtocol
 
     /**
      * @param array{namespace:string|null,database:string|null} $target
-     * @return void
+     * @return null
      * @throws Exception
      */
-    #[\Override]
-    public function use(array $target): void
+    public function use(array $target): null
     {
-        $this->execute(
+        // if this throws exception, the code after it will not run
+        // So we are ensuring that the namespace and database are set correctly.
+
+        $result = $this->execute(
             method: "use",
             params: [$target["namespace"], $target["database"]]
         );
 
         parent::use($target);
+
+        return $result;
     }
 
     public function isConnected(): bool
@@ -68,7 +73,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function let(string $param, string $value): mixed
+    public function let(string $param, string $value): null
     {
         return $this->execute(
             method: "let",
@@ -79,7 +84,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function unset(string $param): mixed
+    public function unset(string $param): null
     {
         return $this->execute(
             method: "unset",
@@ -145,7 +150,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function invalidate(): array
+    public function invalidate(): null
     {
         return $this->execute("invalidate");
     }
@@ -280,7 +285,7 @@ class SurrealWebsocket extends AbstractProtocol
             $content = $result->getContent();
 
             if($content === "") {
-                return true;
+                return null;
             }
 
             $content = json_decode($content, true);
@@ -290,8 +295,6 @@ class SurrealWebsocket extends AbstractProtocol
                 $response = ResponseParser::create($content);
                 return $response->result;
             }
-
-            usleep(1000);
         }
 
         return null;
