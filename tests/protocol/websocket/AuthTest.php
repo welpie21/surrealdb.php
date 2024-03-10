@@ -34,6 +34,45 @@ class AuthTest extends TestCase
     }
 
     /**
+     * @return void
+     * @throws Exception
+     */
+    public function testInfo(): void
+    {
+        $info = self::$db->info();
+        $this->assertNull($info);
+
+        $token = self::$db->signup([
+            "email" => "mario2",
+            "password" => "supermario",
+            "ns" => "test",
+            "db" => "test",
+            "sc" => "user"
+        ]);
+
+        $this->assertIsString($token, "The token is not a string");
+
+        $token = self::$db->signin([
+            "email" => "mario2",
+            "password" => "supermario",
+            "ns" => "test",
+            "db" => "test",
+            "sc" => "user"
+        ]);
+
+        $this->assertIsString($token, "The token is not a string");
+
+        self::$db->authenticate($token);
+
+        $info = self::$db->info();
+
+        $this->assertArrayHasKey("id", $info, "The info does not have an id");
+        $this->assertArrayHasKey("name", $info, "The info does not have a name");
+        $this->assertArrayHasKey("email", $info, "The info does not have an email");
+        $this->assertArrayHasKey("password", $info, "The info does not have a password");
+    }
+
+    /**
      * @throws Exception
      */
     public function testScopeAuth(): void
@@ -57,6 +96,36 @@ class AuthTest extends TestCase
         ]);
 
         self::assertIsString($token);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testAuthenticate(): void
+    {
+        $token = self::$db->signin(["user" => "root", "pass" => "root"]);
+        $this->assertIsString($token);
+
+        $result = self::$db->authenticate($token);
+        self::assertNull($result, "The result is not null");
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testInvalidate(): void
+    {
+        $token = self::$db->signin(["user" => "root", "pass" => "root"]);
+        $this->assertIsString($token);
+
+        $info = self::$db->info();
+        $this->assertNotNull($info);
+
+        $result = self::$db->invalidate();
+        $this->assertNull($result);
+
+        $info = self::$db->info();
+        $this->assertNull($info);
     }
 
     public static function tearDownAfterClass(): void

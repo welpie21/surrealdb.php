@@ -57,14 +57,14 @@ class ResponseParserTest extends TestCase
         try {
             ResponseParser::create($data);
         } catch (\Exception $e) {
-            $this->assertInstanceOf($e::class, ForbiddenResponse::class);
+            $this->assertInstanceOf($e, ForbiddenResponse::class);
             $this->assertEquals("some information", $e->getMessage());
         }
 
         try {
             new ForbiddenResponse($data);
         } catch (\Exception $e) {
-            $this->assertInstanceOf($e::class, ForbiddenResponse::class);
+            $this->assertInstanceOf($e, ForbiddenResponse::class);
             $this->assertEquals("some information", $e->getMessage());
         }
     }

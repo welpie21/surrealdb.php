@@ -117,7 +117,7 @@ class QueryTest extends TestCase
      */
     public function testMerge(): void
     {
-        $created_person = self::$db->create("person:beaudz", [
+        $created_person = self::$db->create("person:beaudzx", [
             "name" => "Beau",
             "age" => 30
         ]);
@@ -125,7 +125,7 @@ class QueryTest extends TestCase
         $this->assertIsArray($created_person, "The created person is not an array");
         $this->assertArrayHasKey("id", $created_person, "The created person does not have an id");
 
-        $merged_person = self::$db->merge("person:beaudz", [
+        $merged_person = self::$db->merge("person:beaudzx", [
             "age" => 31
         ]);
 

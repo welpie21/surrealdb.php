@@ -17,9 +17,11 @@ class SurrealTraitTest extends TestCase
         $this->assertEquals("person", $table);
         $this->assertEquals("beau", $id);
 
-        [$table, $id] = $this->parseThing("person");
+        $result = $this->parseThing("person");
 
-        $this->assertEquals("person", $table);
-        $this->assertEquals(null, $id);
+        $this->assertArrayHasKey(0, $result);
+        $this->assertArrayNotHasKey(1, $result);
+
+        $this->assertEquals("person", $result[0]);
     }
 }

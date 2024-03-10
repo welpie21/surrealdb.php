@@ -4,8 +4,8 @@ namespace protocol\websocket;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Surreal\classes\exceptions\SurrealException;
 use Surreal\SurrealWebsocket;
-use Throwable;
 
 class BasicTest extends TestCase
 {
@@ -25,52 +25,39 @@ class BasicTest extends TestCase
     }
 
     /**
-     * @throws Throwable
+     * @throws Exception
      */
-    public function testConnection(): void
+    public function testUse(): void
     {
-        $connected = self::$db->isConnected();
-        $this->assertTrue($connected, "The websocket is not connected");
+        $result = self::$db->use(["namespace" => "test", "database" => "test"]);
+        self::assertNull($result);
     }
 
     /**
-     * @return void
      * @throws Exception
      */
-    public function testInfo(): void
+    public function testLet(): void
     {
-        $info = self::$db->info();
+        $result = self::$db->let("x", 1);
+        self::assertNull($result);
+    }
 
-        self::assertNull($info);
+    /**
+     * @throws Exception
+     */
+    public function testUnset(): void
+    {
+        $result = self::$db->unset("x");
+        self::assertNull($result);
+    }
 
-        $token = self::$db->signup([
-            "email" => "mario2",
-            "password" => "supermario",
-            "ns" => "test",
-            "db" => "test",
-            "sc" => "user"
-        ]);
-
-        self::assertIsString($token, "The token is not a string");
-
-        $token = self::$db->signin([
-            "email" => "mario2",
-            "password" => "supermario",
-            "ns" => "test",
-            "db" => "test",
-            "sc" => "user"
-        ]);
-
-        self::assertIsString($token, "The token is not a string");
-
-        self::$db->authenticate($token);
-
-        $info = self::$db->info();
-
-        self::assertArrayHasKey("id", $info, "The info does not have an id");
-        self::assertArrayHasKey("name", $info, "The info does not have a name");
-        self::assertArrayHasKey("email", $info, "The info does not have an email");
-        self::assertArrayHasKey("password", $info, "The info does not have a password");
+    public function testWebsocketErrorResponse(): void
+    {
+        try {
+            self::$db->query("SELECT * X FROM WHERE WHERE X = 1");
+        } catch (SurrealException $exception) {
+            var_dump($exception->getMessage());
+        }
     }
 
     public static function tearDownAfterClass(): void

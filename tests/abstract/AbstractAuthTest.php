@@ -9,7 +9,8 @@ class AbstractAuthTest extends TestCase
 {
     public function testSetToken(): void
     {
-        $mock = new class extends AbstractAuth {};
+        $mock = new class extends AbstractAuth {
+        };
         $mock->setToken('test');
 
         $this->assertEquals('test', $mock->getToken());
@@ -17,7 +18,8 @@ class AbstractAuthTest extends TestCase
 
     public function testSetScope(): void
     {
-        $mock = new class extends AbstractAuth {};
+        $mock = new class extends AbstractAuth {
+        };
         $mock->setScope('test');
 
         $this->assertEquals('test', $mock->getScope());
@@ -31,9 +33,11 @@ class AbstractAuthTest extends TestCase
             ->getMock();
 
         $mock->setToken('test');
-        $mock->setScope('test');
-
         $this->assertEquals('test', $mock->getToken());
+
+        $this->assertEquals(['Authorization: Bearer test'], $mock->getHeaders());
+
+        $mock->setScope('test');
         $this->assertEquals('test', $mock->getScope());
 
         $this->assertEquals(['Authorization: Bearer test', 'Surreal-SC: test'], $mock->getHeaders());

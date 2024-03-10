@@ -12,7 +12,7 @@ class CBORTest extends TestCase
         $encoded = CBOR::encode(["id" => "123", "result" => "test"]);
         var_dump($encoded);
 
-        $this->assertEquals("a261696431323366726573756c74", $encoded);
+        $this->assertEquals("a26269646331323366726573756c746474657374", $encoded);
     }
 
     /**
@@ -21,7 +21,7 @@ class CBORTest extends TestCase
     public function testDecode()
     {
         try {
-            $decoded = CBOR::decode("a261696431323366726573756c74");
+            $decoded = CBOR::decode("a26269646331323366726573756c746474657374");
             var_dump($decoded);
 
             $this->assertEquals(["id" => "123", "result" => "test"], $decoded);
