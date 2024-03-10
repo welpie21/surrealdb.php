@@ -22,27 +22,41 @@ class AuthTest extends TestCase
 
         self::assertTrue(self::$db->isConnected());
 
+        $token = self::$db->signin([
+            "user" => "root",
+            "pass" => "root"
+        ]);
+
+        self::assertIsString($token);
+        self::$db->authenticate($token);
+
         parent::setUpBeforeClass();
     }
 
     /**
      * @throws Exception
      */
-    public function testDatabaseAuth(): void
+    public function testScopeAuth(): void
     {
-        self::$db->signup([
-            "user" => "beau",
-            "pass" => "123456",
+        $token = self::$db->signup([
+            "email" => "mario",
+            "password" => "supermario",
             "ns" => "test",
-            "db" => "test"
+            "db" => "test",
+            "sc" => "user"
         ]);
 
-        self::$db->signin([
-            "user" => "beau",
-            "pass" => "123456",
+        self::assertIsString($token);
+
+        $token = self::$db->signin([
+            "email" => "mario",
+            "password" => "supermario",
             "ns" => "test",
-            "db" => "test"
+            "db" => "test",
+            "sc" => "user"
         ]);
+
+        self::assertIsString($token);
     }
 
     public static function tearDownAfterClass(): void
