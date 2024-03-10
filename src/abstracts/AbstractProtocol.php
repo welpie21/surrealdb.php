@@ -24,7 +24,7 @@ abstract class AbstractProtocol extends AbstractSurreal implements ClosableInter
     /**
      * Set a timeout for the request in seconds
      * @param int $seconds
-     * @return Closure
+     * @return void
      */
-    abstract public function setTimeout(int $seconds): Closure;
+    abstract public function setTimeout(int $seconds): void;
 }
