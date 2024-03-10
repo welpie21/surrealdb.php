@@ -157,6 +157,15 @@ class QueryTest extends TestCase
         }
     }
 
+    /**
+     * @throws Exception
+     */
+    public function testQuery(): void
+    {
+        $persons = self::$db->query("SELECT * FROM person");
+        $this->assertIsArray($persons, "The persons is not an array");
+    }
+
     public static function tearDownAfterClass(): void
     {
         self::$db->close();

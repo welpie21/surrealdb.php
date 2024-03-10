@@ -60,6 +60,13 @@ class ResponseParserTest extends TestCase
             $this->assertInstanceOf($e::class, ForbiddenResponse::class);
             $this->assertEquals("some information", $e->getMessage());
         }
+
+        try {
+            new ForbiddenResponse($data);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf($e::class, ForbiddenResponse::class);
+            $this->assertEquals("some information", $e->getMessage());
+        }
     }
 
     public function testWebsocketResponse(): void

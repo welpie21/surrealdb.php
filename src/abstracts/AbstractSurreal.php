@@ -22,7 +22,9 @@ abstract class AbstractSurreal
         ?AbstractAuth $authorization = null
     )
     {
+        $this->host = $host;
         $this->auth = $authorization ?? new SurrealAuth();
+
         $this->use($target);
     }
 
@@ -41,23 +43,50 @@ abstract class AbstractSurreal
         }
     }
 
+    /**
+     * Set the current namespace
+     * @param string|null $namespace
+     * @return void
+     */
     public function setNamespace(?string $namespace): void
     {
         $this->namespace = $namespace;
     }
 
+    /**
+     * Set the current database
+     * @param string|null $database
+     * @return void
+     */
     public function setDatabase(?string $database): void
     {
         $this->database = $database;
     }
 
+    /**
+     * Returns the current set namespace
+     * @return string|null
+     */
     public function getNamespace(): ?string
     {
         return $this->namespace;
     }
 
+    /**
+     * Returns the current set database
+     * @return string|null
+     */
     public function getDatabase(): ?string
     {
         return $this->database;
+    }
+
+    /**
+     * Returns the current set host
+     * @return string
+     */
+    public function getHost(): string
+    {
+        return $this->host;
     }
 }

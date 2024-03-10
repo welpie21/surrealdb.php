@@ -2,6 +2,7 @@
 
 namespace protocol\http;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Surreal\classes\exceptions\SurrealException;
 use Surreal\SurrealHTTP;
@@ -51,6 +52,22 @@ final class BasicTest extends TestCase
 
         $this->assertIsString($version);
         $this->assertStringStartsWith("surrealdb-", $version);
+    }
+
+    public function testTimeout(): void
+    {
+        self::$db->setTimeout(10);
+        $timeout = self::$db->getTimeout();
+
+        var_dump($timeout);
+
+        $this->assertEquals(10, $timeout);
+
+        self::$db->setTimeout(5);
+        $this->assertEquals(5, self::$db->getTimeout());
+
+        self::$db->setTimeout(1);
+        $this->assertEquals(1, self::$db->getTimeout());
     }
 
     public static function tearDownAfterClass(): void
