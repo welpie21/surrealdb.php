@@ -4,6 +4,7 @@ namespace Surreal;
 
 use CurlHandle;
 use Exception;
+use RuntimeException;
 use Surreal\abstracts\AbstractProtocol;
 use Surreal\classes\CBOR;
 use Surreal\classes\exceptions\SurrealException;
@@ -28,6 +29,7 @@ class SurrealHTTP extends AbstractProtocol
     /**
      * @param string $host
      * @param array{namespace:string, database:string|null} $target
+     * @codeCoverageIgnore - Being used but false positive.
      */
     public function __construct(
         string $host,
@@ -142,7 +144,7 @@ class SurrealHTTP extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function signin(mixed $data): ?string
+    public function signin(array $data): ?string
     {
         /** @var AuthResponse $response */
         $response = $this->execute(
@@ -163,7 +165,7 @@ class SurrealHTTP extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function signup(mixed $data): ?string
+    public function signup(array $data): ?string
     {
         /** @var AuthResponse $response */
         $response = $this->execute(
@@ -301,7 +303,7 @@ class SurrealHTTP extends AbstractProtocol
      * @param string $query
      * @param array $params
      * @return array|object|null
-     * @throws SurrealException
+     * @throws SurrealException|Exception
      */
     public function sql(string $query, array $params = []): array|object|null
     {
@@ -348,7 +350,7 @@ class SurrealHTTP extends AbstractProtocol
     public function close(): void
     {
         if ($this->client === null) {
-            throw new \RuntimeException("The database connection is already closed.");
+            throw new RuntimeException("The database connection is already closed.");
         }
 
         curl_close($this->client);
@@ -356,7 +358,7 @@ class SurrealHTTP extends AbstractProtocol
     }
 
     /**
-     * @throws SurrealException
+     * @throws RuntimeException
      */
     private function baseExecute(
         string     $endpoint,
@@ -365,7 +367,7 @@ class SurrealHTTP extends AbstractProtocol
     ): void
     {
         if ($this->client === null) {
-            throw new \RuntimeException("The curl client is not initialized.");
+            throw new RuntimeException("The curl client is not initialized.");
         }
 
         curl_setopt($this->client, CURLOPT_URL, $this->host . $endpoint);
@@ -375,7 +377,7 @@ class SurrealHTTP extends AbstractProtocol
 
         // throwing an exception if the request fails.
         if (curl_exec($this->client) === false) {
-            throw new SurrealException(curl_error($this->client));
+            throw new RuntimeException(curl_error($this->client));
         }
     }
 
@@ -384,7 +386,7 @@ class SurrealHTTP extends AbstractProtocol
      * @param HTTPMethod $method
      * @param array $options
      * @return ResponseInterface|int|string|array
-     * @throws SurrealException|Exception
+     * @throws SurrealException|Exception|RuntimeException
      */
     private function execute(
         string     $endpoint,
@@ -414,7 +416,6 @@ class SurrealHTTP extends AbstractProtocol
     /**
      * Executes a request without expecting a response.
      * uses the health, status endpoints.
-     * @throws SurrealException
      */
     private function checkStatusCode(
         string     $endpoint,
