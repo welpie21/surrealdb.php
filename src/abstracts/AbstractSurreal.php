@@ -30,9 +30,9 @@ abstract class AbstractSurreal
 
     /**
      * @param array{namespace:string|null,database:string|null} $target
-     * @return void
+     * @return null
      */
-    public function use(array $target): void
+    public function use(array $target): null
     {
         if ($namespace = $target["namespace"]) {
             $this->setNamespace($namespace);
@@ -41,6 +41,8 @@ abstract class AbstractSurreal
         if ($database = $target["database"]) {
             $this->setDatabase($database);
         }
+
+        return null;
     }
 
     /**
