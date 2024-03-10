@@ -296,4 +296,9 @@ class SurrealWebsocket extends AbstractProtocol
 
         return null;
     }
+
+    public function getTimeout(): int
+    {
+        return $this->client->getTimeout();
+    }
 }

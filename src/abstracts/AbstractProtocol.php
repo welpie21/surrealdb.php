@@ -2,29 +2,10 @@
 
 namespace Surreal\abstracts;
 
-use Closure;
 use Surreal\interface\ClosableInterface;
+use Surreal\interface\TimeoutInterface;
 
-abstract class AbstractProtocol extends AbstractSurreal implements ClosableInterface
+abstract class AbstractProtocol extends AbstractSurreal implements ClosableInterface, TimeoutInterface
 {
-    /**
-     * @param string $host
-     * @param array{namespace:string|null,database:string|null,scope:string|null} $target
-     * @param AbstractAuth|null $authorization
-     */
-    public function __construct(string $host, array $target = [], ?AbstractAuth $authorization = null)
-    {
-        // assign base properties.
-        $this->host = $host;
-        $this->use($target);
 
-        parent::__construct($host, $target, $authorization);
-    }
-
-    /**
-     * Set a timeout for the request in seconds
-     * @param int $seconds
-     * @return void
-     */
-    abstract public function setTimeout(int $seconds): void;
 }
