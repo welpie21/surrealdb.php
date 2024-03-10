@@ -2,10 +2,8 @@
 
 namespace Surreal;
 
-use Closure;
 use Exception;
 use Surreal\abstracts\AbstractProtocol;
-use Surreal\classes\exceptions\SurrealException;
 use Surreal\classes\ResponseParser;
 use Surreal\classes\responses\WebsocketResponse;
 use WebSocket\Client as WebsocketClient;
@@ -14,6 +12,7 @@ use WebSocket\Middleware\{CloseHandler, PingResponder};
 class SurrealWebsocket extends AbstractProtocol
 {
     private WebsocketClient $client;
+    private int $incrementalId = 0;
 
     /**
      * @param string $host
@@ -28,8 +27,7 @@ class SurrealWebsocket extends AbstractProtocol
         $this->client = (new WebsocketClient($host))
             ->addMiddleware(new CloseHandler())
             ->addMiddleware(new PingResponder())
-            ->setTimeout(5)
-            ->setPersistent(true);
+            ->setTimeout(5);
 
         $this->client->connect();
         $this->use($target);
@@ -58,16 +56,13 @@ class SurrealWebsocket extends AbstractProtocol
         return $this->client->isConnected();
     }
 
-    public function setTimeout(int $seconds): Closure
+    /**
+     * @param int $seconds
+     * @return void
+     */
+    public function setTimeout(int $seconds): void
     {
-        $reset = function () {
-            $timeout = $this->client->getTimeout();
-            $this->client->setTimeout($timeout);
-        };
-
         $this->client->setTimeout($seconds);
-
-        return $reset;
     }
 
     /**
@@ -109,7 +104,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function signin(array $params): mixed
+    public function signin(array $params): ?string
     {
         return $this->execute(
             method: "signin",
@@ -120,7 +115,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function signup(array $params): mixed
+    public function signup(array $params): ?string
     {
         return $this->execute(
             method: "signup",
@@ -142,7 +137,7 @@ class SurrealWebsocket extends AbstractProtocol
     /**
      * @throws Exception
      */
-    public function info(): array
+    public function info(): ?array
     {
         return $this->execute("info");
     }
@@ -167,6 +162,7 @@ class SurrealWebsocket extends AbstractProtocol
     }
 
     /**
+     * @example $data = [["name" => "some_name"]] or for bulk insert $data = [["name" => "some_name_x"], ["name" => "some_name_y"]]
      * @throws Exception
      */
     public function insert(string $thing, array $data): ?array
@@ -238,12 +234,19 @@ class SurrealWebsocket extends AbstractProtocol
     }
 
     /**
-     * @throws Exception
+     * @param int $id
+     * @param string $method
+     * @param array|null $params
+     * @return string
      */
-    private function execute(string $method, ?array $params = null): mixed
+    private function createPayload(
+        int    $id,
+        string $method,
+        ?array $params
+    ): string
     {
         $payload = [
-            "id" => 1,
+            "id" => $id,
             "method" => $method
         ];
 
@@ -251,26 +254,45 @@ class SurrealWebsocket extends AbstractProtocol
             $payload["params"] = $params;
         }
 
-        $this->client->text(json_encode($payload));
+        return json_encode($payload);
+    }
 
-        $received = $this->client->receive();
-        $message = $received->getContent();
+    /**
+     * @throws Exception
+     */
+    private function execute(
+        string $method,
+        ?array $params = []
+    ): mixed
+    {
+        $id = $this->incrementalId++;
 
-        // Some endpoints are returning empty responses, so
-        // We always says this is a success
-        if($message === "") {
-            return true;
+        $payload = $this->createPayload($id, $method, $params);
+
+        $this->client->text($payload);
+
+        // This reads the response from the websocket
+        // Blocking the main thread until the response is received.
+        // This ensures that the response is received in the order it was sent.
+
+        while ($result = $this->client->receive()) {
+            $content = $result->getContent();
+
+            if($content === "") {
+                return true;
+            }
+
+            $content = json_decode($content, true);
+
+            if ($content["id"] === $id) {
+                /** @var WebsocketResponse $response */
+                $response = ResponseParser::create($content);
+                return $response->result;
+            }
+
+            usleep(1000);
         }
 
-        /** @var WebsocketResponse $response */
-        $response = ResponseParser::create(
-            json_decode($message, true)
-        );
-
-        if (!($response instanceof WebsocketResponse)) {
-            throw new SurrealException("Something went wrong with parsing the response");
-        }
-
-        return $response->result;
+        return null;
     }
 }
