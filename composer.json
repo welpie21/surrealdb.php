@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "phpstan": "vendor/bin/phpstan -c phpstan.neon"
+    "phpstan": "vendor/bin/phpstan -c phpstan.neon",
+    "test-coverage": "./vendor/bin/phpunit -c phpunit.xml"
   },
   "authors": [
     {
@@ -33,7 +34,8 @@
     "phpstan/phpstan-beberlei-assert": "^1.1",
     "phpstan/extension-installer": "^1.3",
     "nikic/php-parser": "^v4.16.0",
-    "vimeo/psalm": "^5.22.2"
+    "vimeo/psalm": "^5.22.2",
+    "phpunit/php-code-coverage": "^10.1"
   },
   "config": {
     "allow-plugins": {

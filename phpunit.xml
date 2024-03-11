@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/|version|/phpunit.xsd"
-         displayDetailsOnTestsThatTriggerWarnings="true"
-         colors="true"
+<phpunit
+        displayDetailsOnTestsThatTriggerWarnings="true"
+        colors="true"
+        bootstrap="tests/bootstrap.php"
+        stopOnFailure="false"
 >
     <testsuites>
         <testsuite name="protocol-http">
@@ -12,5 +13,27 @@
         <testsuite name="protocol-websocket">
             <directory>tests/protocol/websocket</directory>
         </testsuite>
+
+        <testsuite name="abstract">
+            <directory>tests/abstract</directory>
+        </testsuite>
+
+        <testsuite name="parsers">
+            <directory>tests/parsers</directory>
+        </testsuite>
+
+        <testsuite name="traits">
+            <directory>tests/traits</directory>
+        </testsuite>
     </testsuites>
+
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <report>
+            <html outputDirectory="coverage"/>
+        </report>
+    </coverage>
+
 </phpunit>
