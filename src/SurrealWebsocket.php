@@ -6,10 +6,11 @@ use Exception;
 use Surreal\abstracts\AbstractProtocol;
 use Surreal\classes\ResponseParser;
 use Surreal\classes\responses\WebsocketResponse;
+use Surreal\interface\TimeoutInterface;
 use WebSocket\Client as WebsocketClient;
 use WebSocket\Middleware\{CloseHandler, PingResponder};
 
-class SurrealWebsocket extends AbstractProtocol
+class SurrealWebsocket extends AbstractProtocol implements TimeoutInterface
 {
     private WebsocketClient $client;
     private int $incrementalId = 0;
@@ -285,7 +286,7 @@ class SurrealWebsocket extends AbstractProtocol
             $content = $result->getContent();
 
             if($content === "") {
-                return null;
+                continue;
             }
 
             $content = json_decode($content, true);
