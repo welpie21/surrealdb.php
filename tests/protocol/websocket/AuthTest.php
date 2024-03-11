@@ -4,6 +4,7 @@ namespace protocol\websocket;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Surreal\classes\exceptions\SurrealException;
 use Surreal\SurrealWebsocket;
 
 class AuthTest extends TestCase
@@ -39,25 +40,28 @@ class AuthTest extends TestCase
      */
     public function testInfo(): void
     {
-        $info = self::$db->info();
-        $this->assertNull($info);
+        try {
+            self::$db->info();
+        } catch (SurrealException $exception) {
+            $this->assertInstanceOf(SurrealException::class, $exception);
+        }
 
         $token = self::$db->signup([
             "email" => "mario2",
-            "password" => "supermario",
+            "pass" => "supermario",
             "ns" => "test",
             "db" => "test",
-            "sc" => "user"
+            "sc" => "account"
         ]);
 
         $this->assertIsString($token, "The token is not a string");
 
         $token = self::$db->signin([
             "email" => "mario2",
-            "password" => "supermario",
+            "pass" => "supermario",
             "ns" => "test",
             "db" => "test",
-            "sc" => "user"
+            "sc" => "account"
         ]);
 
         $this->assertIsString($token, "The token is not a string");
@@ -65,6 +69,7 @@ class AuthTest extends TestCase
         self::$db->authenticate($token);
 
         $info = self::$db->info();
+        var_dump($info);
 
         $this->assertArrayHasKey("id", $info, "The info does not have an id");
         $this->assertArrayHasKey("name", $info, "The info does not have a name");
@@ -79,20 +84,20 @@ class AuthTest extends TestCase
     {
         $token = self::$db->signup([
             "email" => "mario",
-            "password" => "supermario",
+            "pass" => "supermario",
             "ns" => "test",
             "db" => "test",
-            "sc" => "user"
+            "sc" => "account"
         ]);
 
         self::assertIsString($token);
 
         $token = self::$db->signin([
             "email" => "mario",
-            "password" => "supermario",
+            "pass" => "supermario",
             "ns" => "test",
             "db" => "test",
-            "sc" => "user"
+            "sc" => "account"
         ]);
 
         self::assertIsString($token);

@@ -18,8 +18,8 @@ class QueryTest extends TestCase
         );
 
         $token = self::$db->signin([
-            "user" => "beaurt",
-            "pass" => "123456"
+            "user" => "root",
+            "pass" => "root"
         ]);
 
         self::assertIsString($token, "Token is not a string");

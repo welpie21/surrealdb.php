@@ -3,11 +3,10 @@
 namespace parsers;
 
 use PHPUnit\Framework\TestCase;
+use Surreal\classes\exceptions\SurrealException;
 use Surreal\classes\ResponseParser;
 use Surreal\classes\responses\AuthResponse;
-use Surreal\classes\responses\HTTPErrorResponse;
 use Surreal\classes\responses\ForbiddenResponse;
-use Surreal\classes\responses\WebsocketErrorResponse;
 use Surreal\classes\responses\WebsocketResponse;
 
 class ResponseParserTest extends TestCase
@@ -21,9 +20,8 @@ class ResponseParserTest extends TestCase
         ];
 
         try {
-            /** @var AuthResponse $response */
             $response = ResponseParser::create($data);
-            $this->assertInstanceOf($response::class, AuthResponse::class);
+            $this->assertInstanceOf(AuthResponse::class, $response);
         } catch (\Exception $exception) {
             // does nothing
         }
@@ -40,8 +38,8 @@ class ResponseParserTest extends TestCase
 
         try {
             ResponseParser::create($response);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf($e::class, HTTPErrorResponse::class);
+        } catch (SurrealException $e) {
+            $this->assertInstanceOf(SurrealException::class, $e);
             $this->assertEquals("some information", $e->getMessage());
         }
     }
@@ -56,15 +54,15 @@ class ResponseParserTest extends TestCase
 
         try {
             ResponseParser::create($data);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf($e, ForbiddenResponse::class);
+        } catch (SurrealException $e) {
+            $this->assertInstanceOf(SurrealException::class, $e);
             $this->assertEquals("some information", $e->getMessage());
         }
 
         try {
             new ForbiddenResponse($data);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf($e, ForbiddenResponse::class);
+        } catch (SurrealException $e) {
+            $this->assertInstanceOf(SurrealException::class, $e);
             $this->assertEquals("some information", $e->getMessage());
         }
     }
@@ -80,7 +78,7 @@ class ResponseParserTest extends TestCase
             /** @var WebsocketResponse $response */
             $response = ResponseParser::create($data);
 
-            $this->assertInstanceOf($response::class, AuthResponse::class);
+            $this->assertInstanceOf(WebsocketResponse::class, $response);
             $this->assertEquals("success", $response->result);
 
         } catch (\Exception $exception) {
@@ -91,17 +89,17 @@ class ResponseParserTest extends TestCase
     public function testWebsocketErrorResponse(): void
     {
         $data = [
-            "id" => 1,
             "error" => [
                 "code" => 400,
                 "message" => "some message"
-            ]
+            ],
+            "id" => 1
         ];
 
         try {
             ResponseParser::create($data);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf($e::class, WebsocketErrorResponse::class);
+        } catch (SurrealException $e) {
+            $this->assertInstanceOf(SurrealException::class, $e);
             $this->assertEquals("some message", $e->getMessage());
         }
     }

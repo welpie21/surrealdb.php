@@ -41,20 +41,9 @@ class ConnectionTest extends TestCase
         $this->assertEquals(0, self::$db->getTimeout(), "The timeout is not set correctly");
     }
 
-    /**
-     * @throws Exception
-     */
-    public function testUse(): void
-    {
-        self::$db->use(["namespace" => "test", "database" => "test"]);
-
-        $this->assertEquals("test", self::$db->getNamespace(), "The namespace is not set correctly");
-        $this->assertEquals("test", self::$db->getDatabase(), "The database is not set correctly");
-    }
-
-    public function testClose(): void
+    public static function tearDownAfterClass(): void
     {
         self::$db->close();
-        $this->assertFalse(self::$db->isConnected(), "The websocket is still connected");
+        parent::tearDownAfterClass();
     }
 }

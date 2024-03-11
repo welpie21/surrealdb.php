@@ -30,7 +30,7 @@ class BasicTest extends TestCase
     public function testUse(): void
     {
         $result = self::$db->use(["namespace" => "test", "database" => "test"]);
-        self::assertNull($result);
+        $this->assertNull($result);
     }
 
     /**
@@ -39,7 +39,7 @@ class BasicTest extends TestCase
     public function testLet(): void
     {
         $result = self::$db->let("x", 1);
-        self::assertNull($result);
+        $this->assertNull($result);
     }
 
     /**
@@ -48,16 +48,7 @@ class BasicTest extends TestCase
     public function testUnset(): void
     {
         $result = self::$db->unset("x");
-        self::assertNull($result);
-    }
-
-    public function testWebsocketErrorResponse(): void
-    {
-        try {
-            self::$db->query("SELECT * X FROM WHERE WHERE X = 1");
-        } catch (SurrealException $exception) {
-
-        }
+        $this->assertNull($result);
     }
 
     public static function tearDownAfterClass(): void
