@@ -84,12 +84,12 @@ class SurrealHTTP extends AbstractProtocol
     }
 
     /**
-     * @return array - Array of SingleRecordResponse
-     * @throws Exception
+     * @return array|null - Array of SingleRecordResponse
+     * @throws Exception|SurrealException
      */
-    public function import(string $content, string $username, string $password): array
+    public function import(string $content, string $username, string $password): ?array
     {
-        /** @var AnyResponse $response */
+        /** @var AnyResponse|string $response */
         $response = $this->execute(
             endpoint: "/import",
             method: HTTPMethod::POST,
@@ -104,6 +104,11 @@ class SurrealHTTP extends AbstractProtocol
                 CURLOPT_USERPWD => "$username:$password"
             ]
         );
+
+        // NOTE: Sometimes the response can give an "There was a problem with authentication" error.
+        if($response === "There was a problem with authentication") {
+            throw new SurrealException("There was a problem with authentication");
+        }
 
         return $response->response;
     }
