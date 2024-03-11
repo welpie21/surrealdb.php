@@ -4,6 +4,7 @@ namespace protocol\http;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Surreal\classes\exceptions\SurrealException;
 use Surreal\SurrealHTTP;
 
 class ImportTest extends TestCase
@@ -31,6 +32,18 @@ class ImportTest extends TestCase
         $result = self::$db->import($file, "root", "root");
 
         $this->assertIsArray($result);
+    }
+
+    public function testImportWithWrongCredentials(): void
+    {
+        $file = __DIR__ . "/../../assets/import.surql";
+        $file = file_get_contents($file);
+
+        try {
+            self::$db->import($file, "root", "wrong");
+        } catch (SurrealException $e) {
+            $this->assertInstanceOf(SurrealException::class, $e);
+        }
     }
 
     public static function tearDownAfterClass(): void

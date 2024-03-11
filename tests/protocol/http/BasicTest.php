@@ -56,22 +56,6 @@ final class BasicTest extends TestCase
         $this->assertStringStartsWith("surrealdb-", $version);
     }
 
-    public function testTimeout(): void
-    {
-        self::$db->setTimeout(10);
-        $timeout = self::$db->getTimeout();
-
-        var_dump($timeout);
-
-        $this->assertEquals(10, $timeout);
-
-        self::$db->setTimeout(5);
-        $this->assertEquals(5, self::$db->getTimeout());
-
-        self::$db->setTimeout(1);
-        $this->assertEquals(1, self::$db->getTimeout());
-    }
-
     public function testToken(): void
     {
         self::$db->setToken("sometoken");

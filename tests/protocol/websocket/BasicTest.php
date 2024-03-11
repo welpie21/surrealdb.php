@@ -56,7 +56,7 @@ class BasicTest extends TestCase
         try {
             self::$db->query("SELECT * X FROM WHERE WHERE X = 1");
         } catch (SurrealException $exception) {
-            var_dump($exception->getMessage());
+
         }
     }
 
