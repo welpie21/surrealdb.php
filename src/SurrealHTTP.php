@@ -29,11 +29,13 @@ class SurrealHTTP extends AbstractProtocol
     /**
      * @param string $host
      * @param array{namespace:string, database:string|null} $target
+     * @param array $options - curl options.
      * @codeCoverageIgnore - Being used but false positive.
      */
     public function __construct(
         string $host,
-        array  $target = []
+        array  $target = [],
+        array  $options = []
     )
     {
         // initialize the curl client.
@@ -42,30 +44,13 @@ class SurrealHTTP extends AbstractProtocol
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($this->client, CURLOPT_TIMEOUT, 5);
 
+        curl_setopt_array($this->client, $options);
+
         parent::__construct($host, $target);
     }
 
     /**
-     * Set the timeout for the curl client. default is 5 seconds.
-     * @param int $seconds
-     * @return void
-     */
-    public function setTimeout(int $seconds): void
-    {
-        curl_setopt($this->client, CURLOPT_TIMEOUT, $seconds);
-    }
-
-    /**
-     * Get the timeout for the curl client.
-     * @return int
-     */
-    public function getTimeout(): int
-    {
-        return curl_getinfo($this->client, CURLOPT_TIMEOUT);
-    }
-
-    /**
-     * @throws SurrealException
+     * Returns the status of the server.
      */
     public function status(): int
     {
@@ -76,7 +61,7 @@ class SurrealHTTP extends AbstractProtocol
     }
 
     /**
-     * @throws SurrealException
+     * Returns the health status of the server.
      */
     public function health(): int
     {
@@ -87,6 +72,7 @@ class SurrealHTTP extends AbstractProtocol
     }
 
     /**
+     * Returns the version of the server.
      * @throws SurrealException
      */
     public function version(): ?string
