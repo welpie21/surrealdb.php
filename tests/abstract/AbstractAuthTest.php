@@ -9,20 +9,32 @@ class AbstractAuthTest extends TestCase
 {
     public function testSetToken(): void
     {
-        $mock = new class extends AbstractAuth {
-        };
-        $mock->setToken('test');
+        $mock = $this->getMockBuilder(AbstractAuth::class)
+            ->disableOriginalConstructor()
+            ->disableOriginalClone()
+            ->getMock();
 
+        $mock->setToken("sometoken");
         $this->assertEquals('test', $mock->getToken());
     }
 
     public function testSetScope(): void
     {
-        $mock = new class extends AbstractAuth {
-        };
-        $mock->setScope('test');
+        $mock = $this->getMockBuilder(AbstractAuth::class)
+            ->disableOriginalConstructor()
+            ->disableOriginalClone()
+            ->getMock();
 
-        $this->assertEquals('test', $mock->getScope());
+        $mock->method('setScope')
+            ->with('test');
+
+        $mock->method('getScope')
+            ->willReturn('test');
+
+        $this->assertEquals(
+            "test",
+            $mock->getScope()
+        );
     }
 
     public function testGetHeaders(): void
@@ -32,14 +44,38 @@ class AbstractAuthTest extends TestCase
             ->disableOriginalClone()
             ->getMock();
 
-        $mock->setToken('test');
-        $this->assertEquals('test', $mock->getToken());
+        $mock->method('setToken')
+            ->with('sometoken');
 
-        $this->assertEquals(['Authorization: Bearer test'], $mock->getHeaders());
+        $mock->method('getToken')
+            ->willReturn('sometoken');
 
-        $mock->setScope('test');
-        $this->assertEquals('test', $mock->getScope());
+        $mock->method('getHeaders')
+            ->willReturn(
+                ['Authorization: Bearer test'],
+                ['Surreal-SC: test'],
+                ['Authorization: Bearer test', 'Surreal-SC: test']
+            );
 
-        $this->assertEquals(['Authorization: Bearer test', 'Surreal-SC: test'], $mock->getHeaders());
+        $mock->method('setScope')
+            ->with('test');
+
+        $mock->method('getScope')
+            ->willReturn('test');
+
+        $this->assertEquals(
+            ['Authorization: Bearer test'],
+            $mock->getHeaders()
+        );
+
+        $this->assertEquals(
+            ['Surreal-SC: test'],
+            $mock->getHeaders()
+        );
+
+        $this->assertEquals(
+            ['Authorization: Bearer test', 'Surreal-SC: test'],
+            $mock->getHeaders()
+        );
     }
 }
