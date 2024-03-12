@@ -284,9 +284,7 @@ class SurrealHTTP extends AbstractProtocol
             ]
         );
 
-        var_dump($response);
-
-        return $response->response[0]["result"][0] ?? null;
+        return $response->response[0]["result"][0];
     }
 
     /**
@@ -398,8 +396,6 @@ class SurrealHTTP extends AbstractProtocol
             false, "text/plain; charset=utf-8" => $content_body,
             default => throw new SurrealException("Unsupported content type: $content_type"),
         };
-
-        var_dump($endpoint, $result);
 
         return match ($content_type) {
             "application/json", "application/cbor" => ResponseParser::create($result),
