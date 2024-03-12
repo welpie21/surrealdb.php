@@ -30,7 +30,7 @@ Since the driver has the specs that of the javascript library, it works the same
 
 ## 📋 Requirements
 
-- PHP 8.3+
+- PHP 8.2+
 - SurrealDB v1.2.0+
 
 ## 📥 Installation
@@ -107,6 +107,15 @@ $token = $db->signin([
     "sc" => "<scope>" // <-- this is optional
 ]);
 
+$token = $db->signup([
+    "user" => "new-user",
+    "pass" => "some-password",
+    "ns" => "<namespace>", // <-- required
+    "db" => "<database>", // <-- required
+    "sc" => "<scope>" // <-- required
+    // ... some values that you want to set depending on what you have defined.
+]);
+
 // the signin method returns a token that you can use to set the authentication token for the connection.
 $db->setToken($token); // <-- the token can be either a string or null.
 
@@ -133,6 +142,15 @@ $db = new \Surreal\SurrealWebsocket(
     ]
 );
 
+// also returns the token.
+$db->signup([
+    "user" => "new-user",
+    "pass" => "some-password",
+    "ns" => "<namespace>", // <-- required
+    "db" => "<database>", // <-- required
+    "sc" => "<scope>" // <-- required
+])
+
 // the argument is a keyed array.
 // for scope authentication you have to set the correct keys and values for the scope.
 $token = $db->signin([
@@ -141,6 +159,7 @@ $token = $db->signin([
     "ns" => "<namespace>", // <-- this is optional
     "db" => "<database>", // <-- this is optional
     "sc" => "<scope>" // <-- this is optional
+    // ... some values that you want to set depending on what you have defined.
 ]);
 
 // the signin method returns a token that you can use to set the authentication token for the connection.
