@@ -2,7 +2,7 @@
 
 namespace Surreal\enums;
 
-enum SurrealCBORTag: int
+enum CBORTag: int
 {
     const DATE = 0;
     const UNDEFINED = 6;

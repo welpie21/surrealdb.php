@@ -44,18 +44,35 @@ composer require welpie21/surrealdb.php
 **Create a new connection to a SurrealDB instance**
 
 ```php
-use Surreal\Surreal;
+use Surreal\SurrealHTTP;
+use Surreal\SurrealWebsocket;
 
 // create a surrealdb connection
-$db = new Surreal(
+$db = new \Surreal\SurrealHTTP(
     host: "http://127.0.0.1:8000",
-    namespace: "test",
-    database: "test",
-    authorization: SurrealAuthorization::create()
-        ->setAuthNamespace("test")
-        ->setAuthDatabase("test")
-        ->setScope("scope"),
+    target: [
+        "namespace" => "<namespace>",
+        "database" => "<database>"
+    ]
 );
+```
+
+**🔗 Websocket**
+
+You can also use the websocket protocol to connect to a SurrealDB instance.
+
+```php
+// create a surrealdb connection
+$db = new \Surreal\SurrealWebsocket(
+    host: "ws://127.0.0.1:8000/rpc",
+    target: [
+        "namespace" => "<namespace>",
+        "database" => "<database>"
+    ]
+);
+
+// the websocket connection is not persistent. You have to close the connection manually.
+$db->close();
 ```
 
 **🔐 Authentication**
@@ -72,23 +89,81 @@ Here we create a connection, and we set the scope for the `signup` and `signin` 
 
 ```php
 // create a surrealdb connection
-$db = new Surreal(
+$db = new \Surreal\SurrealHTTP(
     host: "http://127.0.0.1:8000",
-    namespace: "test",
-    database: "test",
-    authorization: SurrealAuthorization::create()
-        ->setScope("scope"), // <-- set the scope
+    target: [
+        "namespace" => "<namespace>",
+        "database" => "<database>"
+    ]
 );
 
 // the argument is a keyed array.
 // for scope authentication you have to set the correct keys and values for the scope.
 $token = $db->signin([
-    "email" => "john.doe@gmail.com",
-    "pass" => "some-password"
+    "user" => "john.doe@gmail.com",
+    "pass" => "some-password",
+    "ns" => "<namespace>", // <-- this is optional
+    "db" => "<database>", // <-- this is optional
+    "sc" => "<scope>" // <-- this is optional
+]);
+
+$token = $db->signup([
+    "user" => "new-user",
+    "pass" => "some-password",
+    "ns" => "<namespace>", // <-- required
+    "db" => "<database>", // <-- required
+    "sc" => "<scope>" // <-- required
+    // ... some values that you want to set depending on what you have defined.
 ]);
 
 // the signin method returns a token that you can use to set the authentication token for the connection.
-$db->setAuthToken($token);
+$db->setToken($token); // <-- the token can be either a string or null.
+
+// we can also set the token to the session
+session_start();
+$_SESSION["token"] = $token;
+
+// invalidate the token
+$db->invalidate(); // <-- basically sets the token to null
+```
+
+**🔐 Authentication with Websockets**
+
+The authentication with websockets is similar to the HTTP protocol. The only difference is that you have to `signin` or `signup`
+and after you call those methods you have to call the `authenticate` method to authenticate the connection.
+
+```php
+// create a surrealdb connection
+$db = new \Surreal\SurrealWebsocket(
+    host: "ws://127.0.0.1:8000/rpc",
+    target: [
+        "namespace" => "<namespace>",
+        "database" => "<database>"
+    ]
+);
+
+// also returns the token.
+$db->signup([
+    "user" => "new-user",
+    "pass" => "some-password",
+    "ns" => "<namespace>", // <-- required
+    "db" => "<database>", // <-- required
+    "sc" => "<scope>" // <-- required
+])
+
+// the argument is a keyed array.
+// for scope authentication you have to set the correct keys and values for the scope.
+$token = $db->signin([
+    "user" => "some-username",
+    "pass" => "some-password",
+    "ns" => "<namespace>", // <-- this is optional
+    "db" => "<database>", // <-- this is optional
+    "sc" => "<scope>" // <-- this is optional
+    // ... some values that you want to set depending on what you have defined.
+]);
+
+// the signin method returns a token that you can use to set the authentication token for the connection.
+$db->authenticate($token);
 
 // we can also set the token to the session
 session_start();
@@ -107,10 +182,12 @@ on the database.
 
 ```php
 // create a surrealdb connection
-$db = new Surreal(
-    host: "http://127.0.0.1:8000"
-    namespace: "test",
-    database: "test",
+$db = new \Surreal\SurrealHTTP(
+    host: "http://127.0.0.1:8000",
+    target: [
+        "namespace" => "<namespace>",
+        "database" => "<database>"
+    ]
 );
 
 // create a table
@@ -118,23 +195,68 @@ $db->sql("CREATE product:apple CONTENT { name: 'Apple', price: 1.99 }");
 
 // get the table
 $product = $db->sql("SELECT * FROM ONLY product:apple");
-$apple = $product->apple ?? null; // <-- this can be null or return the apple object
+$apple = $product["apple"] ?? null; // <-- this can be null or return the apple object
 
 // create, update and delete methods
 $db->create("product", ["name" => "Banana", "price" => 2.99]);
 $db->update("product:banana", ["price" => 3.99]);
+$db->merge("product:banana", ["price" => 4.99]);
 $db->delete("product:banana");
 ```
 
-**📦 Import & Export**
+**🔗 Websockets**
+
+The driver supports websockets. You can use the `SurrealWebsocket` class to connect to a SurrealDB instance using the websocket protocol.
+
+```php
+
+// create a surrealdb connection
+$db = new \Surreal\SurrealWebsocket(
+    host: "ws://127.0.0.1:8000/rpc",
+    target: [
+        "namespace" => "<namespace>",
+        "database" => "<database>"
+    ]
+);
+
+$db->create("product", ["name" => "Banana", "price" => 2.99]);
+$db->update("product:banana", ["price" => 3.99]);
+$db->merge("product:banana", ["price" => 4.99]);
+$db->delete("product:banana");
+
+$db->patch("product:banana", [
+    \Surreal\classes\SurrealPatch::create("replace", "/price", 5.99),
+    // or
+    [
+        "op" => "replace",
+        "path" => "/name",
+        "value" => "Banana"
+    ]
+]);
+
+$db->let("name", "banana");
+$db->let("price", 5.99);
+
+$db->sql('CREATE product CONTENT { name: $name, price: $price }');
+
+$db->unset("name");
+$db->unset("price");
+
+// the websocket connection is not persistent. You have to close the connection manually.
+$db->close();
+```
+
+**📦 Import & Export ( HTTP ONLY )**
 
 You can import and export data from the database using the `import` and `export` methods.
 
 ```php
-$db = new Surreal(
-    host: "http://127.0.0.1:8000"
-    namespace: "test",
-    database: "test",
+$db = new \Surreal\SurrealHTTP(
+    host: "http://127.0.0.1:8000",
+    target: [
+        "namespace" => "<namespace>",
+        "database" => "<database>"
+    ]
 );
 
 // import data
@@ -145,3 +267,34 @@ $result = $db->import($file, "username", "password");
 $file = $db->export("username", "password"); // <-- returns the whole file as a string
 file_put_contents("some_path_to_surql_file.surql", $file); // <-- save the file
 ```
+
+## Supported features
+
+- [x] Authentication
+- [x] Querying
+- [x] Import & Export
+- [x] Create, Update, Merge, Patch and Delete
+- [x] HTTP and Websocket protocol
+- [x] Error handling
+
+## Unsupported
+
+- [ ] Live queries
+- [ ] CBOR
+
+## Roadmap
+
+**v1.1.0**
+- [ ] Add support for CBOR protocol
+- [ ] Add custom Data Type Classes ( RecordID, UUID, Decimal and Duration ) for CBOR
+
+**v1.2.0**
+- [ ] Add support for live queries
+
+**v1.3.0**
+- [ ] Psalm and PHPStan support for better type checking and code quality
+
+## Coverage
+All the methods in the driver are covered with tests. The coverage is 98.12% as of version v1.0.0.
+
+![coverage.png](assets%2Fcoverage.png)
