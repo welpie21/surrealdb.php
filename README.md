@@ -287,6 +287,7 @@ file_put_contents("some_path_to_surql_file.surql", $file); // <-- save the file
 **v1.1.0**
 - [ ] Add support for CBOR protocol
 - [ ] Add custom Data Type Classes ( RecordID, UUID, Decimal and Duration ) for CBOR
+- [ ] Add SurrealML functionalities for the HTTP protocol
 
 **v1.2.0**
 - [ ] Add support for live queries
