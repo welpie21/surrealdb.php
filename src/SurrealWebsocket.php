@@ -132,7 +132,7 @@ class SurrealWebsocket extends AbstractProtocol implements TimeoutInterface
     /**
      * @throws Exception
      */
-    public function authenticate(string $token): mixed
+    public function authenticate(string $token): null
     {
         return $this->execute(
             method: "authenticate",
