@@ -285,7 +285,7 @@ file_put_contents("some_path_to_surql_file.surql", $file); // <-- save the file
 ## Roadmap
 
 **v1.1.0**
-- [ ] Add support for CBOR protocol
+- [ ] Add support for CBOR
 - [ ] Add custom Data Type Classes ( RecordID, UUID, Decimal and Duration ) for CBOR
 - [ ] Add SurrealML functionalities for the HTTP protocol
 
