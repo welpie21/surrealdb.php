@@ -15,10 +15,8 @@ use Surreal\enums\HTTPMethod;
 use Surreal\interface\ResponseInterface;
 use Surreal\traits\SurrealTrait;
 
-const HTTP_CBOR_ACCEPT = "Accept: application/cbor";
-const HTTP_CBOR_CONTENT_TYPE = "Content-Type: application/cbor";
-const HTTP_JSON_ACCEPT = "Accept: application/json";
-const HTTP_JSON_CONTENT_TYPE = "Content-Type: application/json";
+const HTTP_ACCEPT = "Accept: application/cbor";
+const HTTP_CONTENT_TYPE = "Content-Type: application/cbor";
 
 class SurrealHTTP extends AbstractProtocol
 {
@@ -95,7 +93,7 @@ class SurrealHTTP extends AbstractProtocol
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => [
-                    HTTP_JSON_ACCEPT,
+                    HTTP_ACCEPT,
                     "Content-Type: text/plain",
                     "Surreal-NS: " . $this->getNamespace(),
                     "Surreal-DB: " . $this->getDatabase()
@@ -123,7 +121,7 @@ class SurrealHTTP extends AbstractProtocol
             method: HTTPMethod::GET,
             options: [
                 CURLOPT_HTTPHEADER => [
-                    HTTP_JSON_ACCEPT,
+                    HTTP_ACCEPT,
                     "Surreal-NS: " . $this->getNamespace(),
                     "Surreal-DB: " . $this->getDatabase()
                 ],
@@ -143,8 +141,8 @@ class SurrealHTTP extends AbstractProtocol
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => [
-                    HTTP_JSON_ACCEPT,
-                    HTTP_JSON_CONTENT_TYPE
+                    HTTP_ACCEPT,
+                    HTTP_CONTENT_TYPE
                 ],
                 CURLOPT_POSTFIELDS => json_encode($data)
             ]
@@ -164,8 +162,8 @@ class SurrealHTTP extends AbstractProtocol
             method: HTTPMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => [
-                    HTTP_JSON_ACCEPT,
-                    HTTP_JSON_CONTENT_TYPE
+                    HTTP_ACCEPT,
+                    HTTP_CONTENT_TYPE
                 ],
                 CURLOPT_POSTFIELDS => json_encode($data)
             ]
@@ -180,11 +178,11 @@ class SurrealHTTP extends AbstractProtocol
      * @return object|null
      * @throws Exception
      */
-    public function create(string $table, mixed $data): ?object
+    public function create(string $table, mixed $data): ?array
     {
         $header = [
-            HTTP_JSON_ACCEPT,
-            HTTP_JSON_CONTENT_TYPE,
+            HTTP_ACCEPT,
+            HTTP_CONTENT_TYPE,
             "Surreal-NS: " . $this->getNamespace(),
             "Surreal-DB: " . $this->getDatabase(),
             ...$this->auth->getHeaders()
@@ -195,12 +193,12 @@ class SurrealHTTP extends AbstractProtocol
             endpoint: "/key/$table",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_POSTFIELDS => CBOR::encode($data),
                 CURLOPT_HTTPHEADER => $header
             ]
         );
 
-        return (object)$response->response[0]["result"][0];
+        return $response->response[0]["result"][0];
     }
 
     /**
@@ -209,13 +207,13 @@ class SurrealHTTP extends AbstractProtocol
      * @return object|null
      * @throws Exception
      */
-    public function update(string $thing, mixed $data): ?object
+    public function update(string $thing, mixed $data): ?array
     {
         [$table, $id] = $this->parseThing($thing);
 
         $header = [
-            HTTP_JSON_ACCEPT,
-            HTTP_JSON_CONTENT_TYPE,
+            HTTP_ACCEPT,
+            HTTP_CONTENT_TYPE,
             "Surreal-NS: " . $this->getNamespace(),
             "Surreal-DB: " . $this->getDatabase(),
             ...$this->auth->getHeaders()
@@ -226,24 +224,24 @@ class SurrealHTTP extends AbstractProtocol
             endpoint: "/key/$table/$id",
             method: HTTPMethod::PUT,
             options: [
-                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_POSTFIELDS => CBOR::encode($data),
                 CURLOPT_HTTPHEADER => $header
             ]
         );
 
-        return (object)$response->response[0]["result"][0];
+        return $response->response[0]["result"][0];
     }
 
     /**
      * @throws Exception
      */
-    public function merge(string $thing, mixed $data): ?object
+    public function merge(string $thing, mixed $data): ?array
     {
         [$table, $id] = $this->parseThing($thing);
 
         $header = [
-            HTTP_JSON_ACCEPT,
-            HTTP_JSON_CONTENT_TYPE,
+            HTTP_ACCEPT,
+            HTTP_CONTENT_TYPE,
             "Surreal-NS: " . $this->getNamespace(),
             "Surreal-DB: " . $this->getDatabase(),
             ...$this->auth->getHeaders()
@@ -259,19 +257,19 @@ class SurrealHTTP extends AbstractProtocol
             ]
         );
 
-        return (object)$response->response[0]["result"][0];
+        return $response->response[0]["result"][0];
     }
 
     /**
      * @throws Exception
      */
-    public function delete(string $thing): ?object
+    public function delete(string $thing): ?array
     {
         [$table, $id] = $this->parseThing($thing);
 
         $header = [
-            HTTP_JSON_ACCEPT,
-            HTTP_JSON_CONTENT_TYPE,
+            HTTP_ACCEPT,
+            HTTP_CONTENT_TYPE,
             "Surreal-NS: " . $this->getNamespace(),
             "Surreal-DB: " . $this->getDatabase(),
             ...$this->auth->getHeaders()
@@ -286,21 +284,23 @@ class SurrealHTTP extends AbstractProtocol
             ]
         );
 
-        return (object)$response->response[0]["result"][0];
+        var_dump($response);
+
+        return $response->response[0]["result"][0] ?? null;
     }
 
     /**
      * Execute a SQL query.
      * @param string $query
      * @param array $params
-     * @return array|object|null
+     * @return array|null
      * @throws SurrealException|Exception
      */
-    public function sql(string $query, array $params = []): array|object|null
+    public function sql(string $query, array $params = []): ?array
     {
         $header = [
-            HTTP_JSON_ACCEPT,
-            HTTP_JSON_CONTENT_TYPE,
+            HTTP_ACCEPT,
+            HTTP_CONTENT_TYPE,
             "Surreal-NS: " . $this->getNamespace(),
             "Surreal-DB: " . $this->getDatabase(),
             ...$this->auth->getHeaders()
