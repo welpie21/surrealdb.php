@@ -15,8 +15,8 @@ use Surreal\enums\HTTPMethod;
 use Surreal\interface\ResponseInterface;
 use Surreal\traits\SurrealTrait;
 
-const HTTP_ACCEPT = "Accept: application/cbor";
-const HTTP_CONTENT_TYPE = "Content-Type: application/cbor";
+const HTTP_ACCEPT = "Accept: application/json";
+const HTTP_CONTENT_TYPE = "Content-Type: application/json";
 
 class SurrealHTTP extends AbstractProtocol
 {
@@ -193,7 +193,7 @@ class SurrealHTTP extends AbstractProtocol
             endpoint: "/key/$table",
             method: HTTPMethod::POST,
             options: [
-                CURLOPT_POSTFIELDS => CBOR::encode($data),
+                CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_HTTPHEADER => $header
             ]
         );
@@ -224,7 +224,7 @@ class SurrealHTTP extends AbstractProtocol
             endpoint: "/key/$table/$id",
             method: HTTPMethod::PUT,
             options: [
-                CURLOPT_POSTFIELDS => CBOR::encode($data),
+                CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_HTTPHEADER => $header
             ]
         );
@@ -252,7 +252,7 @@ class SurrealHTTP extends AbstractProtocol
             endpoint: "/key/$table/$id",
             method: HTTPMethod::PATCH,
             options: [
-                CURLOPT_POSTFIELDS => CBOR::encode($data),
+                CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_HTTPHEADER => $header
             ]
         );
@@ -391,12 +391,15 @@ class SurrealHTTP extends AbstractProtocol
         $content_type = curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
         $content_body = curl_multi_getcontent($this->client);
 
+
         $result = match ($content_type) {
             "application/json" => json_decode($content_body, true),
             "application/cbor" => CBOR::decode($content_body),
             false, "text/plain; charset=utf-8" => $content_body,
             default => throw new SurrealException("Unsupported content type: $content_type"),
         };
+
+        var_dump($endpoint, $result);
 
         return match ($content_type) {
             "application/json", "application/cbor" => ResponseParser::create($result),
