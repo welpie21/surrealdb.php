@@ -295,6 +295,6 @@ file_put_contents("some_path_to_surql_file.surql", $file); // <-- save the file
 - [ ] Psalm and PHPStan support for better type checking and code quality
 
 ## Coverage
-All the methods in the driver are covered with tests. The coverage is 98.14% as of version v1.0.0.
+All the methods in the driver are covered with tests. The coverage is 98.12% as of version v1.0.0.
 
 ![coverage.png](assets%2Fcoverage.png)
