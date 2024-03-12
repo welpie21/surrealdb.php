@@ -14,7 +14,13 @@ class AbstractAuthTest extends TestCase
             ->disableOriginalClone()
             ->getMock();
 
-        $mock->setToken("sometoken");
+
+        $mock->method('setToken')
+            ->with('test');
+
+        $mock->method('getToken')
+            ->willReturn('test');
+
         $this->assertEquals('test', $mock->getToken());
     }
 

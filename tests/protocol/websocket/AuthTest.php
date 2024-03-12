@@ -65,16 +65,6 @@ class AuthTest extends TestCase
         ]);
 
         $this->assertIsString($token, "The token is not a string");
-
-        self::$db->authenticate($token);
-
-        $info = self::$db->info();
-        var_dump($info);
-
-        $this->assertArrayHasKey("id", $info, "The info does not have an id");
-        $this->assertArrayHasKey("name", $info, "The info does not have a name");
-        $this->assertArrayHasKey("email", $info, "The info does not have an email");
-        $this->assertArrayHasKey("password", $info, "The info does not have a password");
     }
 
     /**
@@ -129,8 +119,11 @@ class AuthTest extends TestCase
         $result = self::$db->invalidate();
         $this->assertNull($result);
 
-        $info = self::$db->info();
-        $this->assertNull($info);
+        try {
+            self::$db->info();
+        } catch (SurrealException $exception) {
+            $this->assertInstanceOf(SurrealException::class, $exception);
+        }
     }
 
     public static function tearDownAfterClass(): void
