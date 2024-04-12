@@ -4,53 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f5d216a128f9e099a7051f73f2b83a3f",
+    "content-hash": "1418bc201e5f2e0f9f541366b2bcb8d5",
     "packages": [
-        {
-            "name": "2tvenom/cborencode",
-            "version": "1.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/2tvenom/CBOREncode.git",
-                "reference": "42aedccb861d01fc0554782348cc08f8ebf22332"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/2tvenom/CBOREncode/zipball/42aedccb861d01fc0554782348cc08f8ebf22332",
-                "reference": "42aedccb861d01fc0554782348cc08f8ebf22332",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "CBOR": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "PHP"
-            ],
-            "authors": [
-                {
-                    "name": "Pavel <Ven> Gulbin",
-                    "email": "2tvenom@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "CBOR encoder for PHP",
-            "homepage": "https://github.com/2tvenom/CBOREncode",
-            "keywords": [
-                "cbor"
-            ],
-            "support": {
-                "issues": "https://github.com/2tvenom/CBOREncode/issues",
-                "source": "https://github.com/2tvenom/CBOREncode/tree/1.0.2"
-            },
-            "time": "2020-10-27T07:22:41+00:00"
-        },
         {
             "name": "paragonie/random_compat",
             "version": "v9.99.100",
@@ -664,6 +619,59 @@
                 }
             ],
             "time": "2024-01-29T20:11:03+00:00"
+        },
+        {
+            "name": "welpie21/cbor.php",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/welpie21/cbor.php.git",
+                "reference": "2b21de4c667b8e397a6779565093514da365a64d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/welpie21/cbor.php/zipball/2b21de4c667b8e397a6779565093514da365a64d",
+                "reference": "2b21de4c667b8e397a6779565093514da365a64d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "nikic/php-parser": "^v4.16.0",
+                "phpstan/phpstan-beberlei-assert": "^1.1.2",
+                "phpunit/php-code-coverage": "^10.1",
+                "phpunit/phpunit": "10.5.10"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Beau\\CborPHP\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "beau",
+                    "email": "beaudenheijer@gmail.com"
+                }
+            ],
+            "description": "A CBOR encoder/decoder for PHP",
+            "homepage": "https://github.com/welpie21/cbor.php",
+            "keywords": [
+                "cbor",
+                "cbor-decoder",
+                "cbor-encoder",
+                "cbor-php"
+            ],
+            "support": {
+                "issues": "https://github.com/welpie21/cbor.php/issues",
+                "source": "https://github.com/welpie21/cbor.php/tree/v1.0.1"
+            },
+            "time": "2024-04-09T19:38:07+00:00"
         }
     ],
     "packages-dev": [
