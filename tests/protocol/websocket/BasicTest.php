@@ -4,8 +4,7 @@ namespace protocol\websocket;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Surreal\classes\exceptions\SurrealException;
-use Surreal\SurrealWebsocket;
+use Surreal\Core\Client\SurrealWebsocket;
 
 class BasicTest extends TestCase
 {

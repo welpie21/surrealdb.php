@@ -4,8 +4,7 @@ namespace protocol\http;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Surreal\classes\exceptions\SurrealException;
-use Surreal\SurrealHTTP;
+use Surreal\Core\Client\SurrealHTTP;
 
 final class BasicTest extends TestCase
 {
@@ -24,19 +23,18 @@ final class BasicTest extends TestCase
     }
 
     /**
-     * @throws SurrealException
+     * @throws Exception
      */
     public function testStatus(): void
     {
         $status = self::$db->status();
 
+        var_dump($status);
+
         $this->assertIsInt($status);
         $this->assertEquals(200, $status);
     }
 
-    /**
-     * @throws SurrealException
-     */
     public function testHealth(): void
     {
         $health = self::$db->health();

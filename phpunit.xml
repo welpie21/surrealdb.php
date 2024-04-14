@@ -22,9 +22,6 @@
             <directory>tests/parsers</directory>
         </testsuite>
 
-        <testsuite name="traits">
-            <directory>tests/traits</directory>
-        </testsuite>
     </testsuites>
 
     <coverage>

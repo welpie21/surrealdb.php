@@ -1,6 +1,6 @@
 <?php
 
-namespace Surreal\Client\Http\Enums;
+namespace src\Curl;
 
 enum HTTPMethod: string
 {

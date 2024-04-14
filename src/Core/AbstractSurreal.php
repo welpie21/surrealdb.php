@@ -1,16 +1,15 @@
 <?php
 
-namespace Surreal\abstracts;
+namespace Surreal\Core;
 
-use Surreal\Auth\SurrealAuth;
-use Surreal\Client;
+use Surreal\Core\Auth\SurrealAuth;
 
 abstract class AbstractSurreal
 {
     protected string $host;
     protected ?string $namespace = null;
     protected ?string $database = null;
-    protected SurrealAuth $auth;
+    public SurrealAuth $auth;
 
     /**
      * @param string $host

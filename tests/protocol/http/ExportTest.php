@@ -2,8 +2,9 @@
 
 namespace protocol\http;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
-use Surreal\SurrealHTTP;
+use Surreal\Core\Client\SurrealHTTP;
 
 class ExportTest extends TestCase
 {

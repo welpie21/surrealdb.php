@@ -44,11 +44,10 @@ composer require welpie21/surrealdb.php
 **Create a new connection to a SurrealDB instance**
 
 ```php
-use Surreal\SurrealHTTP;
-use Surreal\SurrealWebsocket;
+use Surreal\Core\Client\SurrealHTTP;
 
 // create a surrealdb connection
-$db = new \Surreal\SurrealHTTP(
+$db = new SurrealHTTP(
     host: "http://127.0.0.1:8000",
     target: [
         "namespace" => "<namespace>",

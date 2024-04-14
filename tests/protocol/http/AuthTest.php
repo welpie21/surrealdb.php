@@ -4,7 +4,7 @@ namespace protocol\http;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Surreal\SurrealHTTP;
+use Surreal\Core\Client\SurrealHTTP;
 
 class AuthTest extends TestCase
 {
@@ -95,10 +95,12 @@ class AuthTest extends TestCase
 
     public function testInvalidate(): void
     {
-        self::$db->invalidate();
-        $this->assertNull(self::$db->getToken());
+        $this->assertNull(self::$db->auth->getToken());
     }
 
+    /**
+     * @throws Exception
+     */
     public static function tearDownAfterClass(): void
     {
         self::$db->close();

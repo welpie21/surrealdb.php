@@ -1,6 +1,6 @@
 <?php
 
-namespace Surreal\Utils;
+namespace Surreal\Core\Utils;
 
 readonly class SurrealPatch
 {

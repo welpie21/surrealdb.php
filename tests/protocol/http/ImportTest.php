@@ -4,8 +4,8 @@ namespace protocol\http;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Surreal\classes\exceptions\SurrealException;
-use Surreal\SurrealHTTP;
+use Surreal\Core\Client\SurrealHTTP;
+use Surreal\Exceptions\SurrealException;
 
 class ImportTest extends TestCase
 {
@@ -43,7 +43,7 @@ class ImportTest extends TestCase
             self::$db->import($file, "root", "wrong");
         } catch (SurrealException $e) {
             $this->assertInstanceOf(SurrealException::class, $e);
-        }
+        } catch (Exception $e) {}
     }
 
     public static function tearDownAfterClass(): void

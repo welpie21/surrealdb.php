@@ -4,8 +4,8 @@ namespace protocol\websocket;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Surreal\classes\SurrealPatch;
-use Surreal\SurrealWebsocket;
+use Surreal\Core\Client\SurrealWebsocket;
+use Surreal\Core\Utils\SurrealPatch;
 use Throwable;
 
 class QueryTest extends TestCase
@@ -18,7 +18,7 @@ class QueryTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$db = new SurrealWebsocket(
-            host: "ws://localhost:8000/rpc",
+            host: "ws://127.0.0.1:8000/rpc",
             target: ["namespace" => "test", "database" => "test"]
         );
 

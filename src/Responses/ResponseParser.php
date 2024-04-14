@@ -2,48 +2,24 @@
 
 namespace Surreal\Responses;
 
-use Exception;
-use Surreal\Exceptions\SurrealException;
-use Surreal\Responses\Auth\AuthResponse;
-use Surreal\Responses\Error\ForbiddenResponse;
-use Surreal\Responses\Http\HTTPErrorResponse;
-use Surreal\Responses\Rpc\RpcMessageResponse;
-use Surreal\Responses\Websocket\RpcMessageErrorResponse;
+use Beau\CborPHP\exceptions\CborException;
+use InvalidArgumentException;
+use JsonException;
+use src\Curl\HttpContentType;
+use Surreal\Cbor\CBOR;
 
-readonly class ResponseParser
+class ResponseParser
 {
-    private ?ResponseInterface $response;
-
     /**
-     * @throws SurrealException
+     * @throws JsonException|CborException
      */
-    private function __construct(?array $input)
+    public static function parse(HttpContentType $type, string $body)
     {
-        $this->response = match (array_keys($input)) {
-            AuthResponse::KEYS => new AuthResponse($input),
-            HTTPErrorResponse::KEYS => new HTTPErrorResponse($input),
-            ForbiddenResponse::KEYS => new ForbiddenResponse($input),
-            RpcMessageResponse::KEYS => new RpcMessageResponse($input),
-            RpcMessageErrorResponse::KEYS => new RpcMessageErrorResponse($input),
-            default => new AnyResponse($input)
+        return match ($type) {
+            HttpContentType::JSON => json_decode($body, true, 512, JSON_THROW_ON_ERROR),
+            HttpContentType::CBOR => CBOR::decode($body),
+            HttpContentType::UTF8 => $body,
+            default => throw new InvalidArgumentException('Unsupported content type')
         };
-    }
-
-    /**
-     * Returns the response
-     * @return ResponseInterface
-     */
-    public function getResponse(): ResponseInterface
-    {
-        return $this->response;
-    }
-
-    /**
-     * @throws Exception
-     * @throws SurrealException
-     */
-    public static function create(array $input): ResponseInterface
-    {
-        return (new self($input))->getResponse();
     }
 }

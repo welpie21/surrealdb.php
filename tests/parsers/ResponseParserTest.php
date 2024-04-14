@@ -3,11 +3,13 @@
 namespace parsers;
 
 use PHPUnit\Framework\TestCase;
-use Surreal\classes\exceptions\SurrealException;
-use Surreal\classes\ResponseParser;
-use Surreal\classes\responses\AuthResponse;
-use Surreal\classes\responses\ForbiddenResponse;
-use Surreal\classes\responses\WebsocketResponse;
+use Surreal\Exceptions\SurrealException;
+use Surreal\Responses\Auth\AuthResponse;
+use Surreal\Responses\Error\ForbiddenResponse;
+use Surreal\Responses\Http\HTTPErrorResponse;
+use Surreal\Responses\ResponseInterface;
+use Surreal\Responses\Rpc\RpcMessageErrorResponse;
+use Surreal\Responses\Rpc\RpcMessageResponse;
 
 class ResponseParserTest extends TestCase
 {
@@ -19,12 +21,8 @@ class ResponseParserTest extends TestCase
             "token" => "sometoken"
         ];
 
-        try {
-            $response = ResponseParser::create($data);
-            $this->assertInstanceOf(AuthResponse::class, $response);
-        } catch (\Exception $exception) {
-            // does nothing
-        }
+        $response = ResponseInterface::resolve($data);
+        $this->assertInstanceOf(AuthResponse::class, $response);
     }
 
     public function testErrorResponse(): void
@@ -36,12 +34,8 @@ class ResponseParserTest extends TestCase
             "information" => "some information"
         ];
 
-        try {
-            ResponseParser::create($response);
-        } catch (SurrealException $e) {
-            $this->assertInstanceOf(SurrealException::class, $e);
-            $this->assertEquals("some information", $e->getMessage());
-        }
+        $response = ResponseInterface::resolve($response);
+        $this->assertInstanceOf(HTTPErrorResponse::class, $response);
     }
 
     public function testForbiddenResponse(): void
@@ -52,38 +46,16 @@ class ResponseParserTest extends TestCase
             "information" => "some information"
         ];
 
-        try {
-            ResponseParser::create($data);
-        } catch (SurrealException $e) {
-            $this->assertInstanceOf(SurrealException::class, $e);
-            $this->assertEquals("some information", $e->getMessage());
-        }
-
-        try {
-            new ForbiddenResponse($data);
-        } catch (SurrealException $e) {
-            $this->assertInstanceOf(SurrealException::class, $e);
-            $this->assertEquals("some information", $e->getMessage());
-        }
+        $response = ResponseInterface::resolve($data);
+        $this->assertInstanceOf(ForbiddenResponse::class, $response);
     }
 
     public function testWebsocketResponse(): void
     {
-        $data = [
-            "id" => 1,
-            "result" => "success"
-        ];
+        $response = ResponseInterface::resolve(["id" => 1, "result" => "success"]);
 
-        try {
-            /** @var WebsocketResponse $response */
-            $response = ResponseParser::create($data);
-
-            $this->assertInstanceOf(WebsocketResponse::class, $response);
-            $this->assertEquals("success", $response->result);
-
-        } catch (\Exception $exception) {
-            // does nothing
-        }
+        $this->assertInstanceOf(RpcMessageResponse::class, $response);
+        $this->assertEquals("success", $response->result);
     }
 
     public function testWebsocketErrorResponse(): void
@@ -96,11 +68,7 @@ class ResponseParserTest extends TestCase
             "id" => 1
         ];
 
-        try {
-            ResponseParser::create($data);
-        } catch (SurrealException $e) {
-            $this->assertInstanceOf(SurrealException::class, $e);
-            $this->assertEquals("some message", $e->getMessage());
-        }
+        $response = ResponseInterface::resolve($data);
+        $this->assertInstanceOf(RpcMessageErrorResponse::class, $response);
     }
 }

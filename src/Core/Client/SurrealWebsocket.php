@@ -1,16 +1,16 @@
 <?php
 
-namespace Surreal;
+namespace Surreal\Core\Client;
 
 use Beau\CborPHP\exceptions\CborException;
 use Exception;
-use Surreal\abstracts\AbstractProtocol;
 use Surreal\Cbor\CBOR;
+use Surreal\Client\AbstractProtocol;
+use Surreal\Core\Rpc\RpcMessage;
 use Surreal\Exceptions\RpcException;
-use Surreal\Responses\ResponseParser;
+use Surreal\Responses\ResponseInterface;
+use Surreal\Responses\Rpc\RpcMessageErrorResponse;
 use Surreal\Responses\Rpc\RpcMessageResponse;
-use Surreal\Responses\Websocket\RpcMessageErrorResponse;
-use Surreal\Rpc\RpcMessage;
 use WebSocket\Client as WebsocketClient;
 use WebSocket\Middleware\{CloseHandler, PingResponder};
 
@@ -246,38 +246,27 @@ class SurrealWebsocket extends AbstractProtocol
 		// Blocking the main thread until the response is received.
 		// This ensures that the response is received in the order it was sent.
 
-//		while ($result = $this->client->receive()) {
-//			$content = $result->getContent();
-//
-//			if ($content === "") {
-//				continue;
-//			}
-//
-//			$content = json_decode($content, true);
-//
-//			if ($content["id"] === $id) {
-//				/** @var WebsocketResponse $response */
-//				$response = ResponseParser::create($content);
-//				return $response->result;
-//			}
-//		}
+		while ($result = $this->client->receive()) {
+			$content = $result->getContent();
 
-        $result = $this->client->receive();
-        $result = $result->getContent();
-        $result = CBOR::decode($result);
+			if ($content === "") {
+				continue;
+			}
 
-        if ($result === "") {
-            return null;
-        }
+			$content = CBOR::decode($result);
 
-        /** @var RpcMessageResponse|RpcMessageErrorResponse $response */
-        $response = ResponseParser::create($result);
+			if ($content["id"] === $id) {
+                $response = ResponseInterface::resolve($content);
 
-        return match (get_class($response)) {
-            RpcMessageResponse::class => $response->result,
-            RpcMessageErrorResponse::class => throw new RpcException($response->error),
-            default => throw new Exception("Invalid response")
-        };
+                return match (get_class($response)) {
+                    RpcMessageResponse::class => $response->result,
+                    RpcMessageErrorResponse::class => throw new RpcException($response->error),
+                    default => throw new Exception("Invalid response")
+                };
+			}
+		}
+
+        throw new Exception("No response received");
 	}
 
 	public function getTimeout(): int

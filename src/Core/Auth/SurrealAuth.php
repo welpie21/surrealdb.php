@@ -1,6 +1,6 @@
 <?php
 
-namespace Surreal\Auth;
+namespace Surreal\Core\Auth;
 
 class SurrealAuth
 {

@@ -2,10 +2,10 @@
 
 namespace protocol\http;
 
+use Beau\CborPHP\exceptions\CborException;
+use Exception;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
-use Surreal\classes\exceptions\SurrealException;
-use Surreal\SurrealHTTP;
+use Surreal\Core\Client\SurrealHTTP;
 
 class ConnectionTest extends TestCase
 {
@@ -17,12 +17,11 @@ class ConnectionTest extends TestCase
         );
 
         try {
-            $db->sql("SELECT * FROM person");
-        } catch (RuntimeException $e) {
-            $this->assertStringStartsWith("Failed to connect to localhost port 8001", $e->getMessage());
-            $this->assertInstanceOf(RuntimeException::class, $e);
-        } catch (SurrealException $e) {
+            $db->query("SELECT * FROM person");
         } catch (Exception $e) {
+            $this->assertStringStartsWith("Failed to connect to localhost port 8001", $e->getMessage());
+            $this->assertInstanceOf(Exception::class, $e);
+        } catch (CborException $e) {
         }
     }
 }
