@@ -4,7 +4,7 @@ namespace Surreal\Core\Results;
 
 use Surreal\Core\AbstractSurreal;
 use Surreal\Responses\ResponseInterface;
-use Surreal\Responses\RpcResponse;
+use Surreal\Responses\Types\RpcResponse;
 
 class AuthResult implements ResultInterface
 {

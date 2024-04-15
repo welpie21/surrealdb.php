@@ -1,8 +1,8 @@
 <?php
 
-namespace src\Curl;
+namespace Surreal\Curl;
 
-enum HTTPMethod: string
+enum HttpMethod: string
 {
     case GET = 'GET';
     case POST = 'POST';

@@ -3,17 +3,23 @@
 namespace Surreal\Core\Results;
 
 use Surreal\Core\AbstractSurreal;
+use Surreal\Exceptions\SurrealException;
 use Surreal\Responses\ResponseInterface;
-use Surreal\Responses\RpcResponse;
+use Surreal\Responses\Types\RpcErrorResponse;
+use Surreal\Responses\Types\RpcResponse;
 
 class RpcResult implements ResultInterface
 {
+    /**
+     * @throws SurrealException
+     */
     public static function from(ResponseInterface $response): mixed
     {
         //TODO: implement error rpc response.
 
         return match ($response::class) {
             RpcResponse::class => $response->result,
+            RpcErrorResponse::class => throw new SurrealException($response->data(), $response->status),
             default => null
         };
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Curl;
+namespace Surreal\Curl;
 
 enum HttpContentType: string
 {
@@ -13,5 +13,5 @@ enum HttpContentType: string
      * So instead of application/cbor it returns application/surreal.
      * We can leave this here for now, but we should remove it in the future.
      */
-    case SURREAL = "application/surreal";
+    case SURREAL = "application/surrealdb";
 }

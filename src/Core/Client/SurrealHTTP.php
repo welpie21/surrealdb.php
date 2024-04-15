@@ -5,14 +5,13 @@ namespace Surreal\Core\Client;
 use Beau\CborPHP\exceptions\CborException;
 use CurlHandle;
 use Exception;
-use src\Curl\HttpContentType;
-use src\Curl\HTTPMethod;
 use Surreal\Core\AbstractSurreal;
-use Surreal\Core\Results\AuthResult;
-use Surreal\Core\Results\RpcResult;
+use Surreal\Core\Results\{AuthResult, RpcResult, StringResult};
 use Surreal\Core\Rpc\RpcMessage;
-use Surreal\Responses\ResponseInterface;
-use Surreal\Responses\RpcResponse;
+use Surreal\Curl\HttpContentType;
+use Surreal\Curl\HttpMethod;
+use Surreal\Curl\HttpStatus;
+use Surreal\Responses\{ResponseInterface, ResponseParser, Types\RpcResponse, Types\StringResponse};
 
 
 class SurrealHTTP extends AbstractSurreal
@@ -68,9 +67,9 @@ class SurrealHTTP extends AbstractSurreal
     public function version(): string
     {
         $response = $this->execute(
-            endpoint: "/rpc",
-            method: HTTPMethod::GET,
-            response: RpcResponse::class,
+            endpoint: "/version",
+            method: HttpMethod::GET,
+            response: StringResponse::class,
             options: [
                 CURLOPT_POSTFIELDS => RpcMessage::create("version")
                     ->setId($this->incrementalId++)
@@ -78,7 +77,7 @@ class SurrealHTTP extends AbstractSurreal
             ]
         );
 
-        return RpcResult::from($response);
+        return StringResult::from($response);
     }
 
     /**
@@ -87,10 +86,9 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function import(string $content, string $username, string $password): ?array
     {
-        /** @var AnyResponse|string $response */
         $response = $this->execute(
             endpoint: "/import",
-            method: HTTPMethod::POST,
+            method: HttpMethod::POST,
             options: [
                 CURLOPT_HTTPHEADER => [
                     HTTP_ACCEPT,
@@ -113,7 +111,7 @@ class SurrealHTTP extends AbstractSurreal
     {
         $response = $this->execute(
             endpoint: "/export",
-            method: HTTPMethod::GET,
+            method: HttpMethod::GET,
             options: [
                 CURLOPT_HTTPHEADER => [
                     HTTP_ACCEPT,
@@ -134,7 +132,7 @@ class SurrealHTTP extends AbstractSurreal
     {
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HTTPMethod::POST,
+            method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => AuthResult::requiredHTTPHeaders($this),
@@ -155,7 +153,7 @@ class SurrealHTTP extends AbstractSurreal
     {
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HTTPMethod::POST,
+            method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => AuthResult::requiredHTTPHeaders($this),
@@ -179,7 +177,7 @@ class SurrealHTTP extends AbstractSurreal
     {
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HTTPMethod::POST,
+            method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => RpcResult::requiredHTTPHeaders($this),
@@ -203,7 +201,7 @@ class SurrealHTTP extends AbstractSurreal
     {
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HTTPMethod::PUT,
+            method: HttpMethod::PUT,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => RpcResponse::requiredHTTPHeaders($this),
@@ -224,7 +222,7 @@ class SurrealHTTP extends AbstractSurreal
     {
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HTTPMethod::PATCH,
+            method: HttpMethod::PATCH,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => RpcResult::requiredHTTPHeaders($this),
@@ -245,7 +243,7 @@ class SurrealHTTP extends AbstractSurreal
     {
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HTTPMethod::POST,
+            method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => RpcResult::requiredHTTPHeaders($this),
@@ -269,7 +267,7 @@ class SurrealHTTP extends AbstractSurreal
     {
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HTTPMethod::POST,
+            method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => RpcResult::requiredHTTPHeaders($this),
@@ -301,7 +299,7 @@ class SurrealHTTP extends AbstractSurreal
      */
     private function baseExecute(
         string     $endpoint,
-        HTTPMethod $method,
+        HttpMethod $method,
         array      $options = []
     ): void
     {
@@ -322,7 +320,7 @@ class SurrealHTTP extends AbstractSurreal
 
     /**
      * @param string $endpoint
-     * @param HTTPMethod $method
+     * @param HttpMethod $method
      * @param string $response
      * @param array $options
      * @return ResponseInterface
@@ -330,7 +328,7 @@ class SurrealHTTP extends AbstractSurreal
      */
     private function execute(
         string     $endpoint,
-        HTTPMethod $method,
+        HttpMethod $method,
         string     $response,
         array      $options = []
     ): ResponseInterface
@@ -338,14 +336,22 @@ class SurrealHTTP extends AbstractSurreal
         $this->baseExecute($endpoint, $method, $options);
 
         // get the content type of the response.
-        $type = curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
         $status = curl_getinfo($this->client, CURLINFO_RESPONSE_CODE);
+
+        if ($status == HttpStatus::BAD_GATEWAY) {
+            throw new Exception("Surreal is currently unavailable.", HttpStatus::BAD_GATEWAY);
+        }
+
+        $type = curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
         $body = curl_multi_getcontent($this->client);
 
-        $type = HttpContentType::from($type);
+        var_dump($type);
+
+        $type = $type ? HttpContentType::from($type) : HttpContentType::UTF8;
+        $result = ResponseParser::parse($type, $body);
 
         /** @var $response ResponseInterface */
-        return $response::from($type, $body, $status);
+        return $response::from($result, $status);
     }
 
     /**
@@ -355,7 +361,7 @@ class SurrealHTTP extends AbstractSurreal
      */
     private function checkStatusCode(string $endpoint): int
     {
-        $this->baseExecute($endpoint, HTTPMethod::GET);
+        $this->baseExecute($endpoint, HttpMethod::GET);
         return curl_getinfo($this->client, CURLINFO_RESPONSE_CODE);
     }
 }

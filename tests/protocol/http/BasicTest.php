@@ -56,13 +56,13 @@ final class BasicTest extends TestCase
 
     public function testToken(): void
     {
-        self::$db->setToken("sometoken");
-        $token = self::$db->getToken();
+        self::$db->auth->setToken("sometoken");
+        $token = self::$db->auth->getToken();
 
         $this->assertEquals("sometoken", $token);
 
-        self::$db->setToken(null);
-        $this->assertNull(self::$db->getToken());
+        self::$db->auth->setToken(null);
+        $this->assertNull(self::$db->auth->getToken());
     }
 
     public static function tearDownAfterClass(): void

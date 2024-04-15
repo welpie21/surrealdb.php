@@ -13,11 +13,4 @@ interface ResultInterface
      * @return mixed
      */
     public static function from(ResponseInterface $response): mixed;
-
-    /**
-     * Returns required HTTP headers for the client
-     * @param AbstractSurreal $client
-     * @return array
-     */
-    public static function requiredHTTPHeaders(AbstractSurreal $client): array;
 }

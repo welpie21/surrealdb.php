@@ -10,7 +10,7 @@ class RpcMessage
 {
     public int $id;
     public string $method;
-    public array $params;
+    public array $params = [];
 
     public function __construct(string $method)
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Curl;
+namespace Surreal\Curl;
 
 enum HttpStatus: int
 {
