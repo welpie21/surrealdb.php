@@ -93,8 +93,6 @@ class SurrealHTTP extends AbstractSurreal
             ->setDatabaseHeader(true)
             ->getHeaders();
 
-        var_dump($headers);
-
         $response = $this->execute(
             endpoint: "/import",
             method: HttpMethod::POST,
@@ -426,8 +424,6 @@ class SurrealHTTP extends AbstractSurreal
 
         $type = curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
         $body = curl_multi_getcontent($this->client);
-
-        var_dump($type);
 
         $type = $type ? HttpContentType::from($type) : HttpContentType::UTF8;
         $result = ResponseParser::parse($type, $body);
