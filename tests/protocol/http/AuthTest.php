@@ -56,10 +56,9 @@ class AuthTest extends TestCase
      */
     public function testSigninRoot(): void
     {
-
         $token = self::$db->signin([
-            "user" => "admin",
-            "pass" => "123!"
+            "user" => "root",
+            "pass" => "root"
         ]);
 
         $this->assertIsString($token);

@@ -6,13 +6,13 @@ use Beau\CborPHP\exceptions\CborException;
 use CurlHandle;
 use Exception;
 use Surreal\Core\AbstractSurreal;
-use Surreal\Core\Results\{AuthResult, RpcResult, StringResult};
+use Surreal\Core\Results\{AuthResult, ImportResult, RpcResult, StringResult};
 use Surreal\Core\Rpc\RpcMessage;
 use Surreal\Curl\HttpContentType;
+use Surreal\Curl\HttpHeader;
 use Surreal\Curl\HttpMethod;
 use Surreal\Curl\HttpStatus;
 use Surreal\Responses\{ResponseInterface, ResponseParser, Types\RpcResponse, Types\StringResponse};
-
 
 class SurrealHTTP extends AbstractSurreal
 {
@@ -86,22 +86,27 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function import(string $content, string $username, string $password): ?array
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_TEXT)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->getHeaders();
+
+        var_dump($headers);
+
         $response = $this->execute(
             endpoint: "/import",
             method: HttpMethod::POST,
+            response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => [
-                    HTTP_ACCEPT,
-                    "Content-Type: text/plain",
-                    "Core-NS: " . $this->getNamespace(),
-                    "Core-DB: " . $this->getDatabase()
-                ],
+                CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_POSTFIELDS => $content,
                 CURLOPT_USERPWD => "$username:$password"
             ]
         );
 
-        return ExportResponse::from($response);
+        return ImportResult::from($response);
     }
 
     /**
@@ -109,20 +114,24 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function export(string $username, string $password): string
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_TEXT)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->getHeaders();
+
         $response = $this->execute(
             endpoint: "/export",
             method: HttpMethod::GET,
+            response: StringResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => [
-                    HTTP_ACCEPT,
-                    "Core-NS: " . $this->getNamespace(),
-                    "Core-DB: " . $this->getDatabase()
-                ],
+                CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_USERPWD => "$username:$password"
             ]
         );
 
-        return ExportResponse::from($response);
+        return StringResult::from($response);
     }
 
     /**
@@ -130,16 +139,23 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function signin(array $data): ?string
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->getHeaders();
+
+        $payload = RpcMessage::create("signin")
+            ->setId($this->incrementalId++)
+            ->setParams([$data])
+            ->toCborString();
+
         $response = $this->execute(
             endpoint: "/rpc",
             method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => AuthResult::requiredHTTPHeaders($this),
-                CURLOPT_POSTFIELDS => RpcMessage::create("signin")
-                    ->setId($this->incrementalId++)
-                    ->setParams($data)
-                    ->toCborString()
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
             ]
         );
 
@@ -151,16 +167,23 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function signup(array $data): ?string
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->getHeaders();
+
+        $payload = RpcMessage::create("signup")
+            ->setId($this->incrementalId++)
+            ->setParams([$data])
+            ->toCborString();
+
         $response = $this->execute(
             endpoint: "/rpc",
             method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => AuthResult::requiredHTTPHeaders($this),
-                CURLOPT_POSTFIELDS => RpcMessage::create("signup")
-                    ->setId($this->incrementalId++)
-                    ->setParams($data)
-                    ->toCborString()
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
             ]
         );
 
@@ -175,16 +198,27 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function create(string $table, mixed $data): ?array
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $payload = RpcMessage::create("create")
+            ->setId($this->incrementalId++)
+            ->setParams([$table, $data])
+            ->toCborString();
+
         $response = $this->execute(
             endpoint: "/rpc",
             method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => RpcResult::requiredHTTPHeaders($this),
-                CURLOPT_POSTFIELDS => RpcMessage::create("create")
-                    ->setId($this->incrementalId++)
-                    ->setParams([$table, $data])
-                    ->toCborString()
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
             ]
         );
 
@@ -199,16 +233,27 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function update(string $thing, mixed $data): ?array
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $payload = RpcMessage::create("update")
+            ->setId($this->incrementalId++)
+            ->setParams([$thing, $data])
+            ->toCborString();
+
         $response = $this->execute(
             endpoint: "/rpc",
             method: HttpMethod::PUT,
             response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => RpcResponse::requiredHTTPHeaders($this),
-                CURLOPT_POSTFIELDS => RpcMessage::create("update")
-                    ->setId($this->incrementalId++)
-                    ->setParams([$thing, $data])
-                    ->toCborString()
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
             ]
         );
 
@@ -220,16 +265,27 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function merge(string $thing, mixed $data): ?array
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $payload = RpcMessage::create("merge")
+            ->setId($this->incrementalId++)
+            ->setParams([$thing, $data])
+            ->toCborString();
+
         $response = $this->execute(
             endpoint: "/rpc",
             method: HttpMethod::PATCH,
             response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => RpcResult::requiredHTTPHeaders($this),
-                CURLOPT_POSTFIELDS => RpcMessage::create("merge")
-                    ->setId($this->incrementalId++)
-                    ->setParams([$thing, $data])
-                    ->toCborString()
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
             ]
         );
 
@@ -241,18 +297,31 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function delete(string $thing): ?array
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $payload = RpcMessage::create("delete")
+            ->setId($this->incrementalId++)
+            ->setParams([$thing])
+            ->toCborString();
+
         $response = $this->execute(
             endpoint: "/rpc",
             method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => RpcResult::requiredHTTPHeaders($this),
-                CURLOPT_POSTFIELDS => RpcMessage::create("delete")
-                    ->setId($this->incrementalId++)
-                    ->setParams([$thing])
-                    ->toCborString()
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
             ]
         );
+
+        return RpcResult::from($response);
     }
 
     /**
@@ -265,18 +334,31 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function query(string $query, array $params = []): ?array
     {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $payload = RpcMessage::create("query")
+            ->setId($this->incrementalId++)
+            ->setParams([$query, $params])
+            ->toCborString();
+
         $response = $this->execute(
             endpoint: "/rpc",
             method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => RpcResult::requiredHTTPHeaders($this),
-                CURLOPT_POSTFIELDS => RpcMessage::create("query")
-                    ->setId($this->incrementalId++)
-                    ->setParams([$query, $params])
-                    ->toCborString()
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
             ]
         );
+
+        return RpcResult::from($response);
     }
 
     /**

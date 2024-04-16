@@ -6,17 +6,29 @@ use Surreal\Responses\ResponseInterface;
 
 readonly class ImportResponse implements ResponseInterface
 {
-    public function __construct(mixed $data)
+    public mixed $result;
+    public int $status;
+
+    public function __construct(mixed $data, int $status)
     {
+        $this->result = $data;
+        $this->status = $status;
     }
 
-    public static function from(mixed $data, int $status)
+    public static function from(mixed $data, int $status): ResponseInterface
     {
-        // TODO: Implement from() method.
+        if($status !== 200) {
+            $error = ImportErrorResponse::tryFrom($data, $status);
+            if($error) {
+                return $error;
+            }
+        }
+
+        return new self($data, $status);
     }
 
     public function data(): mixed
     {
-        // TODO: Implement data() method.
+        return $this->result;
     }
 }

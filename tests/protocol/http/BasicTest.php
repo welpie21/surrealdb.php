@@ -29,8 +29,6 @@ final class BasicTest extends TestCase
     {
         $status = self::$db->status();
 
-        var_dump($status);
-
         $this->assertIsInt($status);
         $this->assertEquals(200, $status);
     }

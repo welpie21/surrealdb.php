@@ -5,16 +5,18 @@ namespace Surreal\Core\Client;
 use Beau\CborPHP\exceptions\CborException;
 use Exception;
 use Surreal\Cbor\CBOR;
-use Surreal\Client\AbstractProtocol;
+use Surreal\Core\AbstractSurreal;
+use Surreal\Core\Results\RpcResult;
 use Surreal\Core\Rpc\RpcMessage;
 use Surreal\Exceptions\RpcException;
 use Surreal\Responses\ResponseInterface;
-use Surreal\Responses\Rpc\RpcMessageErrorResponse;
-use Surreal\Responses\Rpc\RpcMessageResponse;
+use Surreal\Responses\ResponseParser;
+use Surreal\Responses\Types\RpcErrorResponse;
+use Surreal\Responses\Types\RpcResponse;
 use WebSocket\Client as WebsocketClient;
 use WebSocket\Middleware\{CloseHandler, PingResponder};
 
-class SurrealWebsocket extends AbstractProtocol
+class SurrealWebsocket extends AbstractSurreal
 {
 	private WebsocketClient $client;
 	private int $incrementalId = 0;
@@ -256,13 +258,8 @@ class SurrealWebsocket extends AbstractProtocol
 			$content = CBOR::decode($result);
 
 			if ($content["id"] === $id) {
-                $response = ResponseInterface::resolve($content);
-
-                return match (get_class($response)) {
-                    RpcMessageResponse::class => $response->result,
-                    RpcMessageErrorResponse::class => throw new RpcException($response->error),
-                    default => throw new Exception("Invalid response")
-                };
+                $response = RpcResponse::from($content, 200);
+                return RpcResult::from($response);
 			}
 		}
 

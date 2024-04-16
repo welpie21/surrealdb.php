@@ -2,25 +2,22 @@
 
 namespace Surreal\Core\Results;
 
-use Surreal\Core\AbstractSurreal;
+use Surreal\Exceptions\SurrealException;
 use Surreal\Responses\ResponseInterface;
+use Surreal\Responses\Types\RpcErrorResponse;
 use Surreal\Responses\Types\RpcResponse;
 
 class AuthResult implements ResultInterface
 {
+    /**
+     * @throws SurrealException
+     */
     public static function from(ResponseInterface $response): mixed
     {
         return match($response::class) {
-            RpcResponse::class => $response->result,
-            default => null
+            RpcResponse::class => $response->data(),
+            RpcErrorResponse::class => throw new SurrealException($response->data(), $response->status),
+            default => throw new SurrealException('Unknown response type')
         };
-    }
-
-    public static function requiredHTTPHeaders(AbstractSurreal $client): array
-    {
-        return [
-            'Content-Type: application/cbor',
-            'Accept: application/cbor',
-        ];
     }
 }
