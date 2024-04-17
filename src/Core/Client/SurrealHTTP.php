@@ -5,6 +5,7 @@ namespace Surreal\Core\Client;
 use Beau\CborPHP\exceptions\CborException;
 use CurlHandle;
 use Exception;
+use Surreal\Cbor\Types\RecordId;
 use Surreal\Core\AbstractSurreal;
 use Surreal\Core\Results\{AuthResult, ImportResult, RpcResult, StringResult};
 use Surreal\Core\Rpc\RpcMessage;
@@ -12,7 +13,13 @@ use Surreal\Curl\HttpContentType;
 use Surreal\Curl\HttpHeader;
 use Surreal\Curl\HttpMethod;
 use Surreal\Curl\HttpStatus;
-use Surreal\Responses\{ResponseInterface, ResponseParser, Types\RpcResponse, Types\StringResponse};
+use Surreal\Responses\{ResponseInterface,
+    ResponseParser,
+    Types\ImportResponse,
+    Types\RpcResponse,
+    Types\StringResponse};
+use Surreal\Exceptions\AuthException;
+use Surreal\Exceptions\SurrealException;
 
 class SurrealHTTP extends AbstractSurreal
 {
@@ -82,7 +89,7 @@ class SurrealHTTP extends AbstractSurreal
 
     /**
      * @return array|null - Array of SingleRecordResponse
-     * @throws Exception
+     * @throws SurrealException|AuthException|Exception
      */
     public function import(string $content, string $username, string $password): ?array
     {
@@ -96,7 +103,7 @@ class SurrealHTTP extends AbstractSurreal
         $response = $this->execute(
             endpoint: "/import",
             method: HttpMethod::POST,
-            response: RpcResponse::class,
+            response: ImportResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_POSTFIELDS => $content,
@@ -205,9 +212,10 @@ class SurrealHTTP extends AbstractSurreal
             ->setAuthorizationHeader()
             ->getHeaders();
 
+//        $record = RecordId::fromString($table);
         $payload = RpcMessage::create("create")
             ->setId($this->incrementalId++)
-            ->setParams([$table, $data])
+            ->setParams([null, $data]) // <--- implement when Table class is implemented
             ->toCborString();
 
         $response = $this->execute(
@@ -240,14 +248,16 @@ class SurrealHTTP extends AbstractSurreal
             ->setAuthorizationHeader()
             ->getHeaders();
 
+        $record = RecordId::fromString($thing);
+
         $payload = RpcMessage::create("update")
             ->setId($this->incrementalId++)
-            ->setParams([$thing, $data])
+            ->setParams([$record, $data])
             ->toCborString();
 
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HttpMethod::PUT,
+            method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => $headers,
@@ -279,7 +289,7 @@ class SurrealHTTP extends AbstractSurreal
 
         $response = $this->execute(
             endpoint: "/rpc",
-            method: HttpMethod::PATCH,
+            method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
                 CURLOPT_HTTPHEADER => $headers,
@@ -344,6 +354,40 @@ class SurrealHTTP extends AbstractSurreal
         $payload = RpcMessage::create("query")
             ->setId($this->incrementalId++)
             ->setParams([$query, $params])
+            ->toCborString();
+
+        $response = $this->execute(
+            endpoint: "/rpc",
+            method: HttpMethod::POST,
+            response: RpcResponse::class,
+            options: [
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
+            ]
+        );
+
+        return RpcResult::from($response);
+    }
+
+    /**
+     * @throws CborException
+     * @throws SurrealException
+     * @throws Exception
+     */
+    public function run(string $func, ?string $version, ...$args): mixed
+    {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(false)
+            ->setDatabaseHeader(false)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $payload = RpcMessage::create("run")
+            ->setId($this->incrementalId++)
+            ->setParams([$func, $version, $args])
             ->toCborString();
 
         $response = $this->execute(
@@ -429,7 +473,7 @@ class SurrealHTTP extends AbstractSurreal
         $result = ResponseParser::parse($type, $body);
 
         /** @var $response ResponseInterface */
-        return $response::from($result, $status);
+        return $response::from($result, $type, $status);
     }
 
     /**
