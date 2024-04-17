@@ -4,12 +4,12 @@ namespace Surreal\Utils;
 
 class ArrayHelper
 {
-    public static function isAssoc(array $array): bool
+    public static function isAssoc(mixed $data): bool
     {
-        if ([] === $array) {
+        if ([] === $data || !is_array($data)) {
             return false;
         }
 
-        return array_keys($array) !== range(0, count($array) - 1);
+        return array_keys($data) !== range(0, count($data) - 1);
     }
 }
