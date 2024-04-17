@@ -14,7 +14,10 @@ class QueryTest extends TestCase
     {
         self::$db = new SurrealHTTP(
             host: "http://localhost:8000",
-            target: ["namespace" => "test", "database" => "test"]
+            target: [
+                "namespace" => "test",
+                "database" => "test"
+            ]
         );
 
         $token = self::$db->signin([
@@ -55,6 +58,9 @@ class QueryTest extends TestCase
         $this->assertIsArray($response);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function tearDownAfterClass(): void
     {
         self::$db->close();
