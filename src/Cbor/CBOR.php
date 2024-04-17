@@ -9,6 +9,7 @@ use Beau\CborPHP\exceptions\CborException;
 use Beau\CborPHP\utils\CborByteString;
 use Exception;
 use Surreal\Cbor\Types\RecordId;
+use Surreal\Cbor\Types\Table;
 
 class CBOR
 {
@@ -24,6 +25,9 @@ class CBOR
 
             if ($value instanceof RecordId) {
                 return new TaggedValue(8, (string)$value);
+            }
+            else if($value instanceof Table) {
+                return new TaggedValue(7, $value->getTable());
             }
 
             return $value;
@@ -45,6 +49,7 @@ class CBOR
             }
 
             return match ($value->tag) {
+                7 => Table::fromString($value->value),
                 8 => RecordId::fromArray($value->value),
                 default => throw new CborException("Unknown tag: " . $value->tag)
             };
