@@ -3,6 +3,7 @@
 namespace Surreal\Responses\Types;
 
 use InvalidArgumentException;
+use Surreal\Curl\HttpContentType;
 use Surreal\Responses\ErrorResponseInterface;
 use Surreal\Responses\ResponseInterface;
 
@@ -34,7 +35,7 @@ readonly class ImportErrorResponse implements ResponseInterface, ErrorResponseIn
         return null;
     }
 
-    public static function from(mixed $data, int $status): ImportErrorResponse
+    public static function from(mixed $data, HttpContentType $type, int $status): ImportErrorResponse
     {
         return new self($data);
     }
