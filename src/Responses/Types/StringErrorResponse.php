@@ -2,6 +2,7 @@
 
 namespace Surreal\Responses\Types;
 
+use Surreal\Curl\HttpContentType;
 use Surreal\Responses\ErrorResponseInterface;
 use Surreal\Responses\ResponseInterface;
 
@@ -16,7 +17,7 @@ readonly class StringErrorResponse implements ResponseInterface, ErrorResponseIn
         $this->error = $data;
     }
 
-    public static function from(mixed $data, int $status): ResponseInterface
+    public static function from(mixed $data, HttpContentType $type, int $status): ResponseInterface
     {
         return new self($data, $status);
     }
