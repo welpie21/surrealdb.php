@@ -2,7 +2,7 @@
 
 namespace Surreal\Cbor\Types;
 
-class Table
+final class Table
 {
     private string $table;
 
