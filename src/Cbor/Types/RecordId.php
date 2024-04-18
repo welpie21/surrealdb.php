@@ -4,7 +4,7 @@ namespace Surreal\Cbor\Types;
 
 use InvalidArgumentException;
 
-class RecordId
+final class RecordId
 {
 	private string $table;
 	private string $id;
