@@ -2,6 +2,7 @@
 
 namespace Surreal\Cbor\Types;
 
+use Beau\CborPHP\utils\CborByteString;
 use DateTimeInterface;
 use Ramsey\Uuid\UuidInterface;
 
@@ -10,6 +11,11 @@ class Uuid
     public static function fromString(string $uuid): UuidInterface
     {
         return \Ramsey\Uuid\Uuid::fromString($uuid);
+    }
+
+    public static function fromCborByteString(CborByteString $byteString): UuidInterface
+    {
+        return \Ramsey\Uuid\Uuid::fromBytes($byteString->getByteString());
     }
 
     public static function fromBytes(string $bytes): UuidInterface
