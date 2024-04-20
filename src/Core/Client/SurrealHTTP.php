@@ -10,6 +10,7 @@ use Surreal\Cbor\Types\Table;
 use Surreal\Core\AbstractSurreal;
 use Surreal\Core\Results\{AuthResult, ImportResult, RpcResult, StringResult};
 use Surreal\Core\Rpc\RpcMessage;
+use Surreal\Core\Utils\ThingParser;
 use Surreal\Curl\HttpContentType;
 use Surreal\Curl\HttpHeader;
 use Surreal\Curl\HttpMethod;
@@ -227,6 +228,8 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function select(string $thing): mixed
     {
+        $thing = ThingParser::from($thing)->toString();
+
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
@@ -262,6 +265,10 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function create(string $table, mixed $data): ?array
     {
+        $table = ThingParser::from($table)
+            ->getTable()
+            ->toString();
+
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
@@ -270,8 +277,6 @@ class SurrealHTTP extends AbstractSurreal
             ->setScopeHeader()
             ->setAuthorizationHeader()
             ->getHeaders();
-
-        $table = Table::fromString($table);
 
         $payload = RpcMessage::create("create")
             ->setId($this->incrementalId++)
@@ -299,6 +304,8 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function update(string $thing, mixed $data): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
+
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
@@ -308,11 +315,9 @@ class SurrealHTTP extends AbstractSurreal
             ->setAuthorizationHeader()
             ->getHeaders();
 
-        $record = RecordId::fromString($thing);
-
         $payload = RpcMessage::create("update")
             ->setId($this->incrementalId++)
-            ->setParams([$record, $data])
+            ->setParams([$thing, $data])
             ->toCborString();
 
         $response = $this->execute(
@@ -333,6 +338,8 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function merge(string $thing, mixed $data): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
+
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
@@ -369,6 +376,10 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function insert(string $table, array $data): ?array
     {
+        $table = ThingParser::from($table)
+            ->getTable()
+            ->toString();
+
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
@@ -403,6 +414,8 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function delete(string $thing): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
+
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
@@ -471,6 +484,8 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function patch(string $thing, array $data, bool $diff = false): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
+
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)

@@ -2,6 +2,8 @@
 
 namespace Surreal\Cbor\Types;
 
+use InvalidArgumentException;
+
 final class Table
 {
     private string $table;
@@ -13,6 +15,10 @@ final class Table
 
     public static function fromString(string $table): Table
     {
+        if(str_contains($table, ':')) {
+            throw new InvalidArgumentException('Table name cannot contain ":" character');
+        }
+
         return new Table($table);
     }
 
