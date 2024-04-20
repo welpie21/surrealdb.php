@@ -22,8 +22,8 @@ readonly class RpcResponse implements ResponseInterface, ErrorResponseInterface
 
         $isAssoc = ArrayHelper::isAssoc($data);
 
-        if($isAssoc) {
-            if(array_key_exists("result", $data)) {
+        if ($isAssoc) {
+            if (array_key_exists("result", $data)) {
                 $this->result = $data["result"];
             } else {
                 $this->result = null;
@@ -36,19 +36,19 @@ readonly class RpcResponse implements ResponseInterface, ErrorResponseInterface
     /**
      * @throws Exception
      */
-    public static function from(mixed $data, HttpContentType $type,int $status): ResponseInterface
+    public static function from(mixed $data, HttpContentType $type, int $status): ResponseInterface
     {
         switch ($status) {
             case 200:
                 if (ArrayHelper::isAssoc($data)) {
                     if (array_key_exists("error", $data)) {
-                        return RpcErrorResponse::from($data, $status);
+                        return RpcErrorResponse::from($data, $type, $status);
                     }
                 }
 
                 return new self($data);
             case 500:
-                $error = RpcErrorResponse::tryFrom($data, $status);
+                $error = RpcErrorResponse::tryFrom($data, $type, $status);
                 if ($error !== null) {
                     return $error;
                 }
@@ -63,11 +63,11 @@ readonly class RpcResponse implements ResponseInterface, ErrorResponseInterface
     /**
      * @throws Exception
      */
-    public static function tryFrom(mixed $data, int $status): ?ResponseInterface
+    public static function tryFrom(mixed $data, HttpContentType $type, int $status): ?ResponseInterface
     {
         return match (true) {
-            $status === 200 => self::from($data, $status),
-            $status === 500 => RpcErrorResponse::tryFrom($data, $status)
+            $status === 200 => self::from($data, $type, $status),
+            $status === 500 => RpcErrorResponse::tryFrom($data, $type, $status)
         };
     }
 

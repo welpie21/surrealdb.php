@@ -26,10 +26,10 @@ readonly class ImportErrorResponse implements ResponseInterface, ErrorResponseIn
         $this->information = $data["information"];
     }
 
-    public static function tryFrom(mixed $data, int $status): ?ResponseInterface
+    public static function tryFrom(mixed $data, HttpContentType $type, int $status): ?ResponseInterface
     {
         if($status !== 200) {
-            return self::from($data, $status);
+            return self::from($data, $type, $status);
         }
 
         return null;

@@ -21,7 +21,7 @@ readonly class StringResponse implements ResponseInterface
     public static function from(mixed $data,HttpContentType $type, int $status): StringResponse
     {
         if($status !== 200) {
-            $error = StringErrorResponse::tryFrom($data, $status);
+            $error = StringErrorResponse::tryFrom($data, $type, $status);
             if($error) {
                 throw new SurrealException($error->error, $error->status);
             }

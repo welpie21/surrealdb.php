@@ -27,11 +27,11 @@ readonly class StringErrorResponse implements ResponseInterface, ErrorResponseIn
      * @param int $status
      * @return ResponseInterface|null
      */
-    public static function tryFrom(mixed $data, int $status): ?StringErrorResponse
+    public static function tryFrom(mixed $data, HttpContentType $type, int $status): ?StringErrorResponse
     {
         return match ($status) {
             200 => null,
-            default => self::from($data, $status)
+            default => self::from($data, $type, $status)
         };
     }
 

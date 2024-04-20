@@ -31,10 +31,10 @@ readonly class RpcErrorResponse implements ResponseInterface, ErrorResponseInter
     /**
      * @throws SurrealException
      */
-    public static function tryFrom(mixed $data, int $status): ?ResponseInterface
+    public static function tryFrom(mixed $data, HttpContentType $type, int $status): ?ResponseInterface
     {
         if ($status !== 200) {
-            return self::from($data, $status);
+            return self::from($data, $type, $status);
         }
 
         throw new SurrealException("Unknown error response has been returned.");
