@@ -52,7 +52,7 @@ class HttpHeader
      */
     public function setNamespaceHeader(bool $required, ?string $override = null): HttpHeader
     {
-        $namespace = $this->instance->getNamespace();
+        $namespace = $override ?? $this->instance->getNamespace();
 
         if ($required && !$namespace) {
             throw new SurrealException("Namespace is required for this request");
