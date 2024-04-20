@@ -8,6 +8,7 @@ use Surreal\Cbor\CBOR;
 use Surreal\Core\AbstractSurreal;
 use Surreal\Core\Results\RpcResult;
 use Surreal\Core\Rpc\RpcMessage;
+use Surreal\Core\Utils\ThingParser;
 use Surreal\Curl\HttpContentType;
 use Surreal\Responses\Types\RpcResponse;
 use WebSocket\Client as WebsocketClient;
@@ -152,6 +153,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function select(string $thing): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
         $message = RpcMessage::create("select")->setParams([$thing]);
         return $this->execute($message);
     }
@@ -160,9 +162,10 @@ class SurrealWebsocket extends AbstractSurreal
      * @throws Exception
      * @example $data = [["name" => "some_name"]] or for bulk insert $data = [["name" => "some_name_x"], ["name" => "some_name_y"]]
      */
-    public function insert(string $thing, array $data): ?array
+    public function insert(string $table, array $data): ?array
     {
-        $message = RpcMessage::create("insert")->setParams([$thing, $data]);
+        $table = ThingParser::from($table)->getTable()->toString();
+        $message = RpcMessage::create("insert")->setParams([$table, $data]);
         return $this->execute($message);
     }
 
@@ -171,6 +174,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function create(string $thing, array $data): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
         $message = RpcMessage::create("create")->setParams([$thing, $data]);
         return $this->execute($message);
     }
@@ -180,6 +184,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function update(string $thing, array $data): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
         $message = RpcMessage::create("update")->setParams([$thing, $data]);
         return $this->execute($message);
     }
@@ -189,6 +194,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function merge(string $thing, array $data): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
         $message = RpcMessage::create("merge")->setParams([$thing, $data]);
         return $this->execute($message);
     }
@@ -199,6 +205,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function patch(string $thing, array $data, bool $diff = false): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
         $message = RpcMessage::create("patch")->setParams([$thing, $data, $diff]);
         return $this->execute($message);
     }
@@ -209,6 +216,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function delete(string $thing): ?array
     {
+        $thing = ThingParser::from($thing)->toString();
         $message = RpcMessage::create("delete")->setParams([$thing]);
         return $this->execute($message);
     }
