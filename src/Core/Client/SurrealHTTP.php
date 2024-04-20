@@ -89,6 +89,32 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * This method returns the record of an authenticated scope user.
+     * @throws Exception|SurrealException
+     */
+    public function info(): array
+    {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $response = $this->execute(
+            endpoint: "/info",
+            method: HttpMethod::GET,
+            response: RpcResponse::class,
+            options: [
+                CURLOPT_HTTPHEADER => $headers
+            ]
+        );
+
+        return RpcResult::from($response);
+    }
+
+    /**
      * @return array|null - Array of SingleRecordResponse
      * @throws SurrealException|AuthException|Exception
      */
