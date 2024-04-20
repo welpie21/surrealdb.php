@@ -6,6 +6,7 @@ use Beau\CborPHP\exceptions\CborException;
 use CurlHandle;
 use Exception;
 use Surreal\Cbor\Types\RecordId;
+use Surreal\Cbor\Types\Table;
 use Surreal\Core\AbstractSurreal;
 use Surreal\Core\Results\{AuthResult, ImportResult, RpcResult, StringResult};
 use Surreal\Core\Rpc\RpcMessage;
@@ -196,6 +197,38 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * @throws SurrealException|CborException|Exception
+     */
+    public function select(string $thing): mixed
+    {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $payload = RpcMessage::create("select")
+            ->setId($this->incrementalId++)
+            ->setParams([$thing])
+            ->toCborString();
+
+        $response = $this->execute(
+            endpoint: "/rpc",
+            method: HttpMethod::POST,
+            response: RpcResponse::class,
+            options: [
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
+            ]
+        );
+
+        return RpcResult::from($response);
+    }
+
+    /**
      * @param string $table
      * @param mixed $data
      * @return object|null
@@ -212,10 +245,11 @@ class SurrealHTTP extends AbstractSurreal
             ->setAuthorizationHeader()
             ->getHeaders();
 
-//        $record = RecordId::fromString($table);
+        $table = Table::fromString($table);
+
         $payload = RpcMessage::create("create")
             ->setId($this->incrementalId++)
-            ->setParams([null, $data]) // <--- implement when Table class is implemented
+            ->setParams([$table, $data])
             ->toCborString();
 
         $response = $this->execute(
@@ -301,6 +335,44 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Inserts one or multiple records into a table.
+     * @param string $table
+     * @param array|mixed $data
+     * @return array|null
+     * @throws CborException|SurrealException|Exception
+     */
+    public function insert(string $table, array $data): ?array
+    {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $table = Table::fromString($table);
+
+        $payload = RpcMessage::create("insert")
+            ->setId($this->incrementalId++)
+            ->setParams([$table, $data])
+            ->toCborString();
+
+        $response = $this->execute(
+            endpoint: "/rpc",
+            method: HttpMethod::POST,
+            response: RpcResponse::class,
+            options: [
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
+            ]
+        );
+
+        return RpcResult::from($response);
+    }
+
+    /**
      * @throws Exception
      */
     public function delete(string $thing): ?array
@@ -337,8 +409,7 @@ class SurrealHTTP extends AbstractSurreal
      * @param string $query
      * @param array $params
      * @return array|null
-     * @throws CborException
-     * @throws Exception
+     * @throws CborException|Exception
      */
     public function query(string $query, array $params = []): ?array
     {
@@ -354,6 +425,38 @@ class SurrealHTTP extends AbstractSurreal
         $payload = RpcMessage::create("query")
             ->setId($this->incrementalId++)
             ->setParams([$query, $params])
+            ->toCborString();
+
+        $response = $this->execute(
+            endpoint: "/rpc",
+            method: HttpMethod::POST,
+            response: RpcResponse::class,
+            options: [
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload
+            ]
+        );
+
+        return RpcResult::from($response);
+    }
+
+    /**
+     * @throws CborException|SurrealException|Exception
+     */
+    public function patch(string $thing, array $data, bool $diff = false): ?array
+    {
+        $headers = HttpHeader::create($this)
+            ->setAcceptHeader(HttpHeader::TYPE_CBOR)
+            ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
+            ->setNamespaceHeader(true)
+            ->setDatabaseHeader(true)
+            ->setScopeHeader()
+            ->setAuthorizationHeader()
+            ->getHeaders();
+
+        $payload = RpcMessage::create("patch")
+            ->setId($this->incrementalId++)
+            ->setParams([$thing, $data, $diff])
             ->toCborString();
 
         $response = $this->execute(
