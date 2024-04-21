@@ -2,7 +2,9 @@
 
 namespace Surreal\Cbor\Types;
 
-class RecordId
+use InvalidArgumentException;
+
+final class RecordId
 {
 	private string $table;
 	private string $id;
@@ -23,17 +25,31 @@ class RecordId
 		$parts = explode(":", $recordId);
 
 		if (count($parts) !== 2) {
-			throw new \InvalidArgumentException("Invalid record id: " . $recordId);
+			throw new InvalidArgumentException("Invalid record id: " . $recordId);
 		}
 
 		return new RecordId($parts[0], $parts[1]);
 	}
 
     /**
+     * Parses a record id from an array in the format [table, id]
+     * @param array $record
+     * @return RecordId
+     */
+    public static function fromArray(array $record): RecordId
+    {
+        if(count($record) !== 2) {
+            throw new InvalidArgumentException("Invalid record id");
+        }
+
+        return new RecordId($record[0], $record[1]);
+    }
+
+    /**
      * @return string - table:id
      */
-	public function __toString()
-	{
+	public function __toString(): string
+    {
 		return $this->table . ":" . $this->id;
 	}
 

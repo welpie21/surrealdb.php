@@ -2,13 +2,18 @@
 
 namespace protocol\http;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
+use Surreal\Core\Client\SurrealHTTP;
 
 class CloseTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     public function testClose(): void
     {
-        $db = new \Surreal\SurrealHTTP(
+        $db = new SurrealHTTP(
             host: "http://localhost:8000",
             target: ["namespace" => "test", "database" => "test"]
         );
@@ -18,18 +23,16 @@ class CloseTest extends TestCase
         try {
             $db->close();
         }
-        catch (\RuntimeException $e) {
+        catch (Exception $e) {
             $this->assertEquals("The database connection is already closed.", $e->getMessage());
-            $this->assertInstanceOf(\RuntimeException::class, $e);
+            $this->assertInstanceOf(Exception::class, $e);
         }
 
         try {
-            $db->sql("SELECT * FROM person");
-        } catch (\RuntimeException $e) {
-            $this->assertEquals("The curl client is not initialized.", $e->getMessage());
-            $this->assertInstanceOf(\RuntimeException::class, $e);
-        } catch (\Surreal\classes\exceptions\SurrealException $e) {
+            $db->query("SELECT * FROM person");
         } catch (Exception $e) {
+            $this->assertEquals("The curl client is not initialized.", $e->getMessage());
+            $this->assertInstanceOf(Exception::class, $e);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 require_once "vendor/autoload.php";
 
-use Surreal\SurrealHTTP;
+use Surreal\Core\Client\SurrealHTTP;
 
 $db = new SurrealHTTP(
     host: "http://localhost:8000",

@@ -4,9 +4,7 @@ namespace abstract;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Surreal\abstracts\AbstractProtocol;
-use Surreal\SurrealHTTP;
-use Surreal\SurrealWebsocket;
+use Surreal\Core\Client\SurrealWebsocket;
 
 class AbstractProtocolTest extends TestCase
 {

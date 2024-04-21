@@ -4,8 +4,9 @@ namespace protocol\websocket;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Surreal\classes\SurrealPatch;
-use Surreal\SurrealWebsocket;
+use Surreal\Cbor\Types\RecordId;
+use Surreal\Core\Client\SurrealWebsocket;
+use Surreal\Core\Utils\SurrealPatch;
 use Throwable;
 
 class QueryTest extends TestCase
@@ -18,7 +19,7 @@ class QueryTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$db = new SurrealWebsocket(
-            host: "ws://localhost:8000/rpc",
+            host: "ws://127.0.0.1:8000/rpc",
             target: ["namespace" => "test", "database" => "test"]
         );
 
@@ -47,7 +48,7 @@ class QueryTest extends TestCase
         ]);
 
         $this->assertIsArray($created_person, "The created person is not an array");
-        $this->assertArrayHasKey("id", $created_person, "The created person does not have an id");
+        $this->assertEquals(RecordId::class, $created_person["id"]::class);
 
         $this->assertEquals("Beau", $created_person["name"], "The created person's name is not Beau");
         $this->assertEquals(30, $created_person["age"], "The created person's age is not 30");
