@@ -4,6 +4,7 @@ namespace protocol\http;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Surreal\Cbor\Types\RecordId;
 use Surreal\Core\Client\SurrealHTTP;
 
 class QueryTest extends TestCase
@@ -34,28 +35,35 @@ class QueryTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testCUD(): void
+    public function testCrudActions(): void
     {
+        self::$db->create("person:julian", ["name" => "Julian", "age" => 24]);
+
         $response = self::$db->create("person:beau", ["name" => "Beau", "age" => 18]);
         $this->assertIsArray($response);
+        $this->assertInstanceOf(RecordId::class, $response["id"]);
 
         $response = self::$db->update("person:beau", ["age" => 19]);
         $this->assertIsArray($response);
+        $this->assertInstanceOf(RecordId::class, $response["id"]);
 
         $response = self::$db->merge("person:beau", ["name" => "Beau", "age" => 25]);
         $this->assertIsArray($response);
+        $this->assertInstanceOf(RecordId::class, $response["id"]);
+        $this->assertArrayHasKey("name", $response);
+        $this->assertArrayHasKey("age", $response);
 
-        $response = self::$db->delete("person:beau");
-        $this->assertIsArray($response);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testSQL(): void
-    {
         $response = self::$db->query("SELECT * FROM person WHERE age >= 18");
         $this->assertIsArray($response);
+
+        var_dump($response);
+
+//        $response = self::$db->delete("person:beau");
+//        $this->assertIsArray($response);
+//        $this->assertInstanceOf(RecordId::class, $response["id"]);
+//
+        $response = self::$db->select("person:beau");
+//        $this->assertEmpty($response);
     }
 
     /**

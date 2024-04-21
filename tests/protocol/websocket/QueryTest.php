@@ -4,6 +4,7 @@ namespace protocol\websocket;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Surreal\Cbor\Types\RecordId;
 use Surreal\Core\Client\SurrealWebsocket;
 use Surreal\Core\Utils\SurrealPatch;
 use Throwable;
@@ -47,7 +48,7 @@ class QueryTest extends TestCase
         ]);
 
         $this->assertIsArray($created_person, "The created person is not an array");
-        $this->assertArrayHasKey("id", $created_person, "The created person does not have an id");
+        $this->assertInstanceOf($created_person["id"], RecordId::class);
 
         $this->assertEquals("Beau", $created_person["name"], "The created person's name is not Beau");
         $this->assertEquals(30, $created_person["age"], "The created person's age is not 30");
