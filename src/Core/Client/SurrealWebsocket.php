@@ -33,10 +33,10 @@ class SurrealWebsocket extends AbstractSurreal
         $this->client = (new WebsocketClient($host))
             ->addMiddleware(new CloseHandler())
             ->addMiddleware(new PingResponder())
-            ->addHeader("Content-Type", "application/cbor")
-            ->addHeader("Accept", "application/cbor");
+            ->addHeader("Sec-WebSocket-Protocol", "cbor");
 
         $this->client->connect();
+
         $this->use($target);
 
         parent::__construct($host, $target);
@@ -153,7 +153,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function select(string $thing): ?array
     {
-        $thing = ThingParser::from($thing)->toString();
+        $thing = ThingParser::from($thing)->value;
         $message = RpcMessage::create("select")->setParams([$thing]);
         return $this->execute($message);
     }
@@ -164,7 +164,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function insert(string $table, array $data): ?array
     {
-        $table = ThingParser::from($table)->getTable()->toString();
+        $table = ThingParser::from($table)->getTable();
         $message = RpcMessage::create("insert")->setParams([$table, $data]);
         return $this->execute($message);
     }
@@ -174,7 +174,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function create(string $thing, array $data): ?array
     {
-        $thing = ThingParser::from($thing)->toString();
+        $thing = ThingParser::from($thing)->value;
         $message = RpcMessage::create("create")->setParams([$thing, $data]);
         return $this->execute($message);
     }
@@ -194,7 +194,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function merge(string $thing, array $data): ?array
     {
-        $thing = ThingParser::from($thing)->toString();
+        $thing = ThingParser::from($thing)->value;
         $message = RpcMessage::create("merge")->setParams([$thing, $data]);
         return $this->execute($message);
     }
@@ -205,7 +205,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function patch(string $thing, array $data, bool $diff = false): ?array
     {
-        $thing = ThingParser::from($thing)->toString();
+        $thing = ThingParser::from($thing)->value;
         $message = RpcMessage::create("patch")->setParams([$thing, $data, $diff]);
         return $this->execute($message);
     }
@@ -216,7 +216,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function delete(string $thing): ?array
     {
-        $thing = ThingParser::from($thing)->toString();
+        $thing = ThingParser::from($thing)->value;
         $message = RpcMessage::create("delete")->setParams([$thing]);
         return $this->execute($message);
     }
@@ -241,23 +241,12 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
-     * Creates a payload from the message
-     * @param RpcMessage $message
-     * @return string
-     * @throws CborException
-     */
-    private function createPayload(RpcMessage $message): string
-    {
-        return CBOR::encode($message->toAssoc());
-    }
-
-    /**
      * @throws Exception
      */
     private function execute(RpcMessage $message): mixed
     {
         $id = $this->incrementalId++;
-        $payload = $this->createPayload($message->setId($id));
+        $payload = $message->setId($id)->toCborString();
 
         $this->client->binary($payload);
 
@@ -272,7 +261,7 @@ class SurrealWebsocket extends AbstractSurreal
                 continue;
             }
 
-            $content = CBOR::decode($result);
+            $content = CBOR::decode($content);
 
             if ($content["id"] === $id) {
                 $response = RpcResponse::from($content, HttpContentType::CBOR, 200);
