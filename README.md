@@ -31,7 +31,7 @@ Since the driver has the specs that of the javascript library, it works the same
 ## 📋 Requirements
 
 - PHP 8.2+
-- SurrealDB v1.2.0+
+- SurrealDB v1.4.0+
 
 ## 📥 Installation
 
@@ -44,10 +44,9 @@ composer require welpie21/surrealdb.php
 **Create a new connection to a SurrealDB instance**
 
 ```php
-use Surreal\Core\Client\SurrealHTTP;
 
 // create a surrealdb connection
-$db = new SurrealHTTP(
+$db = new Surreal\Core\Client\SurrealHTTP(
     host: "http://127.0.0.1:8000",
     target: [
         "namespace" => "<namespace>",
@@ -62,7 +61,7 @@ You can also use the websocket protocol to connect to a SurrealDB instance.
 
 ```php
 // create a surrealdb connection
-$db = new \Surreal\SurrealWebsocket(
+$db = new \Surreal\Core\Client\SurrealWebsocket(
     host: "ws://127.0.0.1:8000/rpc",
     target: [
         "namespace" => "<namespace>",
@@ -133,7 +132,7 @@ and after you call those methods you have to call the `authenticate` method to a
 
 ```php
 // create a surrealdb connection
-$db = new \Surreal\SurrealWebsocket(
+$db = new \Surreal\Core\Client\SurrealWebsocket(
     host: "ws://127.0.0.1:8000/rpc",
     target: [
         "namespace" => "<namespace>",
@@ -181,11 +180,11 @@ on the database.
 
 ```php
 // create a surrealdb connection
-$db = new \Surreal\SurrealHTTP(
+$db = new \Surreal\Core\Client\SurrealHTTP(
     host: "http://127.0.0.1:8000",
     target: [
-        "namespace" => "<namespace>",
-        "database" => "<database>"
+        "namespace" => "test",
+        "database" => "test"
     ]
 );
 
@@ -210,7 +209,7 @@ The driver supports websockets. You can use the `SurrealWebsocket` class to conn
 ```php
 
 // create a surrealdb connection
-$db = new \Surreal\SurrealWebsocket(
+$db = new \Surreal\Core\Client\SurrealWebsocket(
     host: "ws://127.0.0.1:8000/rpc",
     target: [
         "namespace" => "<namespace>",
@@ -250,7 +249,7 @@ $db->close();
 You can import and export data from the database using the `import` and `export` methods.
 
 ```php
-$db = new \Surreal\SurrealHTTP(
+$db = new \Surreal\Core\Client\SurrealHTTP(
     host: "http://127.0.0.1:8000",
     target: [
         "namespace" => "<namespace>",
@@ -269,32 +268,14 @@ file_put_contents("some_path_to_surql_file.surql", $file); // <-- save the file
 
 ## Supported features
 
-- [x] Authentication
-- [x] Querying
-- [x] Import & Export
-- [x] Create, Update, Merge, Patch and Delete
-- [x] HTTP and Websocket protocol
-- [x] Error handling
-
-## Unsupported
-
-- [ ] Live queries
-- [ ] CBOR
+- 🔒 Authentication support
+- 📜 Quering support
+- 📦 Import and Export
+- 📡 HTTP & Websocket support
 
 ## Roadmap
 
-**v1.1.0**
-- [ ] Add support for CBOR
-- [ ] Add custom Data Type Classes ( RecordID, UUID, Decimal and Duration ) for CBOR
-- [ ] Add SurrealML functionalities for the HTTP protocol
-
-**v1.2.0**
-- [ ] Add support for live queries
-
-**v1.3.0**
-- [ ] Psalm and PHPStan support for better type checking and code quality
-
-## Coverage
-All the methods in the driver are covered with tests. The coverage is 98.12% as of version v1.0.0.
-
-![coverage.png](assets%2Fcoverage.png)
+- 📜 Psalm and PHPStan
+- 📜 ORM functionalities
+- 📦 SurrealML support
+- 📡 Live queries
