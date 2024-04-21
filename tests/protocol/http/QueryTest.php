@@ -56,8 +56,6 @@ class QueryTest extends TestCase
         $response = self::$db->query("SELECT * FROM person WHERE age >= 18");
         $this->assertIsArray($response);
 
-        var_dump($response);
-
 //        $response = self::$db->delete("person:beau");
 //        $this->assertIsArray($response);
 //        $this->assertInstanceOf(RecordId::class, $response["id"]);

@@ -48,7 +48,7 @@ class QueryTest extends TestCase
         ]);
 
         $this->assertIsArray($created_person, "The created person is not an array");
-        $this->assertInstanceOf($created_person["id"], RecordId::class);
+        $this->assertEquals(RecordId::class, $created_person["id"]::class);
 
         $this->assertEquals("Beau", $created_person["name"], "The created person's name is not Beau");
         $this->assertEquals(30, $created_person["age"], "The created person's age is not 30");
