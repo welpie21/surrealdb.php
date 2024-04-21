@@ -5,7 +5,7 @@
 	"homepage": "https://github.com/welpie21/surrealdb.php",
 	"license": "MIT",
 	"readme": "README.md",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"autoload": {
 		"psr-4": {
 			"Surreal\\": "src/"
@@ -28,7 +28,7 @@
 		"ext-curl": "*",
 		"ramsey/uuid": "4.7.5",
 		"phrity/websocket": "2.2.1",
-		"php": ">=8.3",
+		"php": ">=8.2",
 		"welpie21/cbor.php": "1.0.1",
 		"brick/math": "^0.11.0",
 		"khill/php-duration": "^1.1"
