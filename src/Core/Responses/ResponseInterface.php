@@ -1,6 +1,6 @@
 <?php
 
-namespace Surreal\Responses;
+namespace Surreal\Core\Responses;
 
 use Surreal\Curl\HttpContentType;
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace Surreal\Responses\Types;
+namespace Surreal\Core\Responses\Types;
 
 use Exception;
 use InvalidArgumentException;
+use Surreal\Core\Responses\ErrorResponseInterface;
+use Surreal\Core\Responses\ResponseInterface;
 use Surreal\Curl\HttpContentType;
 use Surreal\Exceptions\SurrealException;
-use Surreal\Responses\ErrorResponseInterface;
-use Surreal\Responses\ResponseInterface;
 use Surreal\Utils\ArrayHelper;
 
 readonly class RpcResponse implements ResponseInterface, ErrorResponseInterface

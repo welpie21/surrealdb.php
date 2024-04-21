@@ -1,10 +1,10 @@
 <?php
 
-namespace Surreal\Responses\Types;
+namespace Surreal\Core\Responses\Types;
 
+use Surreal\Core\Responses\ResponseInterface;
 use Surreal\Curl\HttpContentType;
 use Surreal\Exceptions\SurrealException;
-use Surreal\Responses\ResponseInterface;
 
 readonly class StringResponse implements ResponseInterface
 {

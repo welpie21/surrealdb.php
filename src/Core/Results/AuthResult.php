@@ -2,10 +2,10 @@
 
 namespace Surreal\Core\Results;
 
+use Surreal\Core\Responses\ResponseInterface;
+use Surreal\Core\Responses\Types\RpcErrorResponse;
+use Surreal\Core\Responses\Types\RpcResponse;
 use Surreal\Exceptions\SurrealException;
-use Surreal\Responses\ResponseInterface;
-use Surreal\Responses\Types\RpcErrorResponse;
-use Surreal\Responses\Types\RpcResponse;
 
 class AuthResult implements ResultInterface
 {

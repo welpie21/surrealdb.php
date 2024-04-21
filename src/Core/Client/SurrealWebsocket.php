@@ -2,15 +2,14 @@
 
 namespace Surreal\Core\Client;
 
-use Beau\CborPHP\exceptions\CborException;
 use Exception;
 use Surreal\Cbor\CBOR;
 use Surreal\Core\AbstractSurreal;
+use Surreal\Core\Responses\Types\RpcResponse;
 use Surreal\Core\Results\RpcResult;
 use Surreal\Core\Rpc\RpcMessage;
 use Surreal\Core\Utils\ThingParser;
 use Surreal\Curl\HttpContentType;
-use Surreal\Responses\Types\RpcResponse;
 use WebSocket\Client as WebsocketClient;
 use WebSocket\Middleware\{CloseHandler, PingResponder};
 
@@ -200,7 +199,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
-     *
+     * @param array{op:string,path:string,value:mixed} $data
      * @throws Exception
      */
     public function patch(string $thing, array $data, bool $diff = false): ?array

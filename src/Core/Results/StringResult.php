@@ -2,10 +2,10 @@
 
 namespace Surreal\Core\Results;
 
+use Surreal\Core\Responses\ResponseInterface;
+use Surreal\Core\Responses\Types\StringErrorResponse;
+use Surreal\Core\Responses\Types\StringResponse;
 use Surreal\Exceptions\SurrealException;
-use Surreal\Responses\ResponseInterface;
-use Surreal\Responses\Types\StringErrorResponse;
-use Surreal\Responses\Types\StringResponse;
 
 readonly class StringResult implements ResultInterface
 {

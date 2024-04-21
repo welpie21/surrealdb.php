@@ -5,9 +5,12 @@ namespace Surreal\Core\Client;
 use Beau\CborPHP\exceptions\CborException;
 use CurlHandle;
 use Exception;
-use Surreal\Cbor\Types\RecordId;
-use Surreal\Cbor\Types\Table;
 use Surreal\Core\AbstractSurreal;
+use Surreal\Core\Responses\{Types\RpcResponse};
+use Surreal\Core\Responses\ResponseInterface;
+use Surreal\Core\Responses\ResponseParser;
+use Surreal\Core\Responses\Types\ImportResponse;
+use Surreal\Core\Responses\Types\StringResponse;
 use Surreal\Core\Results\{AuthResult, ImportResult, RpcResult, StringResult};
 use Surreal\Core\Rpc\RpcMessage;
 use Surreal\Core\Utils\ThingParser;
@@ -15,11 +18,6 @@ use Surreal\Curl\HttpContentType;
 use Surreal\Curl\HttpHeader;
 use Surreal\Curl\HttpMethod;
 use Surreal\Curl\HttpStatus;
-use Surreal\Responses\{ResponseInterface,
-    ResponseParser,
-    Types\ImportResponse,
-    Types\RpcResponse,
-    Types\StringResponse};
 use Surreal\Exceptions\AuthException;
 use Surreal\Exceptions\SurrealException;
 

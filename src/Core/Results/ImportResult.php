@@ -2,10 +2,10 @@
 
 namespace Surreal\Core\Results;
 
+use Surreal\Core\Responses\ResponseInterface;
+use Surreal\Core\Responses\Types\ImportErrorResponse;
+use Surreal\Core\Responses\Types\ImportResponse;
 use Surreal\Exceptions\SurrealException;
-use Surreal\Responses\ResponseInterface;
-use Surreal\Responses\Types\ImportErrorResponse;
-use Surreal\Responses\Types\ImportResponse;
 use Surreal\Utils\ArrayHelper;
 
 class ImportResult implements ResultInterface

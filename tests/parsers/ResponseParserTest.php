@@ -4,8 +4,8 @@ namespace parsers;
 
 use Beau\CborPHP\exceptions\CborException;
 use PHPUnit\Framework\TestCase;
+use Surreal\Core\Responses\ResponseParser;
 use Surreal\Curl\HttpContentType;
-use Surreal\Responses\ResponseParser;
 
 class ResponseParserTest extends TestCase
 {

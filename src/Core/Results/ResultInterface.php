@@ -2,7 +2,7 @@
 
 namespace Surreal\Core\Results;
 
-use Surreal\Responses\ResponseInterface;
+use Surreal\Core\Responses\ResponseInterface;
 
 interface ResultInterface
 {
