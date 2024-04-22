@@ -223,7 +223,7 @@ $db->merge("product:banana", ["price" => 4.99]);
 $db->delete("product:banana");
 
 $db->patch("product:banana", [
-    \Surreal\classes\SurrealPatch::create("replace", "/price", 5.99),
+    \Surreal\Core\Utils\SurrealPatch::create("replace", "/price", 5.99),
     // or
     [
         "op" => "replace",
