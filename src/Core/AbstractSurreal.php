@@ -34,12 +34,15 @@ abstract class AbstractSurreal
      */
     public function use(array $target): null
     {
-        if ($namespace = $target["namespace"]) {
-            $this->setNamespace($namespace);
+        $hasNamespace = array_key_exists("namespace", $target);
+        $hasDatabase = array_key_exists("database", $target);
+
+        if ($hasNamespace) {
+            $this->setNamespace($target["namespace"]);
         }
 
-        if ($database = $target["database"]) {
-            $this->setDatabase($database);
+        if ($hasDatabase) {
+            $this->setDatabase($target["database"]);
         }
 
         return null;
