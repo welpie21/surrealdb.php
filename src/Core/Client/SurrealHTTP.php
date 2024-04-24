@@ -18,7 +18,6 @@ use Surreal\Curl\HttpContentType;
 use Surreal\Curl\HttpHeader;
 use Surreal\Curl\HttpMethod;
 use Surreal\Curl\HttpStatus;
-use Surreal\Exceptions\AuthException;
 use Surreal\Exceptions\SurrealException;
 
 class SurrealHTTP extends AbstractSurreal
@@ -30,7 +29,6 @@ class SurrealHTTP extends AbstractSurreal
      * @param string $host
      * @param array{namespace:string, database:string|null} $target
      * @param array $options - curl options.
-     * @codeCoverageIgnore - Being used but false positive.
      */
     public function __construct(
         string $host,
@@ -115,7 +113,7 @@ class SurrealHTTP extends AbstractSurreal
 
     /**
      * @return array|null - Array of SingleRecordResponse
-     * @throws SurrealException|AuthException|Exception
+     * @throws SurrealException|Exception
      */
     public function import(string $content, string $username, string $password): ?array
     {
@@ -166,6 +164,7 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * @param array{NS:string|null,DB:string|null,SC:string|null} $data
      * @throws Exception
      */
     public function signin(array $data): ?string
@@ -194,6 +193,7 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * @param array{NS:string,DB:string,SC:string} $data
      * @throws Exception
      */
     public function signup(array $data): ?string
@@ -233,7 +233,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
@@ -270,7 +270,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
@@ -307,7 +307,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
@@ -341,7 +341,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
@@ -379,7 +379,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
@@ -413,7 +413,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
@@ -449,7 +449,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
@@ -483,7 +483,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
@@ -517,7 +517,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(false)
             ->setDatabaseHeader(false)
-            ->setScopeHeader()
+            ->setScopeHeader(false)
             ->setAuthorizationHeader()
             ->getHeaders();
 
