@@ -22,7 +22,6 @@ class SurrealWebsocket extends AbstractSurreal
      * @param string $host
      * @param array{namespace:string, database:string|null} $target
      * @throws Exception
-     * @codeCoverageIgnore - Being used but false positive.
      */
     public function __construct(
         string $host,
@@ -32,7 +31,8 @@ class SurrealWebsocket extends AbstractSurreal
         $this->client = (new WebsocketClient($host))
             ->addMiddleware(new CloseHandler())
             ->addMiddleware(new PingResponder())
-            ->addHeader("Sec-WebSocket-Protocol", "cbor");
+            ->addHeader("Sec-WebSocket-Protocol", "cbor")
+            ->setTimeout(5);
 
         $this->client->connect();
 
@@ -183,7 +183,7 @@ class SurrealWebsocket extends AbstractSurreal
      */
     public function update(string $thing, array $data): ?array
     {
-        $thing = ThingParser::from($thing)->toString();
+        $thing = ThingParser::from($thing)->value;
         $message = RpcMessage::create("update")->setParams([$thing, $data]);
         return $this->execute($message);
     }
