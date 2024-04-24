@@ -22,6 +22,14 @@
             <directory>tests/parsers</directory>
         </testsuite>
 
+        <testsuite name="core">
+            <directory>tests/core</directory>
+        </testsuite>
+
+        <testsuite name="cbor">
+            <directory>tests/Cbor</directory>
+        </testsuite>
+
     </testsuites>
 
     <coverage>

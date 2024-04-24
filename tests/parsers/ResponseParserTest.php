@@ -3,6 +3,7 @@
 namespace parsers;
 
 use Beau\CborPHP\exceptions\CborException;
+use JsonException;
 use PHPUnit\Framework\TestCase;
 use Surreal\Core\Responses\ResponseParser;
 use Surreal\Curl\HttpContentType;
@@ -11,7 +12,7 @@ class ResponseParserTest extends TestCase
 {
     /**
      * @throws CborException
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function testStringResponse(): void
     {

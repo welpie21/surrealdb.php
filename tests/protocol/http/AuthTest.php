@@ -31,9 +31,9 @@ class AuthTest extends TestCase
         $token = self::$db->signup([
             "email" => "beau.one",
             "pass" => "beau.one",
-            "ns" => "test",
-            "db" => "test",
-            "sc" => "account"
+            "NS" => "test",
+            "DB" => "test",
+            "SC" => "account"
         ]);
 
         $this->assertIsString($token);
