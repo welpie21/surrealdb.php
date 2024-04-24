@@ -49,8 +49,8 @@ final readonly class ThingParser
 
     public function getTable(): Table
     {
-        if(!$this->isTable()) {
-            throw new InvalidArgumentException("Thing is not a Table");
+        if($this->value instanceof RecordId) {
+            return self::from($this->value->getTable())->getTable();
         }
 
         return $this->value;
