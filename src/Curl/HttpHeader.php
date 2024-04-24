@@ -83,9 +83,16 @@ class HttpHeader
         return $this;
     }
 
-    public function setScopeHeader(?string $override = null): HttpHeader
+    /**
+     * @throws SurrealException
+     */
+    public function setScopeHeader(bool $required, ?string $override = null): HttpHeader
     {
         $scope = $override ?? $this->instance->auth->getScope();
+
+        if ($required && !$scope) {
+            throw new SurrealException("Scope is required for this request");
+        }
 
         if ($scope) {
             $this->headers[] = "Surreal-SC: " . $scope;
