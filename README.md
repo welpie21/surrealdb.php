@@ -31,7 +31,7 @@ Since the driver has the specs that of the javascript library, it works the same
 ## 📋 Requirements
 
 - PHP 8.2+
-- SurrealDB v1.4.0+
+- SurrealDB v1.4.2+
 
 ## 📥 Installation
 
