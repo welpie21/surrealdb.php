@@ -42,6 +42,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Set the namespace and database to be used for the following queries in the current open connection.
      * @param array{namespace:string|null,database:string|null} $target
      * @return null
      * @throws Exception
@@ -58,12 +59,17 @@ class SurrealWebsocket extends AbstractSurreal
         return $result;
     }
 
+    /**
+     * Check if the websocket connection is open.
+     * @return bool
+     */
     public function isConnected(): bool
     {
         return $this->client->isConnected();
     }
 
     /**
+     * Set the timeout for the websocket connection in seconds.
      * @param int $seconds
      * @return void
      */
@@ -73,6 +79,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Set a new parameter.
      * @throws Exception
      */
     public function let(string $param, string $value): null
@@ -82,6 +89,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Dismisses a previously set parameter
      * @throws Exception
      */
     public function unset(string $param): null
@@ -91,6 +99,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Query a raw SurrealQL query
      * @param string $sql
      * @param array|null $vars
      * @return mixed
@@ -103,6 +112,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Signin with a root, namespace, database or scoped user.
      * @throws Exception
      */
     public function signin(array $params): ?string
@@ -112,6 +122,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Signup a new scoped user
      * @throws Exception
      */
     public function signup(array $params): ?string
@@ -121,6 +132,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Authenticates the current session with the given token
      * @throws Exception
      */
     public function authenticate(string $token): null
@@ -130,6 +142,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Returns auth information of the current session
      * @throws Exception
      */
     public function info(): ?array
@@ -139,6 +152,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Makes the current session invalid
      * @throws Exception
      */
     public function invalidate(): null
@@ -148,6 +162,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Select a whole table or a single record from a table
      * @throws Exception
      */
     public function select(string $thing): ?array
@@ -169,6 +184,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Creates a new record inside a table with the given data
      * @throws Exception
      */
     public function create(string $thing, array $data): ?array
@@ -179,6 +195,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Updates a record inside a table with the given data. When you don't want to overwrite the record, use merge instead.
      * @throws Exception
      */
     public function update(string $thing, array $data): ?array
@@ -189,6 +206,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Selectively updates a record inside a table with the given data.
      * @throws Exception
      */
     public function merge(string $thing, array $data): ?array
@@ -199,6 +217,7 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Patches a specified column inside a record with the given value.
      * @param array{op:string,path:string,value:mixed} $data
      * @throws Exception
      */
