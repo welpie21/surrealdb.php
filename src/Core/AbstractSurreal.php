@@ -85,13 +85,4 @@ abstract class AbstractSurreal
     {
         return $this->database;
     }
-
-    /**
-     * Returns the current set host
-     * @return string
-     */
-    public function getHost(): string
-    {
-        return $this->host;
-    }
 }
