@@ -22,8 +22,6 @@ class TestCborTypeRecordId extends TestCase
         $result = CBOR::encode($recordId);
 
         $this->assertEquals(self::RECORD_CBOR_STRING, bin2hex($result));
-
-        var_dump("test encode record id");
     }
 
     /**
