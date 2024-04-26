@@ -204,4 +204,21 @@ class HttpHeaderTest extends TestCase
             "Authorization: Bearer test"
         ], $headers);
     }
+
+    public function testRequiredHeaders(): void
+    {
+        $instance = new SurrealHTTP(
+            host: "http://localhost:8000",
+            target: []
+        );
+
+        try {
+            HttpHeader::create($instance)
+                ->setNamespaceHeader(true)
+                ->setDatabaseHeader(true)
+                ->getHeaders();
+        } catch (SurrealException $exception) {
+            $this->assertInstanceOf(SurrealException::class, $exception);
+        }
+    }
 }
