@@ -49,7 +49,9 @@ class SurrealHTTP extends AbstractSurreal
 
     /**
      * Returns the status of the server.
+     * @returns int - http status code
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/http#status
      */
     public function status(): int
     {
@@ -58,7 +60,9 @@ class SurrealHTTP extends AbstractSurreal
 
     /**
      * Returns the health status of the server.
+     * @returns int - http status code
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/http#health
      */
     public function health(): int
     {
@@ -67,7 +71,9 @@ class SurrealHTTP extends AbstractSurreal
 
     /**
      * Returns the version of the server.
+     * @return string
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/http#version
      */
     public function version(): string
     {
@@ -86,8 +92,10 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
-     * This method returns the record of an authenticated scope user.
+     * Returns auth information of the current session
+     * @returns array
      * @throws Exception|SurrealException
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#info
      */
     public function info(): array
     {
@@ -112,8 +120,13 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Makes the current session invalid
+     * @param string $content - content inside a .surql file.
+     * @param string $username
+     * @param string $password
      * @return array|null - Array of SingleRecordResponse
      * @throws SurrealException|Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/http#import
      */
     public function import(string $content, string $username, string $password): ?array
     {
@@ -139,7 +152,12 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Returns an exported content of the current selected database as string.
+     * @param string $username
+     * @param string $password
+     * @return string - exported content
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/http#export
      */
     public function export(string $username, string $password): string
     {
@@ -164,8 +182,11 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Singin with a root, namespace, database or scoped user.
      * @param array{NS:string|null,DB:string|null,SC:string|null} $data
+     * @return string|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#signin
      */
     public function signin(array $data): ?string
     {
@@ -193,8 +214,11 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Signup a new scoped user.
      * @param array{NS:string,DB:string,SC:string} $data
+     * @return string|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#signup
      */
     public function signup(array $data): ?string
     {
@@ -222,7 +246,11 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
-     * @throws SurrealException|CborException|Exception
+     * Selects a record or the whole table.
+     * @param string $thing
+     * @return mixed
+     * @throws CborException|SurrealException|Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#select
      */
     public function select(string $thing): mixed
     {
@@ -256,10 +284,12 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Creates a new record in a table.
      * @param string $thing
      * @param mixed $data
      * @return object|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#create
      */
     public function create(string $thing, mixed $data): ?array
     {
@@ -293,10 +323,12 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Updates a record inside a table with the given data. When you don't want to overwrite the record, use merge instead.
      * @param string $thing
      * @param mixed $data
      * @return object|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#update
      */
     public function update(string $thing, mixed $data): ?array
     {
@@ -330,7 +362,12 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Selectively updates a record inside a table with the given data.
+     * @param string $thing
+     * @param mixed $data
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#merge
      */
     public function merge(string $thing, mixed $data): ?array
     {
@@ -369,6 +406,7 @@ class SurrealHTTP extends AbstractSurreal
      * @param array|mixed $data
      * @return array|null
      * @throws CborException|SurrealException|Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#insert
      */
     public function insert(string $table, array $data): ?array
     {
@@ -402,7 +440,11 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Deletes a table or a single record from a table.
+     * @param string $thing
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#delete
      */
     public function delete(string $thing): ?array
     {
@@ -436,11 +478,12 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
-     * Execute a SQL query.
+     * Query a raw SurrealQL query
      * @param string $query
      * @param array $params
      * @return array|null
      * @throws CborException|Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#query
      */
     public function query(string $query, array $params = []): ?array
     {
@@ -472,7 +515,13 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Patches a specified column inside a record with the given value.
+     * @param string $thing
+     * @param array{op:string,path:string,value:mixed} $data
+     * @param bool $diff
+     * @return array|null
      * @throws CborException|SurrealException|Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#patch
      */
     public function patch(string $thing, array $data, bool $diff = false): ?array
     {
@@ -506,9 +555,12 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
-     * @throws CborException
-     * @throws SurrealException
-     * @throws Exception
+     * Runs a surrealdb function with the given arguments
+     * @param string $func
+     * @param string|null $version
+     * @param mixed ...$args
+     * @return mixed
+     * @throws CborException|SurrealException|Exception
      */
     public function run(string $func, ?string $version, ...$args): mixed
     {
@@ -540,6 +592,7 @@ class SurrealHTTP extends AbstractSurreal
     }
 
     /**
+     * Closes the client connection.
      * @throws Exception
      */
     public function close(): void

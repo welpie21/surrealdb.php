@@ -46,6 +46,7 @@ class SurrealWebsocket extends AbstractSurreal
      * @param array{namespace:string|null,database:string|null} $target
      * @return null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#use
      */
     public function use(array $target): null
     {
@@ -80,7 +81,11 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Set a new parameter.
+     * @param string $param
+     * @param string $value
+     * @return null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#let
      */
     public function let(string $param, string $value): null
     {
@@ -90,7 +95,10 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Dismisses a previously set parameter
+     * @param string $param
+     * @return null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#unset
      */
     public function unset(string $param): null
     {
@@ -104,6 +112,7 @@ class SurrealWebsocket extends AbstractSurreal
      * @param array|null $vars
      * @return mixed
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#query
      */
     public function query(string $sql, ?array $vars = null): mixed
     {
@@ -113,27 +122,36 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Signin with a root, namespace, database or scoped user.
+     * @param array{NS:string|null,DB:string|null,SC:string|null} $data
+     * @return string|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#signin
      */
-    public function signin(array $params): ?string
+    public function signin(array $data): ?string
     {
-        $message = RpcMessage::create("signin")->setParams([$params]);
+        $message = RpcMessage::create("signin")->setParams([$data]);
         return $this->execute($message);
     }
 
     /**
      * Signup a new scoped user
+     * @param array{NS:string,DB:string,SC:string} $data
+     * @return string|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#signup
      */
-    public function signup(array $params): ?string
+    public function signup(array $data): ?string
     {
-        $message = RpcMessage::create("signup")->setParams([$params]);
+        $message = RpcMessage::create("signup")->setParams([$data]);
         return $this->execute($message);
     }
 
     /**
      * Authenticates the current session with the given token
+     * @param string $token
+     * @return null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#authenticate
      */
     public function authenticate(string $token): null
     {
@@ -143,7 +161,9 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Returns auth information of the current session
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#info
      */
     public function info(): ?array
     {
@@ -153,7 +173,9 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Makes the current session invalid
+     * @return null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#invalidate
      */
     public function invalidate(): null
     {
@@ -163,7 +185,10 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Select a whole table or a single record from a table
+     * @param string $thing
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#select
      */
     public function select(string $thing): ?array
     {
@@ -173,8 +198,12 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Inserts one or multiple records into a table
+     * @param string $table
+     * @param array $data
+     * @return array|null
      * @throws Exception
-     * @example $data = [["name" => "some_name"]] or for bulk insert $data = [["name" => "some_name_x"], ["name" => "some_name_y"]]
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#insert
      */
     public function insert(string $table, array $data): ?array
     {
@@ -185,7 +214,11 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Creates a new record inside a table with the given data
+     * @param string $thing
+     * @param array $data
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#create
      */
     public function create(string $thing, array $data): ?array
     {
@@ -196,7 +229,11 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Updates a record inside a table with the given data. When you don't want to overwrite the record, use merge instead.
+     * @param string $thing
+     * @param array $data
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#update
      */
     public function update(string $thing, array $data): ?array
     {
@@ -207,7 +244,11 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Selectively updates a record inside a table with the given data.
+     * @param string $thing
+     * @param array $data
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#merge
      */
     public function merge(string $thing, array $data): ?array
     {
@@ -218,8 +259,12 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Patches a specified column inside a record with the given value.
+     * @param string $thing
      * @param array{op:string,path:string,value:mixed} $data
+     * @param bool $diff
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#patch
      */
     public function patch(string $thing, array $data, bool $diff = false): ?array
     {
@@ -230,7 +275,10 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Removes a table or a single record from a table
+     * @param string $thing
+     * @return array|null
      * @throws Exception
+     * @see https://surrealdb.com/docs/surrealdb/integration/rpc#delete
      */
     public function delete(string $thing): ?array
     {
@@ -241,6 +289,10 @@ class SurrealWebsocket extends AbstractSurreal
 
     /**
      * Runs a surrealdb function with the given arguments
+     * @param string $func
+     * @param string|null $version
+     * @param mixed ...$args
+     * @return mixed
      * @throws Exception
      */
     public function run(string $func, ?string $version, ...$args): mixed
@@ -259,6 +311,9 @@ class SurrealWebsocket extends AbstractSurreal
     }
 
     /**
+     * Executes the given message and returns the result
+     * @param RpcMessage $message
+     * @return mixed
      * @throws Exception
      */
     private function execute(RpcMessage $message): mixed
@@ -290,6 +345,10 @@ class SurrealWebsocket extends AbstractSurreal
         throw new Exception("No response received");
     }
 
+    /**
+     * Get the timeout for the websocket connection in seconds.
+     * @return int
+     */
     public function getTimeout(): int
     {
         return $this->client->getTimeout();
