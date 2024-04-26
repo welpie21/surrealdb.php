@@ -525,7 +525,7 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function patch(string $thing, array $data, bool $diff = false): ?array
     {
-        $thing = ThingParser::from($thing)->toString();
+        $thing = ThingParser::from($thing)->value;
 
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
