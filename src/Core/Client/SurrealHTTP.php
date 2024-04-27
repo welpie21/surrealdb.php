@@ -107,12 +107,17 @@ class SurrealHTTP extends AbstractSurreal
             ->setAuthorizationHeader()
             ->getHeaders();
 
+        $message = RpcMessage::create("info")
+            ->setId($this->incrementalId++)
+            ->toCborString();
+
         $response = $this->execute(
-            endpoint: "/info",
-            method: HttpMethod::GET,
+            endpoint: "/rpc",
+            method: HttpMethod::POST,
             response: RpcResponse::class,
             options: [
-                CURLOPT_HTTPHEADER => $headers
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $message
             ]
         );
 
