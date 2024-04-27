@@ -4,7 +4,9 @@ namespace protocol\http;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Surreal\Cbor\Types\RecordId;
 use Surreal\Core\Client\SurrealHTTP;
+use Surreal\Exceptions\SurrealException;
 
 final class BasicTest extends TestCase
 {
@@ -59,6 +61,34 @@ final class BasicTest extends TestCase
 
         self::$db->auth->setToken(null);
         $this->assertNull(self::$db->auth->getToken());
+    }
+
+    /**
+     * @throws SurrealException
+     * @throws Exception
+     */
+    public function testInfo(): void
+    {
+        $token = self::$db->signin([
+            "email" => "beau@user.nl",
+            "pass" => "123!",
+            "NS" => "test",
+            "DB" => "test",
+            "SC" => "account"
+        ]);
+
+        self::$db->auth->setScope("account");
+        self::$db->auth->setToken($token);
+
+        $info = self::$db->info();
+
+        $this->assertIsArray($info);
+
+        $this->assertArrayHasKey("email", $info);
+        $this->assertArrayHasKey("id", $info);
+        $this->assertArrayHasKey("pass", $info);
+
+        $this->assertInstanceOf(RecordId::class, $info["id"]);
     }
 
     public static function tearDownAfterClass(): void

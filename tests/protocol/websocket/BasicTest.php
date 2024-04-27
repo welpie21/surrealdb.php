@@ -4,6 +4,7 @@ namespace protocol\websocket;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Surreal\Cbor\Types\RecordId;
 use Surreal\Core\Client\SurrealWebsocket;
 
 class BasicTest extends TestCase
@@ -48,6 +49,27 @@ class BasicTest extends TestCase
     {
         $result = self::$db->unset("x");
         $this->assertNull($result);
+    }
+
+    public function testInfo(): void
+    {
+        self::$db->signin([
+            "email" => "beau@user.nl",
+            "pass" => "123!",
+            "NS" => "test",
+            "DB" => "test",
+            "SC" => "account"
+        ]);
+
+        $info = self::$db->info();
+
+        $this->assertIsArray($info);
+
+        $this->assertArrayHasKey("email", $info);
+        $this->assertArrayHasKey("id", $info);
+        $this->assertArrayHasKey("pass", $info);
+
+        $this->assertInstanceOf(RecordId::class, $info["id"]);
     }
 
     public static function tearDownAfterClass(): void
