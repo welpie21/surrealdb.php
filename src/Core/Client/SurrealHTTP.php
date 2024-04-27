@@ -104,6 +104,7 @@ class SurrealHTTP extends AbstractSurreal
             ->setContentTypeHeader(HttpHeader::TYPE_CBOR)
             ->setNamespaceHeader(true)
             ->setDatabaseHeader(true)
+            ->setScopeHeader(true)
             ->setAuthorizationHeader()
             ->getHeaders();
 
