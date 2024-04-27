@@ -17,3 +17,8 @@ try {
 } catch (Exception $e) {
     echo $e->getMessage();
 }
+
+register_shutdown_function(function () use ($db) {
+    $db->query("REMOVE DATABASE IF EXISTS test");
+    $db->query("REMOVE NAMESPACE IF EXISTS test");
+});
