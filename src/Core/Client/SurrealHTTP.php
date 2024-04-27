@@ -97,7 +97,7 @@ class SurrealHTTP extends AbstractSurreal
      * @throws Exception|SurrealException
      * @see https://surrealdb.com/docs/surrealdb/integration/rpc#info
      */
-    public function info(): array
+    public function info(): ?array
     {
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
