@@ -85,4 +85,40 @@ abstract class AbstractSurreal
     {
         return $this->database;
     }
+
+    /**
+     * Set the auth token
+     * @param string|null $token
+     */
+    public function setToken(?string $token): void
+    {
+        $this->auth->setToken($token);
+    }
+
+    /**
+     * Get the auth token
+     * @return string|null
+     */
+    public function getToken(): ?string
+    {
+        return $this->auth->getToken();
+    }
+
+    /**
+     * Set the auth scope
+     * @param string|null $scope
+     */
+    public function setScope(?string $scope): void
+    {
+        $this->auth->setScope($scope);
+    }
+
+    /**
+     * Get the auth scope
+     * @return string|null
+     */
+    public function getScope(): ?string
+    {
+        return $this->auth->getScope();
+    }
 }
