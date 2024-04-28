@@ -260,7 +260,7 @@ class SurrealWebsocket extends AbstractSurreal
     /**
      * Patches a specified column inside a record with the given value.
      * @param string $thing
-     * @param array{op:string,path:string,value:mixed} $data
+     * @param array<array{op:string,path:string,value:mixed}> $data
      * @param bool $diff
      * @return array|null
      * @throws Exception
