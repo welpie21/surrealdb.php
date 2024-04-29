@@ -26,9 +26,6 @@ jobs:
             with:
               surrealdb_auth: true
 
-          - name: Checkout repository
-            uses: actions/checkout@v4
-
           - name: Cache Composer packages
             id: composer-cache
             uses: actions/cache@v3
