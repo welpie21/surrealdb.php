@@ -7,23 +7,23 @@
 >
     <testsuites>
         <testsuite name="protocol-http">
-            <directory>tests/protocol/http</directory>
+            <directory>tests/Protocol/http</directory>
         </testsuite>
 
         <testsuite name="protocol-websocket">
-            <directory>tests/protocol/websocket</directory>
+            <directory>tests/Protocol/websocket</directory>
         </testsuite>
 
         <testsuite name="abstract">
-            <directory>tests/abstract</directory>
+            <directory>tests/Abstract</directory>
         </testsuite>
 
         <testsuite name="parsers">
-            <directory>tests/parsers</directory>
+            <directory>tests/Parsers</directory>
         </testsuite>
 
         <testsuite name="core">
-            <directory>tests/core</directory>
+            <directory>tests/Core</directory>
         </testsuite>
 
         <testsuite name="cbor">
@@ -31,11 +31,11 @@
         </testsuite>
 
 		<testsuite name="curl">
-			<directory>tests/curl</directory>
+			<directory>tests/Curl</directory>
 		</testsuite>
 
 		<testsuite name="utils">
-			<directory>tests/utils</directory>
+			<directory>tests/Utils</directory>
 		</testsuite>
 
     </testsuites>
