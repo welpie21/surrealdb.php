@@ -30,6 +30,14 @@
             <directory>tests/Cbor</directory>
         </testsuite>
 
+		<testsuite name="curl">
+			<directory>tests/curl</directory>
+		</testsuite>
+
+		<testsuite name="utils">
+			<directory>tests/utils</directory>
+		</testsuite>
+
     </testsuites>
 
     <coverage>
