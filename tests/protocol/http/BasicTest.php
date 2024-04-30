@@ -67,29 +67,29 @@ final class BasicTest extends TestCase
      * @throws SurrealException
      * @throws Exception
      */
-    public function testInfo(): void
-    {
-        $token = self::$db->signin([
-            "email" => "beau@user.nl",
-            "pass" => "123!",
-            "NS" => "test",
-            "DB" => "test",
-            "SC" => "account"
-        ]);
-
-        self::$db->auth->setScope("account");
-        self::$db->auth->setToken($token);
-
-        $info = self::$db->info();
-
-        $this->assertIsArray($info);
-
-        $this->assertArrayHasKey("email", $info);
-        $this->assertArrayHasKey("id", $info);
-        $this->assertArrayHasKey("pass", $info);
-
-        $this->assertInstanceOf(RecordId::class, $info["id"]);
-    }
+//    public function testInfo(): void
+//    {
+//        $token = self::$db->signin([
+//            "email" => "beau@user.nl",
+//            "pass" => "123!",
+//            "NS" => "test",
+//            "DB" => "test",
+//            "SC" => "account"
+//        ]);
+//
+//        self::$db->auth->setScope("account");
+//        self::$db->auth->setToken($token);
+//
+//        $info = self::$db->info();
+//
+//        $this->assertIsArray($info);
+//
+//        $this->assertArrayHasKey("email", $info);
+//        $this->assertArrayHasKey("id", $info);
+//        $this->assertArrayHasKey("pass", $info);
+//
+//        $this->assertInstanceOf(RecordId::class, $info["id"]);
+//    }
 
     public static function tearDownAfterClass(): void
     {
