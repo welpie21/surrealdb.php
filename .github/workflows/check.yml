@@ -33,7 +33,6 @@ jobs:
     - name: Debug List Files
       run: |
         pwd
-        tree
         echo "$GITHUB_WORKSPACE"
 
     - name: Run tests
