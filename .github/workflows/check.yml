@@ -2,44 +2,34 @@ name: Check
 
 on:
   push:
-    branches: ["main"]
+    branches: ["feat/ci"]
   pull_request:
     branches: ["main"]
 
 jobs:
-              
-    check_and_test:
-        runs-on: ubuntu-latest
 
-        steps:
+  check_and_test:
+    runs-on: ubuntu-latest
 
-          - name: Setup PHP
-            uses: shivammathur/setup-php@v2
-            with:
-                php-version: 8.2
+    steps:
 
-          - name: Checkout repository
-            uses: actions/checkout@v4
-            
-          - name: SurrealDB in Github Actions
-            uses: welpie21/SurrealDB-Actions@v1.0.0
-            with:
-              surrealdb_auth: true
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-          - name: Cache Composer packages
-            id: composer-cache
-            uses: actions/cache@v3
-            with:
-                path: vendor
-                key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-                restore-keys: |
-                    ${{ runner.os }}-php-
-                    
-          - name: Install dependencies
-            run: composer install --no-progress
+    - name: Setup Composer
+      uses: php-actions/composer@v6
 
-          - name: Run tests
-            uses: php-actions/phpunit@v3
-            with: 
-              php_version: 8.2
-              configuration: phpunit.xml
+    - name: SurrealDB in Github Actions
+      uses: welpie21/SurrealDB-Actions@v1.0.0
+      with:
+        surrealdb_auth: true
+
+    - name: Debug List Files
+      run: tree
+
+    - name: Run tests
+      uses: php-actions/phpunit@v4
+      with: 
+        php_version: 8.2
+        bootstrap: vendor/autoload.php
+        configuration: phpunit.xml
