@@ -25,7 +25,9 @@ jobs:
         surrealdb_auth: true
 
     - name: Debug List Files
-      run: tree
+      run: |
+        pwd
+        tree
 
     - name: Run tests
       uses: php-actions/phpunit@v4
