@@ -39,4 +39,8 @@ jobs:
             run: composer install --no-progress
 
           - name: Run tests
-            run: vendor/bin/phpunit -c phpunit.xml
+            uses: php-actions/phpunit@v3
+            with: 
+              php_version: 8.2
+              configuration: phpunit.xml
+				
