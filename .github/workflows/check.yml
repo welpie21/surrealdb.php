@@ -28,10 +28,11 @@ jobs:
       run: |
         pwd
         tree
+        echo "$GITHUB_WORKSPACE"
 
     - name: Run tests
       uses: php-actions/phpunit@v4
       with: 
         php_version: 8.2
-        bootstrap: vendor/autoload.php
-        configuration: phpunit.xml
+        bootstrap: ./tests/bootstrap.php
+        configuration: ./phpunit.xml

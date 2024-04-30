@@ -7,35 +7,35 @@
 >
     <testsuites>
         <testsuite name="protocol-http">
-            <directory>tests/protocol/http</directory>
+            <directory>./tests/protocol/http</directory>
         </testsuite>
 
         <testsuite name="protocol-websocket">
-            <directory>tests/protocol/websocket</directory>
+            <directory>./tests/protocol/websocket</directory>
         </testsuite>
 
         <testsuite name="abstract">
-            <directory>tests/abstract</directory>
+            <directory>./tests/abstract</directory>
         </testsuite>
 
         <testsuite name="parsers">
-            <directory>tests/parsers</directory>
+            <directory>./tests/parsers</directory>
         </testsuite>
 
         <testsuite name="core">
-            <directory>tests/core</directory>
+            <directory>./tests/core</directory>
         </testsuite>
 
         <testsuite name="cbor">
-            <directory>tests/Cbor</directory>
+            <directory>./tests/Cbor</directory>
         </testsuite>
 
 		<testsuite name="curl">
-			<directory>tests/curl</directory>
+			<directory>./tests/curl</directory>
 		</testsuite>
 
 		<testsuite name="utils">
-			<directory>tests/utils</directory>
+			<directory>./tests/utils</directory>
 		</testsuite>
 
     </testsuites>
