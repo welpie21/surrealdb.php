@@ -2,7 +2,7 @@ name: Check
 
 on:
   push:
-    branches: ["main"]
+    branches: ["fix/http-client-ci-issues"]
   pull_request:
     branches: ["main"]
 
