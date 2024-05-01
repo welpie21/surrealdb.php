@@ -24,19 +24,13 @@ jobs:
 
     - name: Setup Composer
       uses: php-actions/composer@v6
-
-    - name: Sleep 5 seconds
-      run: sleep 5
-
     - name: SurrealDB in Github Actions
       uses: welpie21/SurrealDB-Actions@v1.0.0
       with:
         surrealdb_auth: true
 
-    - name: Debug List Files
-      run: |
-        pwd
-        echo "$GITHUB_WORKSPACE"
+    - name: Sleep 5 seconds
+      run: sleep 5
 
     - name: Run tests
       run: vendor/bin/phpunit -c phpunit.xml
