@@ -530,7 +530,7 @@ class SurrealHTTP extends AbstractSurreal
     /**
      * Patches a specified column inside a record with the given value.
      * @param string $thing
-     * @param array{op:string,path:string,value:mixed} $data
+     * @param array<array{op:string,path:string,value:mixed}> $data
      * @param bool $diff
      * @return array|null
      * @throws CborException|SurrealException|Exception
@@ -538,7 +538,7 @@ class SurrealHTTP extends AbstractSurreal
      */
     public function patch(string $thing, array $data, bool $diff = false): ?array
     {
-        $thing = ThingParser::from($thing)->toString();
+        $thing = ThingParser::from($thing)->value;
 
         $headers = HttpHeader::create($this)
             ->setAcceptHeader(HttpHeader::TYPE_CBOR)
