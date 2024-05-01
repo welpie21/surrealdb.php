@@ -40,6 +40,7 @@ class SurrealHTTP extends AbstractSurreal
 
 		curl_setopt($this->client, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($this->client, CURLOPT_TIMEOUT, 5);
+		curl_setopt($this->client, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
 
 		switch (parse_url($host, PHP_URL_SCHEME)) {
 			case 'http':
@@ -49,6 +50,7 @@ class SurrealHTTP extends AbstractSurreal
 			case 'https':
 				curl_setopt($this->client, CURLOPT_SSL_VERIFYPEER, true);
 				curl_setopt($this->client, CURLOPT_SSL_VERIFYHOST, 2);
+				curl_setopt($this->client, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_TLSv1_1);
 				break;
 		}
 
