@@ -31,7 +31,7 @@ jobs:
         surrealdb_auth: true
 
     - name: Wait for SurrealDB to be ready
-      run: timeout 30 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' localhost 8000
+      run: while ! curl --output /dev/null --silent --head --fail http://localhost:8000; do sleep 1 && echo -n .; done;
 
     - name: Print SurrealDB version
       run: curl -X GET http://localhost:8000/version
