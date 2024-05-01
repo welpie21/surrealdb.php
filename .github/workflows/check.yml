@@ -24,12 +24,16 @@ jobs:
 
     - name: Setup Composer
       uses: php-actions/composer@v6
+
     - name: SurrealDB in Github Actions
       uses: welpie21/SurrealDB-Actions@v1.0.0
       with:
         surrealdb_auth: true
 
-    - name: Get version
+    - name: Wait for SurrealDB to be ready
+      run: timeout 30 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' localhost 8000
+
+    - name: Print SurrealDB version
       run: curl -X GET http://localhost:8000/version
 
     - name: Run tests
