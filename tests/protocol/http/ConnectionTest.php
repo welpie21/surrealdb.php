@@ -12,8 +12,11 @@ class ConnectionTest extends TestCase
     public function testWrongConnection(): void
     {
         $db = new SurrealHTTP(
-            host: "http://localhost:8001", // <-- wrong port
-            target: ["namespace" => "test", "database" => "test"]
+            host: "http://localhost:8001",
+            target: [
+				"namespace" => "test", 
+				"database" => "test"
+			]
         );
 
         try {
@@ -22,6 +25,8 @@ class ConnectionTest extends TestCase
             $this->assertStringStartsWith("Failed to connect to localhost port 8001", $e->getMessage());
             $this->assertInstanceOf(Exception::class, $e);
         } catch (CborException $e) {
-        }
+        } finally {
+			$db->close();
+		}
     }
 }

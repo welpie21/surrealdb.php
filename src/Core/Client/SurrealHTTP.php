@@ -668,7 +668,7 @@ class SurrealHTTP extends AbstractSurreal
 		$status = curl_getinfo($this->client, CURLINFO_RESPONSE_CODE);
 
 		if ($status == HttpStatus::BAD_GATEWAY) {
-			throw new Exception("Surreal is currently unavailable.", HttpStatus::BAD_GATEWAY);
+			throw new Exception("Surreal is currently unavailable.", HttpStatus::BAD_GATEWAY->value);
 		}
 
 		$type = curl_getinfo($this->client, CURLINFO_CONTENT_TYPE);
