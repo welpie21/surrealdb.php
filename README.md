@@ -272,10 +272,10 @@ file_put_contents("some_path_to_surql_file.surql", $file); // <-- save the file
 - 📜 Quering support
 - 📦 Import and Export
 - 📡 HTTP & Websocket support
+- 📦 SurrealML support
 
 ## Roadmap
 
 - 📜 Psalm and PHPStan
 - 📜 ORM functionalities
-- 📦 SurrealML support
 - 📡 Live queries
